@@ -1,7 +1,7 @@
 .imageContainer {
     position: relative;
     width: 100%;
-    height: 33rem;
+    height: 30rem;
     background-image: url('/images/AboutUs.png');
     background-size: cover;
     background-position: center;
@@ -17,7 +17,6 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.2);
-    /* fondo oscuro semitransparente */
     z-index: 1;
 }
 
@@ -34,5 +33,111 @@
 }
 
 #aboutUs {
-    padding: 2%;
+    padding: 4%;
+}
+
+.cardTitle {
+    font-size: 200%;
+}
+
+.MYcard-img-top {
+    height: 300px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.horizontalCardImg {
+    height: 13rem !important;
+    object-fit: cover;
+    object-position: center;
+}
+
+.card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.orange {
+    background-color: #FE5000 !important;
+}
+
+.orangeText {
+    color: #FE5000;
+}
+
+.blueText {
+    color: #003DA5;
+}
+
+#ourTeam {
+    padding: 4%;
+}
+
+.ourTeamImage {
+    height: 400px;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    display: block;
+}
+
+.circle-img {
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#texto {
+    padding: 6%;
+    padding-right: 0;
+    text-align: center;
+    font-size: larger;
+}
+
+.disposicion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4%;
+}
+
+.fondo {
+    background-color: #eef3f5;
+}
+
+.team-card {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    border: none;
+}
+
+.card-image-wrapper {
+    position: relative;
+}
+
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #FE5000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.team-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 0.95rem;
 }
