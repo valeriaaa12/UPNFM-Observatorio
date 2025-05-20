@@ -1,0 +1,38 @@
+.imageContainer {
+    position: relative;
+    width: 100%;
+    height: 33rem;
+    background-image: url('/images/AboutUs.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    /* fondo oscuro semitransparente */
+    z-index: 1;
+}
+
+.overlayText {
+    position: relative;
+    color: white;
+    text-align: center;
+    z-index: 2;
+}
+
+.bigTitle {
+    font-size: 400%;
+    font-weight: bold;
+}
+
+#aboutUs {
+    padding: 2%;
+}
