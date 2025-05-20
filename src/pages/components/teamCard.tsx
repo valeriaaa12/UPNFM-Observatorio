@@ -28,7 +28,7 @@ export default function Card({ image, title, role, email, studies, experience }:
                 </div>
             </div>
             <div className="card-body">
-                <h5 className="cardTitle text-center orangeText fst-italic">{title}</h5>
+                <h5 className="cardTitle text-center orangeText">{title}</h5>
                 <p className="fst-italic text-center">{role}</p>
                 <div className="d-flex align-items-center justify-content-center mt-3">
                     <img src="images/gmail.png" alt="Email icon" width={20} className="me-2" />

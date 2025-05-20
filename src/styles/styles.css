@@ -1,7 +1,7 @@
 .imageContainer {
     position: relative;
     width: 100%;
-    height: 33rem;
+    height: 30rem;
     background-image: url('/images/AboutUs.png');
     background-size: cover;
     background-position: center;
@@ -40,9 +40,14 @@
     font-size: 200%;
 }
 
-
 .MYcard-img-top {
     height: 300px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.horizontalCardImg {
+    height: 13rem !important;
     object-fit: cover;
     object-position: center;
 }
@@ -66,7 +71,7 @@
 }
 
 #ourTeam {
-    padding: 2%;
+    padding: 4%;
 }
 
 .ourTeamImage {
@@ -99,7 +104,7 @@
 }
 
 .fondo {
-    background-color: #f9f9f9;
+    background-color: #eef3f5;
 }
 
 .team-card {
