@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -39,4 +40,50 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+.imgBorder{
+  border-top-right-radius: 0.3pc;
+  border-top-left-radius:0.3pc;
+}
+
+.cardShadow{
+  
+ 
+  box-shadow: 8px 8px 3px 3px rgba(0, 0, 0, 0.15);
+  margin: 10px
+}
+
+.cardBorder{
+   border: 2px solid #003DA5 !important;
+}
+
+.textColor{
+  font-size: 13px;
+
+  color: #003DA5 !important;
+}
+
+.hrLandingPage{
+  margin: 20px;
+  color:#FE5000;
+  
+}
+
+.font{
+  font-family: 'Montserrat' !important;
+}
+.sectionGray{
+  background-color: #edf2f5;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.sectionWhite{
+  background-color: #ffffff;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.center{
+  justify-content: center;
+  display: flex;
 }

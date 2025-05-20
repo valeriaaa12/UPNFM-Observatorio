@@ -1,11 +1,13 @@
 
 import Head from "next/head";
+import InfoCardsSegment from "@/sections/InfoCardsSegment";
+import Carrusel from "@/sections/carrusel";
+
 export default function LandingPage() {
   return (
     <>
-       <div>
-        <h1>Inicio</h1>
-       </div>
+      <Carrusel></Carrusel>
+      <InfoCardsSegment></InfoCardsSegment>
     </>
     );
 };
