@@ -164,4 +164,23 @@
   height: 100%;
 }
 
+.container-boletin {
+  text-align:center;
+  display: flex;
+  justify-content: center;  
+  align-items: center;      
+  height: 10vh;            
+}
+
+.card-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);  
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+#Boletines{
+    padding: 7%;
+    padding-top: 2% ;
+}
 
