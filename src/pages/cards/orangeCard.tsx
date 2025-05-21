@@ -13,6 +13,7 @@ export default function Card({ image, title, text }: CardParams) {
             <div className="card-body">
                 <h5 className="cardTitle text-center">{title}</h5>
                 <p className="card-text text-center">{text}</p>
+
             </div>
         </div >
     );

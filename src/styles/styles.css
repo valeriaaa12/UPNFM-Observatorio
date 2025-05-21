@@ -1,3 +1,34 @@
+/* Texto */
+.font {
+    font-family: 'Montserrat' !important;
+}
+
+.bigTitle {
+    font-size: 400%;
+}
+
+.orangeText {
+    color: #FE5000;
+}
+
+.blueText {
+    color: #003DA5;
+}
+
+/* Backgrounds */
+.orange {
+    background-color: #FE5000 !important;
+}
+
+.fondo {
+    background-color: #eef3f5;
+}
+
+.fondoGris {
+    background-color: #f9f9f9;
+}
+
+/* Portada con texto */
 .imageContainer {
     position: relative;
     width: 100%;
@@ -27,93 +58,7 @@
     z-index: 2;
 }
 
-.bigTitle {
-    font-size: 400%;
-    font-weight: bold;
-}
-
-#aboutUs {
-    padding: 4%;
-}
-
-.cardTitle {
-    font-size: 200%;
-}
-
-.MYcard-img-top {
-    height: 300px;
-    object-fit: cover;
-    object-position: center;
-}
-
-.horizontalCardImg {
-    height: 13rem !important;
-    object-fit: cover;
-    object-position: center;
-}
-
-.card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.orange {
-    background-color: #FE5000 !important;
-}
-
-.orangeText {
-    color: #FE5000;
-}
-
-.blueText {
-    color: #003DA5;
-}
-
-#ourTeam {
-    padding: 4%;
-}
-
-.ourTeamImage {
-    height: 400px;
-    object-fit: cover;
-    object-position: center;
-    width: 100%;
-    display: block;
-}
-
-.circle-img {
-    width: 30%;
-    height: 30%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-#texto {
-    padding: 6%;
-    padding-right: 0;
-    text-align: center;
-    font-size: larger;
-}
-
-.disposicion {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4%;
-}
-
-.fondo {
-    background-color: #eef3f5;
-}
-
-.team-card {
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-    border: none;
-}
-
+/* card hover */
 .card-image-wrapper {
     position: relative;
 }
@@ -141,27 +86,101 @@
     color: white;
     font-size: 0.95rem;
 }
+
+/* carrusel */
 .block-carousel {
-  width: 100%;
-  max-width: 1000px;
-  height: 500px;
-  overflow: hidden;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 1000px;
+    height: 500px;
+    overflow: hidden;
+    margin: 0 auto;
 }
 
 .carousel-img {
-  width: 1000px;
-  height: 500px;
-  object-fit: cover;
-  display: block;
+    width: 1000px;
+    height: 500px;
+    object-fit: cover;
+    display: block;
 }
+
 .carousel-item {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
+/* About Us styles */
+#aboutUs {
+    padding: 4%;
+}
 
+.cardTitle {
+    font-size: 200%;
+}
+
+/* card images */
+.MYcard-img-top {
+    height: 300px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.horizontalCardImg {
+    height: 13rem !important;
+    object-fit: cover;
+    object-position: center;
+}
+
+.ourTeamImage {
+    height: 390px;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    display: block;
+}
+
+/* Our Team styles */
+#ourTeam {
+    padding: 5%;
+}
+
+.circle-img {
+    width: 25rem;
+    height: 25rem;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.informacion {
+    padding: 6%;
+    padding-right: 0;
+}
+
+.nameSize {
+    font-size: larger;
+}
+
+.disposicion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4%;
+}
+
+/* cards */
+.team-card {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    border: none;
+}
+
+.card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
