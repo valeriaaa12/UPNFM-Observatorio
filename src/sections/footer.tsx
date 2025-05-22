@@ -2,47 +2,56 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="py-12" style={{ backgroundColor: "#19467f" }}>
+    <footer
+      className="py-12"
+      style={{
+      backgroundImage: "url('/images/AboutUs.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+ 
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 text-[#FE5000] font">
-        <div>
-    <div  style={{ paddingTop: "2rem" }}>
+      <div>
+        <div style={{ paddingTop: "2rem" }}>
         <p className="text-sm mb-4 text-white center">
-            Universidad Pedagógica Nacional Francisco Morazán
-          </p>
-    </div>
-         <div className="flex items-center gap-2 text-sm text-white center">
-            <svg
-                className="inline-block w-5 h-5"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                width={20}
-                height={20}
-            >
-                <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
-                <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-            </svg>
-              <p className="text-sm mb-4 text-white center">
-            Colonia el Dorado, Frente a Plaza Miraflores
-          </p>
+          Universidad Pedagógica Nacional Francisco Morazán
+        </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-white center">
-            <svg
-                className="bi bi-telephone"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                width={20}
-                height={20}
-            >
-                <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
-                <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-            </svg>
-              <p className="text-sm mb-4 text-white center">
-            (504) 2239-8842/2235-8349/2239-8002
-          </p>
-        </div>
-        </div>
+       <div className="flex items-center gap-2 text-sm text-white center">
+        <svg
+          className="inline-block w-5 h-5"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          width={20}
+          height={20}
+        >
+          <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+          <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+        </svg>
+          <p className="text-sm mb-4 text-white center">
+        Colonia el Dorado, Frente a Plaza Miraflores
+        </p>
+      </div>
+      <div className="flex items-center gap-2 text-sm text-white center">
+        <svg
+          className="bi bi-telephone"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          width={20}
+          height={20}
+        >
+          <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+          <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+        </svg>
+          <p className="text-sm mb-4 text-white center">
+        (504) 2239-8842/2235-8349/2239-8002
+        </p>
+      </div>
+      </div>
       </div>
     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center' }}>
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" className="bi bi-instagram" viewBox="0 0 16 16">
@@ -54,13 +63,13 @@ const Footer: React.FC = () => {
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" className="bi bi-linkedin" viewBox="0 0 16 16">
       <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
     </svg>
-</div>
+  </div>
 
       <div
-        className="border-t border-[#FE5000] pt-6 text-center text-sm text-white font"
-        style={{ marginTop: "3rem" ,backgroundColor: "#FE5000"}} 
+      className="border-t border-[#FE5000] pt-6 text-center text-sm text-white font"
+      style={{ marginTop: "3rem", backgroundColor: "rgba(254,80,0,0.95)", borderRadius: 0, width: "100%" }}
       >
-        © 2025 UPNFM - Observatorio Educativo Universidad Pedagógica Nacional Francisco Morazán. Todos los derechos reservados.
+      © 2025 UPNFM - Observatorio Educativo Universidad Pedagógica Nacional Francisco Morazán. Todos los derechos reservados.
       </div>
     </footer>
   );

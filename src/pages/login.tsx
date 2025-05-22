@@ -27,7 +27,6 @@ const Demo = () => {
                 overflow: 'hidden',
             }}
         >
-            {/* Blurred background image */}
             <img
                 src={backgroundImages[bgIndex]}
                 alt=""
@@ -61,7 +60,7 @@ const Demo = () => {
                 style={{
                     width: '100%',
                     height: '60px',
-                    backgroundColor: '#19467f',
+                    background: '#19467f',
                     display: 'flex',
                     alignItems: 'center',
                     paddingLeft: '32px',
@@ -88,20 +87,21 @@ const Demo = () => {
                     zIndex: 2,
                 }}
             >
-                <Card className="cardShadow" style={{ width: '25rem', height: '27rem' }}>
+                <Card className="cardShadow" style={{ width: '25rem', height: '25rem' }}>
                     <Card.Body>
                         <div className="container">
                             <div className="header">
-                                <div className="text font textColor center padding" style={{ fontWeight: 'bold', fontSize: "20px" }}>Iniciar Sesión</div>
+                                <div
+                                    className="text font textColor center padding"
+                                    style={{ fontWeight: 'bold', fontSize: "20px", paddingBottom: "27px",paddingTop: "19px" }}
+                                >
+                                    Iniciar Sesión
+                                </div>
                                 <div className="underline"></div>
                             </div>
                             <div className="inputs">
-                                <p className="text font textColor">Usuario</p>
-                                <div className="input">
-                                    <img src="person.png" alt="" />
-                                    <input type="text" />
-                                </div>
-                                <p className="text font textColor">Correo Electrónico</p>
+                                
+                                <p className="text font textColor padding">Correo Electrónico</p>
                                 <div className="input">
                                     <img src="email.png" alt="" />
                                     <input type="email" />
