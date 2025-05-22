@@ -8,16 +8,25 @@
 }
 
 .orangeText {
-    color: #FE5000;
+    color: #fe5000;
 }
 
 .blueText {
-    color: #003DA5;
+    color: #19467f;
+}
+
+.fontSection {
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.lightBold {
+    font-weight: 600;
 }
 
 /* Backgrounds */
 .orange {
-    background-color: #FE5000 !important;
+    background-color: #fe5000 !important;
 }
 
 .fondo {
@@ -47,7 +56,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 1;
 }
 
@@ -69,7 +78,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #FE5000;
+    background-color: #fe5000;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     display: flex;
@@ -204,4 +213,11 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+#redes {
+    gap: 20px;
+    display: flex;
+    align-content: center;
+    padding-bottom: 15px;
 }

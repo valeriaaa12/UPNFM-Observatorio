@@ -9,10 +9,10 @@ export default function aboutUs() {
             <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">
-                    <p className="bigTitle fw-bold">Quiénes Somos</p>
+                    <p className="bigTitle fw-bold font">Quiénes Somos</p>
                 </div>
             </div>
-            <div id="aboutUs">
+            <div id="aboutUs" className="font">
                 <div className="row">
                     {/*<div className="col-sm-6 mb-3 d-flex">
                         <OrangeCard
@@ -92,7 +92,9 @@ export default function aboutUs() {
                     </div >*/}
                 </div>
 
-                <div className="card mb-3 orange text-white">
+                <hr></hr>
+
+                <div className="card mb-3 border-0 shadow-0">
                     <div className="row g-0" style={{ height: "100%" }}>
                         <div className="col-md-3">
                             <img
@@ -104,7 +106,7 @@ export default function aboutUs() {
                         </div>
                         <div className="col-md-9 d-flex align-items-center">
                             <div className="card-body">
-                                <h5 className="cardTitle">Objetivos</h5>
+                                <h5 className="cardTitle orangeText">Objetivos</h5>
                                 <ul className="text-start">
                                     <li>Gestionar conocimientos científicos que aporten a la resolución de problemas en el campo educativo a nivel local, departamental, regional, nacional e internacional.</li>
                                     <li>Generar y promover la difusión y administración del conocimiento educativo para que esté disponible y sea accesible a los actores del sistema educativo.</li>
@@ -141,8 +143,9 @@ export default function aboutUs() {
                 </div>
             </div>*/}
 
-            <div id="ourTeam" className="fondo row">
-                <p className="bigTitle text-center blueText mb-5 fw-bold">Nuestro Equipo</p>
+            <div id="ourTeam" className="fondoGris row font">
+                {/*<p className="bigTitle text-center blueText mb-5 fw-bold">Nuestro Equipo</p>*/}
+                <p className="blueText mb-5 fontSection">Nuestro Equipo</p>
                 <div className="col-sm-4 mb-3 d-flex">
                     <Card
                         image="images/Russbel-Hernandez.png"
