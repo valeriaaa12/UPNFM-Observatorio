@@ -4,6 +4,7 @@ import InfoCardsSegment from "@/sections/InfoCardsSegment";
 import Carrusel from "@/sections/carrusel";
 
 import NavBar from "@/navigation/NavBar";
+import Footer from "@/sections/footer";
 export default function LandingPage() {
   return (
     <>
@@ -19,6 +20,7 @@ export default function LandingPage() {
       </div>
       <Carrusel></Carrusel>
       <InfoCardsSegment></InfoCardsSegment>
+      <Footer></Footer>
     </>
     );
 };
