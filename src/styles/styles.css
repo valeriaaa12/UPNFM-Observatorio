@@ -204,4 +204,60 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.team-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 0.95rem;
+}
+.block-carousel {
+  width: 100%;
+  max-width: 1300px;
+  height: 500px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.carousel-img {
+  width: 1300px;
+  height: 500px;
+  object-fit: cover;
+  display: block;
+}
+.carousel-item {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.input {
+  background-color: #f0f4f8; 
+  border: 2px solid #19467f; 
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-family:'Montserrat'; 
+  color:#19467f;
+}
+
+   
 }
