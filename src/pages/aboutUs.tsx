@@ -12,7 +12,7 @@ export default function aboutUs() {
             <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">
-                    <p className="bigTitle fw-bold font">Quiénes Somos</p>
+                    <p className="bigTitle fw-bold font">Sobre Nosotros</p>
                 </div>
             </div>
             <div id="aboutUs" className="font">
@@ -125,7 +125,7 @@ export default function aboutUs() {
             </div>*/}
 
             <div id="ourTeam" className="fondoGris row font">
-                <p className="blueText mb-5 fontSection">Sobre Nosotros</p>
+                <p className="blueText mb-5 fontSection">Nuestro Equipo</p>
                 <div className="row justify-content-center">
                     <div className="col-sm-4 mb-3 d-flex justify-content-center">
                         <Card
