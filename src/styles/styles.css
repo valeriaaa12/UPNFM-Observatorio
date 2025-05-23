@@ -8,16 +8,25 @@
 }
 
 .orangeText {
-    color: #FE5000;
+    color: #fe5000 !important;
 }
 
 .blueText {
-    color: #003DA5;
+    color: #19467f;
+}
+
+.fontSection {
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.lightBold {
+    font-weight: 600;
 }
 
 /* Backgrounds */
 .orange {
-    background-color: #FE5000 !important;
+    background-color: #fe5000 !important;
 }
 
 .fondo {
@@ -41,13 +50,15 @@
     justify-content: center;
 }
 
+
+
 .imageOverlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 1;
 }
 
@@ -69,7 +80,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #FE5000;
+    background-color: #fe5000;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     display: flex;
@@ -139,10 +150,15 @@
 }
 
 .cardTitle {
-    font-size: 200%;
+    font-size: 170% !important;
 }
 
 /* card images */
+.card-img-height {
+    height: 18rem;
+    object-fit: cover;
+}
+
 .MYcard-img-top {
     height: 300px;
     object-fit: cover;
@@ -156,7 +172,7 @@
 }
 
 .ourTeamImage {
-    height: 390px;
+    height: 300px;
     object-fit: cover;
     object-position: center;
     width: 100%;
@@ -166,6 +182,7 @@
 /* Our Team styles */
 #ourTeam {
     padding: 5%;
+    justify-content: center;
 }
 
 .circle-img {
@@ -196,12 +213,47 @@
 .team-card {
     position: relative;
     overflow: hidden;
-    height: 100%;
-    border: none;
 }
 
-.card {
+.team-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 0.95rem;
+}
+
+.block-carousel {
+    width: 100%;
+    max-width: 1300px;
+    height: 500px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.carousel-img {
+    width: 1300px;
+    height: 500px;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-item {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
+}
+
+.input {
+    background-color: #f0f4f8;
+    border: 2px solid #19467f;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -215,4 +267,16 @@
 .orange:hover {
   background-color: #ffa366 !important;
   color: white !important;
+}
+    align-items: center;
+    gap: 10px;
+}
+
+.input input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-family: 'Montserrat';
+    color: #19467f;
 }
