@@ -53,8 +53,10 @@ a {
 }
 
 .cardShadow {
+  
   box-shadow: 8px 8px 3px 3px rgba(0, 0, 0, 0.15);
-  margin: 10px
+  margin: 10px;
+ 
 }
 
 .cardBorder {
@@ -93,14 +95,22 @@ a {
   justify-content: center;
   display: flex;
 }
+@media (min-width: 992px) {
+  .backgroundNavbar{
+    background:transparent;
+    z-index: 10;
+    position: absolute !important;
+    width: 100%;
+    color: white !important;
 
-.backgroundNavbar{
-  background:transparent;
-  z-index: 10;
-  position: absolute;
+  }
+}
+@media (max-width: 992px) {
+.smolNavbar{
+  background-color: #003DA5; 
   width: 100%;
-  color: white;
-
+  position: relative;
+}
 }
 
 .centeredNavbar{

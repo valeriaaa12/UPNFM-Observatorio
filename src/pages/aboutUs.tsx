@@ -2,10 +2,13 @@ import OrangeCard from "@/pages/cards/orangeCard"
 import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
 import BasicCard from "@/pages/cards/basicCard"
-
+import NavBar from "@/navigation/NavBar"
 export default function aboutUs() {
     return (
         <>
+            <div className="backgroundNavbar navbarSpacing">
+                  <NavBar></NavBar>
+            </div>
             <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">

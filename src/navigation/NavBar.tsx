@@ -5,8 +5,6 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Dropdown } from 'react-bootstrap';
-
-import Fade from 'react-bootstrap/Fade';
 import {useState} from 'react';
 
 
@@ -14,8 +12,9 @@ export default function NavBar() {
    const [open, setOpen] = useState(false);
     const [open2, setOpen2] = useState(false);
   return (
-    
-    <Navbar expand="lg" className="backgroundNavbar font">
+    <>
+    <div className='d-none d-lg-block'>
+    <Navbar expand="lg" className= "font">
       <Container fluid className='d-flex justify-content-between align-items-center'>
         <Navbar.Brand href="/landingpage">
             <img
@@ -36,8 +35,8 @@ export default function NavBar() {
             style={{ maxHeight: '100px' }}
          
           >
-            <Nav.Link  className=" whiteText"  href="#action1"><b>Inicio</b></Nav.Link>
-            <Nav.Link  className=" whiteText"  href="#action2"><b>Quienes Somos</b></Nav.Link>
+            <Nav.Link  className=" whiteText"  href="/landingpage"><b>Inicio</b></Nav.Link>
+            <Nav.Link  className=" whiteText"  href="/aboutUs"><b>Quienes Somos</b></Nav.Link>
             <Nav.Link  className=" whiteText"  href="#action2"><b>Indicadores Educativos</b></Nav.Link>
             <Nav.Link  className=" whiteText"  href="#action2"><b>Herramientas</b></Nav.Link>
 
@@ -50,10 +49,10 @@ export default function NavBar() {
                 show={open}
                 onMouseEnter={() => setOpen(true)}
                 onMouseLeave={() => setOpen(false)}
-                className="dropdown-with-fade" // Add this class
+                className="dropdown-with-fade"
               >
                         
-                  <NavDropdown.Item href="#action3">Boletines</NavDropdown.Item>
+                  <NavDropdown.Item href="/Boletines">Boletines</NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item href="#action5">Artículos de Interés</NavDropdown.Item>
                   <NavDropdown.Divider />
@@ -70,9 +69,9 @@ export default function NavBar() {
                 className="dropdown-with-fade" // Add this class
               >
                         
-                  <NavDropdown.Item href="#action3">Foros</NavDropdown.Item>
+                  <NavDropdown.Item href="/login">Foros</NavDropdown.Item>
                   <NavDropdown.Divider />
-                  <NavDropdown.Item href="#action5">Explorar Investigaciones</NavDropdown.Item>
+                  <NavDropdown.Item href="/login">Explorar Investigaciones</NavDropdown.Item>
  
              
             </NavDropdown>
@@ -80,14 +79,16 @@ export default function NavBar() {
             {/*Fin dropdowns */}
           </Nav>
          
-          
+          <a href = "/login">
           <img
               src="/images/usuario.png"
               width={'50px'}
               height={'auto'}
-              className="d-inline-block align-top"
+              
+              className="d-inline-block align-top "
               alt="React Bootstrap logo"
             />
+            </a>
            
           
         </Navbar.Collapse>
@@ -95,7 +96,10 @@ export default function NavBar() {
       </Container>
       
     </Navbar>
+    </div>
+    
 
-   
+
+   </>
   );
 }
