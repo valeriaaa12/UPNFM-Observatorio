@@ -139,13 +139,13 @@
 
 .card-gallery {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     box-sizing: border-box;
 }
 
 #Boletines {
-    padding: 7%;
+    padding: 3%;
     padding-top: 2%;
 }
 
@@ -255,9 +255,22 @@
     padding: 10px;
     margin-bottom: 10px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 10px;
 }
+
+.orange {
+  background-color: #ff6600 !important;
+  color: white !important;
+  transition: background-color 0.3s ease;
+}
+
+.orange:hover {
+  background-color: #ffa366 !important;
+  color: white !important;
+}
+
 
 .input input {
     border: none;
