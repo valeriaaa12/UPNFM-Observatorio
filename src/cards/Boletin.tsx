@@ -12,7 +12,7 @@ interface Boletin {
 
 export default function Card({ title, pdf }: Boletin) {
   return (
-    <div className="card" style={{ width: '18rem' }}>
+    <div className="card mb-2" style={{ width: '28rem' }}>
       <PdfCanvasPreview pdf={pdf} />
 
       <div className="card-body">
@@ -32,5 +32,5 @@ export default function Card({ title, pdf }: Boletin) {
         </div>
       </div>
     </div>
-  );
+  ); 
 }

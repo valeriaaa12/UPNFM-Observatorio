@@ -2,10 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/build/pdf.worker.min.js'; 
 
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PdfCanvasPreviewProps {
   pdf: string;
@@ -13,28 +12,51 @@ interface PdfCanvasPreviewProps {
 
 export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderTaskRef = useRef<any>(null);
 
   useEffect(() => {
     const renderPdf = async () => {
       try {
-        const loadedPdf = await pdfjsLib.getDocument(pdf).promise;
+        const loadingTask = pdfjsLib.getDocument({ url: pdf, disableStream: true });
+        const loadedPdf = await loadingTask.promise;
         const page = await loadedPdf.getPage(1);
+        const viewport = page.getViewport({ scale: 0.8 });
 
-        const viewport = page.getViewport({ scale: 1.5 });
         const canvas = canvasRef.current;
         const context = canvas?.getContext('2d');
 
         if (canvas && context) {
-          canvas.height = viewport.height;
           canvas.width = viewport.width;
-          await page.render({ canvasContext: context, viewport }).promise;
+          canvas.height = viewport.height;
+
+          if (renderTaskRef.current) {
+            renderTaskRef.current.cancel();
+          }
+
+          renderTaskRef.current = page.render({ canvasContext: context, viewport });
+          await renderTaskRef.current.promise;
         }
       } catch (error) {
-        console.error('Error al cargar el PDF:', error);
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'name' in error &&
+          (error as any).name === 'RenderingCancelledException'
+        ) {
+          console.log('Render cancelado');
+        } else {
+          console.error('Error al renderizar el PDF:', error);
+        }
       }
     };
 
     renderPdf();
+
+    return () => {
+      if (renderTaskRef.current) {
+        renderTaskRef.current.cancel();
+      }
+    };
   }, [pdf]);
 
   return (
