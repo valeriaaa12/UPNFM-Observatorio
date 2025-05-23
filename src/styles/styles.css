@@ -4,7 +4,18 @@
 }
 
 .bigTitle {
-    font-size: 400%;
+    font-size: 400% !important;
+}
+
+.bigTitle2 {
+    font-size: 300% !important;
+}
+
+.text-bottom-left {
+    position: absolute;
+    bottom: 1rem;
+    left: 2rem;
+    margin: 0;
 }
 
 .orangeText {
@@ -29,6 +40,10 @@
     background-color: #fe5000 !important;
 }
 
+.blue {
+    background-color: #19467f !important;
+}
+
 .fondo {
     background-color: #eef3f5;
 }
@@ -50,7 +65,26 @@
     justify-content: center;
 }
 
+.no-border-rounded {
+    border: none !important;
+    border-radius: 0 !important;
+}
 
+.imageContainer2 {
+    width: 100%;
+    height: 30rem;
+    object-fit: cover;
+    object-position: center;
+}
+
+
+.darkOverlay {
+    background-color: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
 .imageOverlay {
     position: absolute;
@@ -58,7 +92,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 
@@ -261,14 +295,14 @@
 }
 
 .orange {
-  background-color: #ff6600 !important;
-  color: white !important;
-  transition: background-color 0.3s ease;
+    background-color: #ff6600 !important;
+    color: white !important;
+    transition: background-color 0.3s ease;
 }
 
 .orange:hover {
-  background-color: #ffa366 !important;
-  color: white !important;
+    background-color: #ffa366 !important;
+    color: white !important;
 }
 
 
