@@ -213,15 +213,6 @@
     overflow: hidden;
 }
 
-.card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-}
-
 .team-card:hover .card-overlay {
     opacity: 1;
 }

@@ -51,7 +51,7 @@ export default function teamCard({ image, title, role, email }: CardParams) {
                 </Card.Text>
                 <div className="d-flex align-items-center justify-content-center mt-3">
                     <img src="images/gmail.png" alt="Email icon" width={20} className="me-2" />
-                    <a href={`mailto:${email}`} className="text-decoration-none blueText">{email}</a>
+                    <a href={`mailto:${email}`} className="text-decoration-none blueText" style={{ fontSize: '15px' }}>{email}</a>
                 </div>
             </Card.Body>
         </Card>
