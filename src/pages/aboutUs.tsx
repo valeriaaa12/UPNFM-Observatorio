@@ -2,6 +2,7 @@ import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar"
+import ImgOverlay from "@/components/imageOverlay";
 
 export default function aboutUs() {
     return (
@@ -9,12 +10,7 @@ export default function aboutUs() {
             <div className="backgroundNavbar navbarSpacing">
                 <NavBar></NavBar>
             </div>
-            <div className="imageContainer">
-                <div className="imageOverlay" />
-                <div className="overlayText">
-                    <p className="bigTitle fw-bold font">Sobre Nosotros</p>
-                </div>
-            </div>
+            <ImgOverlay image="images/AboutUs.png" text="Sobre Nosotros" center={true} />
             <div id="aboutUs" className="font">
                 <div className="row">
                     <div className="col-sm-6 mb-3 d-flex">

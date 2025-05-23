@@ -8,6 +8,7 @@ export default function Boletines() {
       <div className="font">
         <div className="blue blueNavbar">
           <NavBar />
+          <div className="orange" style={{ height: "0.5rem" }} />
         </div>
         <p className="fontSection p-5">Boletines</p>
         <div id="Boletines" className="card-gallery pt-0">
