@@ -9,7 +9,6 @@
 
 .bigTitle2 {
     font-size: 300% !important;
-
 }
 
 .text-bottom-left {
@@ -39,6 +38,10 @@
 /* Backgrounds */
 .orange {
     background-color: #fe5000 !important;
+}
+
+.blue {
+    background-color: #19467f !important;
 }
 
 .fondo {
@@ -292,14 +295,14 @@
 }
 
 .orange {
-  background-color: #ff6600 !important;
-  color: white !important;
-  transition: background-color 0.3s ease;
+    background-color: #ff6600 !important;
+    color: white !important;
+    transition: background-color 0.3s ease;
 }
 
 .orange:hover {
-  background-color: #ffa366 !important;
-  color: white !important;
+    background-color: #ffa366 !important;
+    color: white !important;
 }
 
 
