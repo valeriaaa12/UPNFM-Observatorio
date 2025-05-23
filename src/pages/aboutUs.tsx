@@ -1,5 +1,6 @@
 import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
+import Footer from "@/sections/footer";
 
 export default function aboutUs() {
     return (
@@ -184,6 +185,7 @@ export default function aboutUs() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     );
 };
