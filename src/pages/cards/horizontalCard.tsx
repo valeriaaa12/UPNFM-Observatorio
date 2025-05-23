@@ -8,14 +8,14 @@ interface CardParams {
 
 export default function Card({ image, title, text }: CardParams) {
     return (
-        <div className="card mb-3 orange text-white">
+        <div className="card mb-3 border-0 shadow-0">
             <div className="row g-0">
                 <div className="col-md-4">
                     <img src={image} className=" img-fluid rounded-start horizontalCardImg" alt={title} />
                 </div>
                 <div className="col-md-8 d-flex align-items-center">
                     <div className="card-body">
-                        <h5 className="cardTitle">{title}</h5>
+                        <h5 className="cardTitle orangeText">{title}</h5>
                         <p className="card-text">{text}</p>
                     </div>
                 </div>

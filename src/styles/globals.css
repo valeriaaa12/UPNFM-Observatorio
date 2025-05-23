@@ -1,4 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 :root {
   --background: #ffffff;
@@ -49,8 +53,10 @@ a {
 }
 
 .cardShadow {
+
   box-shadow: 8px 8px 3px 3px rgba(0, 0, 0, 0.15);
-  margin: 10px
+  margin: 10px;
+
 }
 
 .cardBorder {
@@ -65,7 +71,14 @@ a {
 .hrLandingPage {
   margin: 20px;
   color: #FE5000;
+}
 
+.whiteText {
+  color: white !important;
+}
+
+.font {
+  font-family: 'Montserrat' !important;
 }
 
 .sectionGray {
@@ -83,4 +96,164 @@ a {
 .center {
   justify-content: center;
   display: flex;
+}
+
+@media (min-width: 992px) {
+  .backgroundNavbar {
+    background: transparent;
+    z-index: 10;
+    position: absolute !important;
+    width: 100%;
+    color: white !important;
+
+  }
+}
+
+@media (max-width: 992px) {
+  .smolNavbar {
+    background-color: #003DA5;
+    width: 100%;
+    position: relative;
+  }
+}
+
+.centeredNavbar {
+  justify-content: center;
+  display: flex;
+}
+
+.navbarSpacing {
+  padding-right: 20px;
+}
+
+/*animación para menu de dropdown*/
+
+.dropdown-with-fade .dropdown-menu {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.dropdown-with-fade.show .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+.dropdown-with-fade .dropdown-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+
+.dropdown-menu {
+  margin-top: 0;
+}
+
+/*animación de underline naranja*/
+.backgroundNavbar .nav-link,
+.backgroundNavbar .dropdown-toggle {
+  color: white !important;
+  position: relative;
+  padding-bottom: 5px;
+  background-color: transparent !important;
+}
+
+.backgroundNavbar .nav-link:not(.dropdown-toggle)::before,
+.backgroundNavbar .dropdown-toggle::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #FE5000;
+  transition: width 0.3s ease;
+}
+
+.backgroundNavbar .nav-link:not(.dropdown-toggle):hover::before,
+.backgroundNavbar .dropdown-toggle:hover::before {
+  width: 100%;
+}
+
+.backgroundNavbar .dropdown-toggle::after {
+  position: static;
+  display: inline-block;
+  margin-left: 0.255em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+  transition: transform 0.3s ease;
+}
+
+.backgroundNavbar .dropdown-toggle.show::after {
+  transform: rotate(-180deg);
+}
+
+.backgroundNavbar .dropdown-item {
+  color: #333 !important;
+  transition: padding-left 0.2s ease !important;
+}
+
+.backgroundNavbar .dropdown-item:hover {
+  padding-left: 1.5rem;
+  color: #FE5000 !important;
+  background-color: #f8f9fa !important;
+}
+
+/*animación de underline naranja para navbar azul*/
+.blueNavbar .nav-link,
+.blueNavbar .dropdown-toggle {
+  color: white !important;
+  position: relative;
+  padding-bottom: 5px;
+  background-color: transparent !important;
+}
+
+.blueNavbar .nav-link:not(.dropdown-toggle)::before,
+.blueNavbar .dropdown-toggle::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #FE5000;
+  transition: width 0.3s ease;
+}
+
+.blueNavbar .nav-link:not(.dropdown-toggle):hover::before,
+.blueNavbar .dropdown-toggle:hover::before {
+  width: 100%;
+}
+
+.blueNavbar .dropdown-toggle::after {
+  position: static;
+  display: inline-block;
+  margin-left: 0.255em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+  transition: transform 0.3s ease;
+}
+
+.blueNavbar .dropdown-toggle.show::after {
+  transform: rotate(-180deg);
+}
+
+.blueNavbar .dropdown-item {
+  color: #333 !important;
+  transition: padding-left 0.2s ease !important;
+}
+
+.blueNavbar .dropdown-item:hover {
+  padding-left: 1.5rem;
+  color: #FE5000 !important;
+  background-color: #f8f9fa !important;
 }
