@@ -8,7 +8,7 @@
 }
 
 .orangeText {
-    color: #fe5000;
+    color: #fe5000 !important;
 }
 
 .blueText {
@@ -148,10 +148,15 @@
 }
 
 .cardTitle {
-    font-size: 200%;
+    font-size: 170% !important;
 }
 
 /* card images */
+.card-img-height {
+    height: 18rem;
+    object-fit: cover;
+}
+
 .MYcard-img-top {
     height: 300px;
     object-fit: cover;
@@ -165,7 +170,7 @@
 }
 
 .ourTeamImage {
-    height: 390px;
+    height: 300px;
     object-fit: cover;
     object-position: center;
     width: 100%;
@@ -175,6 +180,7 @@
 /* Our Team styles */
 #ourTeam {
     padding: 5%;
+    justify-content: center;
 }
 
 .circle-img {
@@ -205,8 +211,6 @@
 .team-card {
     position: relative;
     overflow: hidden;
-    height: 100%;
-    border: none;
 }
 
 .card {

@@ -1,4 +1,5 @@
 import React from 'react';
+import Card from 'react-bootstrap/Card';
 
 interface CardParams {
     image: string;
@@ -9,7 +10,7 @@ interface CardParams {
     experience?: React.ReactNode;
 }
 
-export default function Card({ image, title, role, email, studies, experience }: CardParams) {
+{/*export default function Card({ image, title, role, email, studies, experience }: CardParams) {
     return (
         <div className="card team-card">
             <div className="card-image-wrapper">
@@ -36,5 +37,23 @@ export default function Card({ image, title, role, email, studies, experience }:
                 </div>
             </div>
         </div>
+    );
+}*/}
+
+export default function teamCard({ image, title, role, email }: CardParams) {
+    return (
+        <Card style={{ width: '20rem' }}>
+            <Card.Img variant="top" src={image} className='card-img-height' />
+            <Card.Body>
+                <Card.Title className='cardTitle text-center orangeText'>{title}</Card.Title>
+                <Card.Text className="fst-italic text-center">
+                    {role}
+                </Card.Text>
+                <div className="d-flex align-items-center justify-content-center mt-3">
+                    <img src="images/gmail.png" alt="Email icon" width={20} className="me-2" />
+                    <a href={`mailto:${email}`} className="text-decoration-none blueText">{email}</a>
+                </div>
+            </Card.Body>
+        </Card>
     );
 }
