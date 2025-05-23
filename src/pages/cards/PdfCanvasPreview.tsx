@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.min.js'; // Importa el worker globalmente
+import 'pdfjs-dist/build/pdf.worker.min.js'; 
 
-// Configura el workerSrc usando la versión actual de la librería
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PdfCanvasPreviewProps {
@@ -30,7 +29,6 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
           canvas.width = viewport.width;
           canvas.height = viewport.height;
 
-          // Cancela render anterior si está activo
           if (renderTaskRef.current) {
             renderTaskRef.current.cancel();
           }
@@ -54,7 +52,6 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
 
     renderPdf();
 
-    // Cancelar render al desmontar o cambiar el PDF
     return () => {
       if (renderTaskRef.current) {
         renderTaskRef.current.cancel();
