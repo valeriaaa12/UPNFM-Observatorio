@@ -1,10 +1,14 @@
 import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
 import Footer from "@/sections/footer";
+import NavBar from "@/navigation/NavBar"
 
 export default function aboutUs() {
     return (
         <>
+            <div className="backgroundNavbar navbarSpacing">
+                <NavBar></NavBar>
+            </div>
             <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">
