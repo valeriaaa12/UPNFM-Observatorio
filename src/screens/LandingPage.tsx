@@ -2,7 +2,7 @@
 import Head from "next/head";
 import InfoCardsSegment from "@/sections/InfoCardsSegment";
 import Carrusel from "@/sections/carrusel";
-
+import Footer from "@/sections/footer";
 export default function LandingPage() {
   return (
     <>
@@ -22,6 +22,8 @@ export default function LandingPage() {
           <img src="/images/youtube.png" alt="YouTube" width="40rem" height="28rem" />
         </a>
       </div>
+      <Footer></Footer>
     </>
   );
 };
+
