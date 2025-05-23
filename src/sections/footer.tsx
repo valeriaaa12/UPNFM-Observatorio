@@ -1,5 +1,5 @@
 import React from "react";
-
+import Card from 'react-bootstrap/Card';
 const Footer: React.FC = () => {
   return (
     <footer
