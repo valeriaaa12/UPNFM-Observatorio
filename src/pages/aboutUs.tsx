@@ -177,28 +177,30 @@ export default function aboutUs() {
                         />
                     </div>
                     <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-                        <Card
-                            image="images/German Moncada.png"
-                            title="German Moncada"
-                            role="Investigador en el OUDENI de la UPNFM. "
-                            email="germanmoncada@upnfm.edu.hn"
-                            studies=<>
-                                <ul className="text-start">
-                                    <li className="mb-2"><strong>Licenciado en Psicología -</strong> Universidad Nacional Autónoma de Honduras (UNAH).</li>
-                                    <li className="mb-2"><strong>Doctor en Psicología -</strong> Universidad de Granada, España.</li>
-                                    <li className="mb-2"><strong>Doctor en Educación - </strong> Universidad de Flensburg, Alemania.</li>
-                                </ul>
-                            </>
-                            experience=<>
-                                <ul className="text-start">
-                                    <li>Ha sido Director de Investigación y Director de Postgrado de la Universidad Pedagógica Nacional Francisco Morazán (UPNFM).</li>
-                                    <li>Actualmente es investigador en el OUDENI de la UPNFM.</li>
-                                </ul>
-                            </>
-                        />
+                        <div className="w-100 h-100"> {/* Contenedor adicional para control de altura */}
+                            <Card
+                                image="images/German Moncada.png"
+                                title="German Moncada"
+                                role="Investigador en el OUDENI de la UPNFM"
+                                email="germanmoncada@upnfm.edu.hn"
+                                studies={
+                                    <ul className="text-start ps-3 mb-3">
+                                        <li className="mb-2"><strong>Licenciado en Psicología</strong> - Universidad Nacional Autónoma de Honduras (UNAH)</li>
+                                        <li className="mb-2"><strong>Doctor en Psicología</strong> - Universidad de Granada, España</li>
+                                        <li><strong>Doctor en Educación</strong> - Universidad de Flensburg, Alemania</li>
+                                    </ul>
+                                }
+                                experience={
+                                    <ul className="text-start ps-3">
+                                        <li className="mb-2">Director de Investigación y Director de Postgrado de la UPNFM</li>
+                                        <li>Investigador en el OUDENI de la UPNFM</li>
+                                    </ul>
+                                }
+                            />
+                        </div>
                     </div>
                 </div>
-            </div >
+            </div>
             <Footer />
         </>
     );
