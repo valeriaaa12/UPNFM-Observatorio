@@ -4,20 +4,48 @@
 }
 
 .bigTitle {
-    font-size: 400%;
+    font-size: 400% !important;
+}
+
+.bigTitle2 {
+    font-size: 300% !important;
+}
+
+.text-bottom-left {
+    position: absolute;
+    bottom: 1rem;
+    left: 2rem;
+    margin: 0;
 }
 
 .orangeText {
-    color: #FE5000;
+    color: #fe5000 !important;
 }
 
 .blueText {
-    color: #003DA5;
+    color: #19467f;
+}
+
+.fontSection {
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.lightBold {
+    font-weight: 600;
 }
 
 /* Backgrounds */
 .orange {
-    background-color: #FE5000 !important;
+    background-color: #fe5000 !important;
+}
+
+.lightOrange {
+    background-color: #e77501 !important;
+}
+
+.blue {
+    background-color: #19467f !important;
 }
 
 .fondo {
@@ -29,35 +57,24 @@
 }
 
 /* Portada con texto */
+.no-border-rounded {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
 .imageContainer {
-    position: relative;
     width: 100%;
     height: 30rem;
-    background-image: url('/images/AboutUs.png');
-    background-size: cover;
-    background-position: center;
+    object-fit: cover;
+    object-position: center;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-
-
-.imageOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
-
-.overlayText {
     position: relative;
-    color: white;
-    text-align: center;
-    z-index: 2;
 }
 
 /* card hover */
@@ -71,7 +88,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #FE5000;
+    background-color: #fe5000;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     display: flex;
@@ -130,25 +147,41 @@
 
 .card-gallery {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    box-sizing: border-box;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .card-gallery {
+    grid-template-columns: repeat(2, 1fr);  /* 2 columnas para pantallas medianas */
+  }
+}
+
+@media (max-width: 600px) {
+  .card-gallery {
+    grid-template-columns: 1fr;  /* 1 columna para pantallas pequeñas */
+  }
+}
+
+.card {
+    width: 100% !important;
+    height: auto;
 }
 
 #Boletines {
-    padding: 7%;
+    padding: 3%;
     padding-top: 2%;
 }
 
 .cardTitle {
-    font-size: 200%;
+    font-size: 170% !important;
 }
 
 /* card images */
-.MYcard-img-top {
-    height: 300px;
+.card-img-height {
+    height: 18rem;
     object-fit: cover;
-    object-position: center;
 }
 
 .horizontalCardImg {
@@ -158,7 +191,7 @@
 }
 
 .ourTeamImage {
-    height: 390px;
+    height: 300px;
     object-fit: cover;
     object-position: center;
     width: 100%;
@@ -168,6 +201,7 @@
 /* Our Team styles */
 #ourTeam {
     padding: 5%;
+    justify-content: center;
 }
 
 .circle-img {
@@ -183,10 +217,6 @@
     padding-right: 0;
 }
 
-.nameSize {
-    font-size: larger;
-}
-
 .disposicion {
     display: flex;
     align-items: center;
@@ -198,17 +228,6 @@
 .team-card {
     position: relative;
     overflow: hidden;
-    height: 100%;
-    border: none;
-}
-
-.card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
 }
 
 .team-card:hover .card-overlay {
@@ -219,47 +238,59 @@
     color: white;
     font-size: 0.95rem;
 }
+
 .block-carousel {
-  width: 100%;
-  max-width: 1300px;
-  height: 500px;
-  overflow: hidden;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 1300px;
+    height: 500px;
+    overflow: hidden;
+    margin: 0 auto;
 }
 
 .carousel-img {
-  width: 1300px;
-  height: 500px;
-  object-fit: cover;
-  display: block;
+    width: 1300px;
+    height: 500px;
+    object-fit: cover;
+    display: block;
 }
+
 .carousel-item {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
+
 .input {
-  background-color: #f0f4f8; 
-  border: 2px solid #19467f; 
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    background-color: #f0f4f8;
+    border: 2px solid #19467f;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.orange {
+    background-color: #ff6600 !important;
+    color: white !important;
+    transition: background-color 0.3s ease;
+}
+
+.orange:hover {
+  background-color: #b74814 !important;
+  color: white !important;
 }
 
 .input input {
-  border: none;
-  background: transparent;
-  outline: none;
-  flex: 1;
-  font-family:'Montserrat'; 
-  color:#19467f;
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-family: 'Montserrat';
+    color: #19467f;
 }
-
-   
-
