@@ -82,35 +82,8 @@ export default function NavBar() {
             </div>
           </Container>
 
-<<<<<<< HEAD
-            {/*Fin dropdowns */}
-          </Nav>
-         
-          <a href = "/login">
-          <img
-              src="/images/usuario.png"
-              width={'50px'}
-              height={'auto'}
-              
-              className="d-inline-block align-top "
-              alt="React Bootstrap logo"
-            />
-            </a>
-           
-          
-        </Navbar.Collapse>
-        </div>
-      </Container>
-      
-    </Navbar>
-    </div>
-
-
-   </>
-=======
         </Navbar>
       </div>
     </>
->>>>>>> f2df200bdc3f848d5a947ef24ca64a093a6f4f1a
   );
 }
