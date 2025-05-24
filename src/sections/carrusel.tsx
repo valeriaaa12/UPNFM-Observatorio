@@ -5,7 +5,7 @@ import Carousel from 'react-bootstrap/Carousel';
 
 export default function Carrusel() {
   return (
-    <div className="sectionWhite font">
+    <div className="sectionWhite font pb-5 mb-4">
       <Container className="c1">
         <Row className="justify-content-center">
           <Col md="auto">
