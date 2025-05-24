@@ -11,7 +11,7 @@ export default function aboutUs() {
             <div className="backgroundNavbar navbarSpacing">
                 <NavBar />
             </div>
-            <SmallNavBar></SmallNavBar>
+            <SmallNavBar />
             <ImgOverlay image="images/AboutUs.png" text="Sobre Nosotros" center={true} />
             <div id="aboutUs" className="font container-fluid px-3 px-md-5 py-4">
                 {/* Misión y Visión */}
