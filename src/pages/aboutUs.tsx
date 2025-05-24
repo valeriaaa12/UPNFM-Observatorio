@@ -2,6 +2,7 @@ import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar"
+import SmallNavBar from "@/navigation/SmallNavBar"
 import ImgOverlay from "@/components/imageOverlay";
 
 export default function aboutUs() {
@@ -10,6 +11,7 @@ export default function aboutUs() {
             <div className="backgroundNavbar navbarSpacing">
                 <NavBar></NavBar>
             </div>
+            <SmallNavBar></SmallNavBar>
             <ImgOverlay image="images/AboutUs.png" text="Sobre Nosotros" center={true} />
             <div id="aboutUs" className="font">
                 <div className="row">
