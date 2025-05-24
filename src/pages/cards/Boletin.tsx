@@ -12,9 +12,8 @@ interface Boletin {
 
 export default function Card({ title, pdf }: Boletin) {
   return (
-    <div className="card mb-2" style={{ width: '28rem' }}>
+    <div className="card mb-2 hover-effect" style={{ width: '100%', height: 'auto' }}>
       <PdfCanvasPreview pdf={pdf} />
-
       <div className="card-body">
         <h5 className="card-title">{title}</h5>
         <div className="d-flex flex-wrap gap-2">
@@ -32,5 +31,5 @@ export default function Card({ title, pdf }: Boletin) {
         </div>
       </div>
     </div>
-  ); 
+  );
 }

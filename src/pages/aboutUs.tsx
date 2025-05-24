@@ -1,5 +1,5 @@
 import Card from "@/pages/cards/teamCard"
-import HorizontalCard from "@/pages/cards/horizontalCard"
+import HCard from "@/pages/cards/horizontalCard"
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar"
 import SmallNavBar from "@/navigation/SmallNavBar"
@@ -9,21 +9,22 @@ export default function aboutUs() {
     return (
         <>
             <div className="backgroundNavbar navbarSpacing">
-                <NavBar></NavBar>
+                <NavBar />
             </div>
-            <SmallNavBar></SmallNavBar>
+            <SmallNavBar />
             <ImgOverlay image="images/AboutUs.png" text="Sobre Nosotros" center={true} />
-            <div id="aboutUs" className="font">
-                <div className="row">
-                    <div className="col-sm-6 mb-3 d-flex">
-                        <HorizontalCard
+            <div id="aboutUs" className="font container-fluid px-3 px-md-5 py-4">
+                {/* Misión y Visión */}
+                <div className="row g-4">
+                    <div className="col-12 col-lg-6">
+                        <HCard
                             image="images/mision.jpg"
                             title="Misión"
                             text="Recoger, sistematizar, analizar y proveer datos educativos que contribuyan al mejoramiento continuo de la calidad de la educación, en Honduras y en la región."
                         />
                     </div>
-                    <div className="col-sm-6 mb-3 d-flex">
-                        <HorizontalCard
+                    <div className="col-12 col-lg-6">
+                        <HCard
                             image="images/vision2.jpg"
                             title="Visión"
                             text="Ser un ente que proporcione al sistema educativo hondureño, herramientas, datos, información e investigaciones que se usen para la toma de decisiones a nivel administrativo y ejecutivo."
@@ -71,25 +72,35 @@ export default function aboutUs() {
                     </div >*/}
                 </div>
 
-                <hr></hr>
+                <hr className="my-4" />
 
-                <div className="card mb-3 border-0 shadow-0">
-                    <div className="row g-0" style={{ height: "100%" }}>
-                        <div className="col-md-3">
+                {/* Objetivos */}
+                <div className="card mb-4 border-0 shadow-0">
+                    <div className="row g-0">
+                        <div className="col-md-3 mb-3 mb-md-0">
                             <img
                                 src="images/objetivos.jpg"
                                 alt="Objetivos"
-                                className="img-fluid rounded-start h-100 w-100"
+                                className="img-fluid rounded-start h-100 w-100 object-fit-cover"
                                 style={{ objectFit: "cover", objectPosition: "center" }}
                             />
                         </div>
-                        <div className="col-md-9 d-flex align-items-center">
+                        <div className="col-md-9">
                             <div className="card-body">
                                 <h5 className="cardTitle orangeText">Objetivos</h5>
-                                <ul className="text-start">
-                                    <li>Gestionar conocimientos científicos que aporten a la resolución de problemas en el campo educativo a nivel local, departamental, regional, nacional e internacional.</li>
-                                    <li>Generar y promover la difusión y administración del conocimiento educativo para que esté disponible y sea accesible a los actores del sistema educativo.</li>
-                                    <li>Monitorear permanentemente los indicadores educativos seleccionados, con el fin de apoyar el diseño, la implementación y la evaluación de políticas públicas en educación.</li>
+                                <ul className="list-unstyled ps-0 ps-md-3">
+                                    <li className="mb-3 d-flex">
+                                        <span className="me-2">•</span>
+                                        <span>Gestionar conocimientos científicos que aporten a la resolución de problemas en el campo educativo a nivel local, departamental, regional, nacional e internacional.</span>
+                                    </li>
+                                    <li className="mb-3 d-flex">
+                                        <span className="me-2">•</span>
+                                        <span>Generar y promover la difusión y administración del conocimiento educativo para que esté disponible y sea accesible a los actores del sistema educativo.</span>
+                                    </li>
+                                    <li className="d-flex">
+                                        <span className="me-2">•</span>
+                                        <span>Monitorear permanentemente los indicadores educativos seleccionados, con el fin de apoyar el diseño, la implementación y la evaluación de políticas públicas en educación.</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -122,10 +133,11 @@ export default function aboutUs() {
                 </div>
             </div>*/}
 
-            <div id="ourTeam" className="fondoGris row font">
+            {/* Nuestro Equipo */}
+            < div id="ourTeam" className="font fondoGris container-fluid px-3 px-md-5 py-5">
                 <p className="blueText mb-5 fontSection">Nuestro Equipo</p>
-                <div className="row justify-content-center">
-                    <div className="col-sm-4 mb-3 d-flex justify-content-center">
+                <div className="row g-4 justify-content-center">
+                    <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
                         <Card
                             image="images/Russbel-Hernandez.png"
                             title="Russbel Hernández"
@@ -133,14 +145,14 @@ export default function aboutUs() {
                             email="russbelh@upnfm.edu.hn"
                             studies=<>
                                 <ul className="text-start">
-                                    <li className="mb-1"><strong>Doctor en Economía -</strong> Universidad de Flensburg, Alemania.</li>
-                                    <li className="mb-1"><strong>Magíster en Política Económica con énfasis en Economía Ecológica y Desarrollo Sostenible -</strong> Universidad Nacional, Costa Rica.</li>
-                                    <li className="mb-1"><strong>Profesor de Educación Media en el grado de Licenciatura en Matemáticas con orientación en Computación -</strong> Universidad Pedagógica Nacional Francisco Morazán (UPNFM), Honduras.</li>
+                                    <li className="mb-2"><strong>Doctor en Economía -</strong> Universidad de Flensburg, Alemania.</li>
+                                    <li className="mb-2"><strong>Magíster en Política Económica con énfasis en Economía Ecológica y Desarrollo Sostenible -</strong> Universidad Nacional, Costa Rica.</li>
+                                    <li><strong>Profesor de Educación Media en el grado de Licenciatura en Matemáticas con orientación en Computación -</strong> Universidad Pedagógica Nacional Francisco Morazán (UPNFM), Honduras.</li>
                                 </ul>
                             </>
                         />
                     </div>
-                    <div className="col-sm-4 mb-3 d-flex justify-content-center">
+                    <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
                         <Card
                             image="images/Mario Alas.png"
                             title="Mario Alas"
@@ -164,7 +176,7 @@ export default function aboutUs() {
                             </>
                         />
                     </div>
-                    <div className="col-sm-4 mb-3 d-flex justify-content-center">
+                    <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
                         <Card
                             image="images/German Moncada.png"
                             title="German Moncada"
@@ -172,9 +184,9 @@ export default function aboutUs() {
                             email="germanmoncada@upnfm.edu.hn"
                             studies=<>
                                 <ul className="text-start">
-                                    <li className="mb-1"><strong>Licenciado en Psicología -</strong> Universidad Nacional Autónoma de Honduras (UNAH).</li>
-                                    <li className="mb-1"><strong>Doctor en Psicología -</strong> Universidad de Granada, España.</li>
-                                    <li className="mb-1"><strong>Doctor en Educación - </strong> Universidad de Flensburg, Alemania.</li>
+                                    <li className="mb-2"><strong>Licenciado en Psicología -</strong> Universidad Nacional Autónoma de Honduras (UNAH).</li>
+                                    <li className="mb-2"><strong>Doctor en Psicología -</strong> Universidad de Granada, España.</li>
+                                    <li className="mb-2"><strong>Doctor en Educación - </strong> Universidad de Flensburg, Alemania.</li>
                                 </ul>
                             </>
                             experience=<>
@@ -186,7 +198,7 @@ export default function aboutUs() {
                         />
                     </div>
                 </div>
-            </div>
+            </div >
             <Footer />
         </>
     );
