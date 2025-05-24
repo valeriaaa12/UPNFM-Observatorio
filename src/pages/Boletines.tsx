@@ -17,7 +17,6 @@ export default function Boletines() {
             />
             <Boletin 
               title= "Boletin 3"
-              
               pdf= "/Boletin_3_Observatorio_educativo_UPNFM.pdf"
             />
             <Boletin 

@@ -17,7 +17,7 @@ export default function Card({ title, pdf }: Boletin) {
 
       <div className="card-body">
         <h5 className="card-title">{title}</h5>
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap gap-2">
           <a
             href={pdf}
             target="_blank"
