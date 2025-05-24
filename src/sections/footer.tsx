@@ -1,5 +1,5 @@
 import React from "react";
-
+import Card from 'react-bootstrap/Card';
 const Footer: React.FC = () => {
   return (
     <footer
@@ -9,7 +9,6 @@ const Footer: React.FC = () => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-
       }}
     >
       <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 text-[#FE5000] font">

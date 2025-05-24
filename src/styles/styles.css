@@ -4,7 +4,18 @@
 }
 
 .bigTitle {
-    font-size: 400%;
+    font-size: 400% !important;
+}
+
+.bigTitle2 {
+    font-size: 300% !important;
+}
+
+.text-bottom-left {
+    position: absolute;
+    bottom: 1rem;
+    left: 2rem;
+    margin: 0;
 }
 
 .orangeText {
@@ -29,6 +40,14 @@
     background-color: #fe5000 !important;
 }
 
+.lightOrange {
+    background-color: #e77501 !important;
+}
+
+.blue {
+    background-color: #19467f !important;
+}
+
 .fondo {
     background-color: #eef3f5;
 }
@@ -38,35 +57,24 @@
 }
 
 /* Portada con texto */
+.no-border-rounded {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
 .imageContainer {
-    position: relative;
     width: 100%;
     height: 30rem;
-    background-image: url('/images/AboutUs.png');
-    background-size: cover;
-    background-position: center;
+    object-fit: cover;
+    object-position: center;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-
-
-.imageOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
-    z-index: 1;
-}
-
-.overlayText {
     position: relative;
-    color: white;
-    text-align: center;
-    z-index: 2;
 }
 
 /* card hover */
@@ -176,12 +184,6 @@
     object-fit: cover;
 }
 
-.MYcard-img-top {
-    height: 300px;
-    object-fit: cover;
-    object-position: center;
-}
-
 .horizontalCardImg {
     height: 13rem !important;
     object-fit: cover;
@@ -213,10 +215,6 @@
 .informacion {
     padding: 6%;
     padding-right: 0;
-}
-
-.nameSize {
-    font-size: larger;
 }
 
 .disposicion {
@@ -278,16 +276,15 @@
 }
 
 .orange {
-  background-color: #ff6600 !important;
-  color: white !important;
-  transition: background-color 0.3s ease;
+    background-color: #ff6600 !important;
+    color: white !important;
+    transition: background-color 0.3s ease;
 }
 
 .orange:hover {
   background-color: #b74814 !important;
   color: white !important;
 }
-
 
 .input input {
     border: none;
