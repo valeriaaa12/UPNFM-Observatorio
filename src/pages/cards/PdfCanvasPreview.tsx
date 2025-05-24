@@ -63,7 +63,7 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
     <canvas
       ref={canvasRef}
       className="card-img-top"
-      style={{ width: '100%', height: '300px', objectFit: 'cover' }}
+      style={{ width: '100%', height: 'auto', aspectRatio: '4 / 3', objectFit: 'cover' }}
     />
   );
 }
