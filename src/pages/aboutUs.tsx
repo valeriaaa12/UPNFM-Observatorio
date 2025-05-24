@@ -3,12 +3,14 @@ import Card from "@/pages/cards/teamCard"
 import HorizontalCard from "@/pages/cards/horizontalCard"
 import BasicCard from "@/pages/cards/basicCard"
 import NavBar from "@/navigation/NavBar"
+import SmallNavBar from "@/navigation/SmallNavBar"
 export default function aboutUs() {
     return (
         <>
             <div className="backgroundNavbar navbarSpacing">
                   <NavBar></NavBar>
             </div>
+            <SmallNavBar></SmallNavBar>
             <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">

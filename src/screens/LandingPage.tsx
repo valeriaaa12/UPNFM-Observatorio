@@ -2,15 +2,18 @@
 import Head from "next/head";
 import InfoCardsSegment from "@/sections/InfoCardsSegment";
 import Carrusel from "@/sections/carrusel";
-
 import NavBar from "@/navigation/NavBar";
 import Footer from "@/sections/footer";
+import SmallNavBar from "@/navigation/SmallNavBar";
+
 export default function LandingPage() {
   return (
     <>
       <div className="backgroundNavbar navbarSpacing">
       <NavBar></NavBar>
+      
       </div>
+      <SmallNavBar></SmallNavBar>
       <div className="imageContainer">
                 <div className="imageOverlay" />
                 <div className="overlayText">
