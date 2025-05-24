@@ -1,28 +1,21 @@
-import React from 'react';
+import Card from 'react-bootstrap/Card';
 
-interface CardParams {
-    title: string;
-    text?: string;
-    objectives?: string[];
+type CardParams = {
+  title: string;
+  body: string;
+  img: string;
 }
 
-export default function Card({ title, text, objectives }: CardParams) {
-    return (
-        <div className="card-body">
-            <h5 className="card-title">{title}</h5>
-            {text && (
-                <p className="card-text">{text}</p>
-            )}
-            {objectives && (
-                <>
-                    <ul className="text-start">
-                        {objectives.map((objective, index) => (
-                            <li key={index}> {objective}</li>
-                        ))
-                        }
-                    </ul>
-                </>
-            )}
-        </div>
-    );
-};
+export default function InfoCard({ title, body, img }: CardParams) {
+  return (
+    <Card className="cardShadow mb-5 hover-effect" style={{ width: '20rem', height: '20rem' }}>
+      <Card.Img variant="top" className="imgBorder" style={{ height: '50%' }} src={img} />
+      <Card.Body>
+        <b><Card.Title className="textColor">{title}</Card.Title></b>
+        <Card.Text className="textColor">
+          {body}
+        </Card.Text>
+      </Card.Body>
+    </Card>
+  );
+}
