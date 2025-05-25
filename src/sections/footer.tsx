@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
       >
         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 text-[#FE5000] font center">
           <div>
-            <div style={{ paddingTop: "2rem" }}>
+            <div style={{ paddingTop: "0.5rem" }}>
               <p className="text-sm mb-4 text-white center">
                 Universidad Pedagógica Nacional Francisco Morazán
               </p>
@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
                 Colonia el Dorado, Frente a Plaza Miraflores
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-white center">
+            <div className="flex items-center gap-2 text-sm text-white center" >
               <svg
                 className="bi bi-telephone"
                 fill="currentColor"
