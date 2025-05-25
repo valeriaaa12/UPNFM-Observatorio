@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
 
       <div
         className="border-t border-[#FE5000] text-center text-sm text-white font"
-        style={{ backgroundColor: "rgba(254,80,0,0.95)", width: "100%",maxHeight: "25px" }}
+        style={{ backgroundColor: "rgba(254,80,0,0.95)", width: "100%", maxHeight: "25px" }}
       >
         © 2025 UPNFM - Observatorio Educativo Universidad Pedagógica Nacional Francisco Morazán. Todos los derechos reservados.
       </div>
