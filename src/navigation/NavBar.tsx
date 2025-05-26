@@ -20,19 +20,19 @@ export default function NavBar() {
           <Container fluid className='d-flex justify-content-between align-items-center'>
             <Navbar.Brand href="/landingpage">
               <img
-                src="/images/logo.png"
+                src="/images/logo2.png"
                 width={'300px'}
                 height={'auto'}
                 className="d-inline-block align-top"
-                alt="React Bootstrap logo"
+                alt="Logo"
               />
             </Navbar.Brand>
 
-            <div className="d-flex align-items-center gap-3 ms-auto  whiteText">
+            <div className="d-flex align-items-center gap-3 ms-auto whiteText">
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav
-                  className="me-auto my-2 my-lg-0"
+                  className="me-auto my-2 my-lg-0 nav-links-container"
                   style={{ maxHeight: '100px' }}
                 >
                   <Nav.Link className=" whiteText" href="/landingpage"><b>{t('Home')}</b></Nav.Link>
@@ -40,7 +40,7 @@ export default function NavBar() {
                   <Nav.Link className=" whiteText" href="#action2"><b>{t("IndicadoresEducativos")}</b></Nav.Link>
                   <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
 
-                  {/*Inicio dropdowns */}
+                  {/* Dropdowns */}
                   <NavDropdown
                     title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>}
                     id="navbarScrollingDropdown"

@@ -77,33 +77,80 @@
     position: relative;
 }
 
-/* card hover */
-.card-image-wrapper {
-    position: relative;
+/* Team card hover */
+.team-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(231, 117, 1, 0.15);
 }
 
 .card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #fe5000;
+    background: linear-gradient(135deg,
+            rgba(231, 117, 1, 0.95) 0%,
+            rgba(200, 90, 0, 0.95) 100%);
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
+    transition: opacity 0.3s ease;
 }
 
 .team-card:hover .card-overlay {
     opacity: 1;
 }
 
-.overlay-text {
+.overlay-tabs .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    border-color: rgba(255, 255, 255, 0.5);
     color: white;
-    font-size: 0.95rem;
+}
+
+.overlay-tabs .btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.email-container {
+    background-color: rgba(231, 117, 1, 0.1);
+    transition: all 0.3s ease;
+    color: #e77501;
+}
+
+.email-container:hover {
+    background-color: rgba(231, 117, 1, 0.2) !important;
+}
+
+.email-container a {
+    color: #e77501;
+}
+
+.filter-orange {
+    filter: invert(61%) sepia(90%) saturate(1242%) hue-rotate(1deg) brightness(97%) contrast(89%);
+}
+
+.studies-content,
+.experience-content {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: white;
+}
+
+.studies-content ul,
+.experience-content ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0;
+}
+
+.studies-content li,
+.experience-content li {
+    margin-bottom: 0.6rem;
+}
+
+/* Efecto para cambiar entre pestañas */
+.overlay-tabs .btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* carrusel */
@@ -131,6 +178,18 @@
     height: 100%;
 }
 
+.input {
+    background-color: #f0f4f8;
+    border: 2px solid #19467f;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
 /* About Us styles */
 #aboutUs {
     padding: 4%;
@@ -153,20 +212,17 @@
 }
 
 @media (max-width: 1024px) {
-  .card-gallery {
-    grid-template-columns: repeat(2, 1fr);  /* 2 columnas para pantallas medianas */
-  }
+    .card-gallery {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columnas para pantallas medianas */
+    }
 }
 
 @media (max-width: 600px) {
-  .card-gallery {
-    grid-template-columns: 1fr;  /* 1 columna para pantallas pequeñas */
-  }
-}
-
-.card {
-    width: 100% !important;
-    height: auto;
+    .card-gallery {
+        grid-template-columns: 1fr;
+        /* 1 columna para pantallas pequeñas */
+    }
 }
 
 #Boletines {
@@ -176,26 +232,6 @@
 
 .cardTitle {
     font-size: 170% !important;
-}
-
-/* card images */
-.card-img-height {
-    height: 18rem;
-    object-fit: cover;
-}
-
-.horizontalCardImg {
-    height: 13rem !important;
-    object-fit: cover;
-    object-position: center;
-}
-
-.ourTeamImage {
-    height: 300px;
-    object-fit: cover;
-    object-position: center;
-    width: 100%;
-    display: block;
 }
 
 /* Our Team styles */
@@ -224,6 +260,28 @@
     padding: 4%;
 }
 
+.object-fit-cover {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+/* Optimización para email en móviles */
+@media (max-width: 576px) {
+    .team-card-email {
+        font-size: 0.8rem !important;
+    }
+}
+
+.hover-effect {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
 /* cards */
 .team-card {
     position: relative;
@@ -239,41 +297,8 @@
     font-size: 0.95rem;
 }
 
-.block-carousel {
-    width: 100%;
-    max-width: 1300px;
-    height: 500px;
-    overflow: hidden;
-    margin: 0 auto;
-}
 
-.carousel-img {
-    width: 1300px;
-    height: 500px;
-    object-fit: cover;
-    display: block;
-}
 
-.carousel-item {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.input {
-    background-color: #f0f4f8;
-    border: 2px solid #19467f;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
 
 .orange {
     background-color: #ff6600 !important;
@@ -282,8 +307,8 @@
 }
 
 .orange:hover {
-  background-color: #b74814 !important;
-  color: white !important;
+    background-color: #b74814 !important;
+    color: white !important;
 }
 
 .input input {
@@ -293,4 +318,11 @@
     flex: 1;
     font-family: 'Montserrat';
     color: #19467f;
+}
+
+/* navbar */
+.nav-links-container {
+    display: flex;
+    gap: 1rem;
+    align-items: first baseline;
 }
