@@ -1,6 +1,7 @@
-import Boletin from "@/cards/Boletin"
+import Boletin from "@/pages/cards/Boletin"
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar"
+import SmallNavBar from "@/navigation/SmallNavBar"
 
 export default function Boletines() {
   return (
@@ -8,8 +9,9 @@ export default function Boletines() {
       <div className="font">
         <div className="blue blueNavbar">
           <NavBar />
-          <div className="orange" style={{ height: "0.5rem" }} />
+          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
+        <SmallNavBar />
         <p className="fontSection p-5">Boletines</p>
         <div id="Boletines" className="card-gallery pt-0">
           <Boletin
