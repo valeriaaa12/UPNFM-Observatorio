@@ -77,33 +77,80 @@
     position: relative;
 }
 
-/* card hover */
-.card-image-wrapper {
-    position: relative;
+/* Team card hover */
+.team-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(231, 117, 1, 0.15);
 }
 
 .card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #fe5000;
+    background: linear-gradient(135deg,
+            rgba(231, 117, 1, 0.95) 0%,
+            rgba(200, 90, 0, 0.95) 100%);
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
+    transition: opacity 0.3s ease;
 }
 
 .team-card:hover .card-overlay {
     opacity: 1;
 }
 
-.overlay-text {
+.overlay-tabs .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    border-color: rgba(255, 255, 255, 0.5);
     color: white;
-    font-size: 0.95rem;
+}
+
+.overlay-tabs .btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.email-container {
+    background-color: rgba(231, 117, 1, 0.1);
+    transition: all 0.3s ease;
+    color: #e77501;
+}
+
+.email-container:hover {
+    background-color: rgba(231, 117, 1, 0.2) !important;
+}
+
+.email-container a {
+    color: #e77501;
+}
+
+.filter-orange {
+    filter: invert(61%) sepia(90%) saturate(1242%) hue-rotate(1deg) brightness(97%) contrast(89%);
+}
+
+.studies-content,
+.experience-content {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: white;
+}
+
+.studies-content ul,
+.experience-content ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0;
+}
+
+.studies-content li,
+.experience-content li {
+    margin-bottom: 0.6rem;
+}
+
+/* Efecto para cambiar entre pestañas */
+.overlay-tabs .btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* carrusel */
@@ -130,6 +177,7 @@
     width: 100%;
     height: 100%;
 }
+
 .input {
     background-color: #f0f4f8;
     border: 2px solid #19467f;
