@@ -15,8 +15,8 @@ export default function Datos_Municipales() {
         <p className="fontSection p-5">Datos Municipales</p>
         <div  className="card-gallery pt-0 Boletines">
           <Boletin
-            title="Boletín 1"
-            pdf="/Boletin_1_Observatorio_educativo_UPNFM.pdf"
+            title="Datos Prebasica tasa de desercion"
+            pdf="/1.1-Tasa-de-Desercion-Pre-Basica-a-nivel-Municipal-2018_2023_-RHR-oct-2024.pdf"
           />
         </div>
       </div>
