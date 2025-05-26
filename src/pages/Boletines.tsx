@@ -12,8 +12,12 @@ export default function Boletines() {
           <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
         <SmallNavBar />
-        <p className="fontSection p-5">Boletines</p>
-        <div id="Boletines" className="card-gallery pt-0">
+        <div className="d-flex justify-content-between align-items-center px-5 py-4">
+          <p className="fontSection m-0">Boletines</p>
+          <button className="btn btn-primary">Nuevo Boletín</button>
+        </div>
+
+        <div  className="card-gallery pt-0 Boletines">
           <Boletin
             title="Boletín 1"
             pdf="/Boletin_1_Observatorio_educativo_UPNFM.pdf"
