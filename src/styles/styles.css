@@ -225,7 +225,7 @@
     }
 }
 
-#Boletines {
+.Boletines {
     padding: 3%;
     padding-top: 2%;
 }
@@ -325,4 +325,16 @@
     display: flex;
     gap: 1rem;
     align-items: first baseline;
+}
+
+.outline-blue {
+  background-color: transparent !important;
+  color: #19467f !important;
+  border: 2px solid #19467f !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.outline-blue:hover {
+  background-color: #19467f !important;
+  color: white !important;
 }
