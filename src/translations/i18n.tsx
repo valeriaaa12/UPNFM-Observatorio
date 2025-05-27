@@ -9,14 +9,18 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'es',
-    debug: false,
+    debug: false, 
+    ns: ['common'],            
+    defaultNS: 'common',      
     interpolation: {
       escapeValue: false,
     },
     backend: {
-      loadPath: '/translations/{{lng}}/{{ns}}.json',
+      loadPath: '/translations/{{lng}}/{{ns}}.json',  
     },
-    react: { useSuspense: false}
+    react: {
+      useSuspense: false,
+    },
   });
 
 export default i18n;
