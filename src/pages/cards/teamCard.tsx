@@ -16,7 +16,7 @@ interface school {
     institucion: string;
 }
 
-export default function TeamCard({ image, title, role, email, studies, experience }: CardParams) {
+export default function TeamCard({ image, title, role, email, studies = [], experience =[] }: CardParams) {
     const [activeTab, setActiveTab] = useState<'studies' | 'experience'>('studies');
     const hasExperience = Boolean(experience);
 
@@ -54,10 +54,10 @@ export default function TeamCard({ image, title, role, email, studies, experienc
                                 <div className="studies-content text-white">
                                     <h6 className="fw-bold mb-3">Formación Académica</h6>
                                     <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
-                                        {studies.map((estudio, index) => (
-                                            <li key={index} className="mb-1">
-                                                <strong>{estudio.grado} -</strong> {estudio.institucion}
-                                            </li>
+                                        {Array.isArray(studies) && studies.map((estudio, index) => (
+                                        <li key={index} className="mb-1">
+                                            <strong>{estudio.grado} -</strong> {estudio.institucion}
+                                        </li>
                                         ))}
                                     </ul>
                                 </div>

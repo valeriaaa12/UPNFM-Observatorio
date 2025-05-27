@@ -63,7 +63,7 @@ const Demo = () => {
                     background: '#19467f',
                     display: 'flex',
                     alignItems: 'center',
-                    paddingLeft: '32px',
+                    paddingLeft: '5vw',
                     boxSizing: 'border-box',
                     marginBottom: '32px',
                     position: 'fixed',
@@ -71,9 +71,22 @@ const Demo = () => {
                     left: 0,
                     zIndex: 1000,
                 }}
-            >
-                <span style={{ color: 'white', fontSize: '1.5rem', fontWeight: 'bold', fontFamily: 'Montserrat' }}>
-                    Observatorio Educativo UPNFM
+            >   
+                <a href="/landingpage" style={{ display: 'inline-block' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" className="bi bi-house-door-fill" viewBox="0 0 16 16" style={{ marginRight: '12px', verticalAlign: 'middle' }}>
+                        <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5"/>
+                    </svg>
+                </a>
+                <span style={{
+                    color: 'white',
+                    fontSize: 'clamp(1rem, 2vw, 1.5rem)',
+                    fontWeight: 'bold',
+                    fontFamily: 'Montserrat',
+                    verticalAlign: 'middle',
+                    whiteSpace: 'pre-line',
+                    lineHeight: 1.1,
+                }}>
+                    Observatorio Universitario de la Educación Nacional e Internacional
                 </span>
             </nav>
             <div
@@ -87,29 +100,54 @@ const Demo = () => {
                     zIndex: 2,
                 }}
             >
-                <Card className="cardShadow" style={{ width: '25rem', height: '25rem' }}>
+                <Card
+                    className="cardShadow responsive-card"
+                    style={{
+                        width: '90vw',
+                        maxWidth: '400px',
+                        minWidth: '0',
+                        margin: '2vw',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+                    }}
+                >
                     <Card.Body>
                         <div className="container">
                             <div className="header">
                                 <div
                                     className="text font textColor center padding"
-                                    style={{ fontWeight: 'bold', fontSize: "20px", paddingBottom: "27px",paddingTop: "19px" }}
+                                    style={{
+                                        fontWeight: 'bold',
+                                        fontSize: "clamp(1.1rem, 2vw, 1.3rem)",
+                                        paddingBottom: "27px",
+                                        paddingTop: "19px"
+                                    }}
                                 >
                                     Iniciar Sesión
                                 </div>
                                 <div className="underline"></div>
                             </div>
                             <div className="inputs">
-                                
-                                <p className="text font textColor padding">Correo Electrónico</p>
-                                <div className="input">
-                                    <img src="email.png" alt="" />
-                                    <input type="email" />
+                                <p className="text font textColor padding" style={{ fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)' }}>Correo Electrónico</p>
+                                <div className="input" style={{ marginBottom: '1rem' }}>
+                                    <img src="email.png" alt="" style={{ width: '20px', marginRight: '8px' }} />
+                                    <input type="email" style={{
+                                        width: '100%',
+                                        minWidth: 0,
+                                        padding: '8px',
+                                        fontSize: '1rem',
+                                       
+                                    }} />
                                 </div>
-                                <p className="text font textColor">Contraseña</p>
-                                <div className="input">
-                                    <img src="password.png" alt="" />
-                                    <input type="password" />
+                                <p className="text font textColor" style={{ fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)' }}>Contraseña</p>
+                                <div className="input" style={{ marginBottom: '1.5rem' }}>
+                                    <img src="password.png" alt="" style={{ width: '20px', marginRight: '8px' }} />
+                                    <input type="password" style={{
+                                        width: '100%',
+                                        minWidth: 0,
+                                        padding: '8px',
+                                        fontSize: '1rem',
+                                    }} />
                                 </div>
                                 <div
                                     className="submit container"
@@ -129,6 +167,8 @@ const Demo = () => {
                                             font: 'inherit',
                                             borderRadius: '4px',
                                             cursor: 'pointer',
+                                            width: '100%',
+                                            fontSize: '1rem',
                                         }}
                                     >
                                         Iniciar Sesión
@@ -144,14 +184,30 @@ const Demo = () => {
                 alt="UPNFM Logo"
                 style={{
                     position: 'fixed',
-                    right: '70px',
-                    bottom: '50px',
-                    width: '74px',
+                    right: '4vw',
+                    bottom: '3vw',
+                    width: '12vw',
+                    maxWidth: '74px',
                     height: 'auto',
                     zIndex: 1001,
                     opacity: 0.9,
                 }}
             />
+            <style>
+                {`
+                @media (max-width: 600px) {
+                    .responsive-card {
+                        max-width: 98vw !important;
+                        margin: 1vw !important;
+                        padding: 0 !important;
+                    }
+                    nav span {
+                        font-size: 1rem !important;
+                        white-space: normal !important;
+                    }
+                }
+                `}
+            </style>
         </div>
     );
 };
