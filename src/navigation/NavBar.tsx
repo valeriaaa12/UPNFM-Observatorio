@@ -13,6 +13,7 @@ export default function NavBar() {
     const { t, i18n } = useTranslation('common');  
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
   return (
     <>
       <div className='d-none d-lg-block'>
@@ -41,6 +42,21 @@ export default function NavBar() {
                   <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
 
                   {/* Dropdowns */}
+                  <NavDropdown
+                    title={<span className="whiteText fw-bold">{t("IndicadoresEducativos")}</span>}
+                    id="navbarScrollingDropdown"
+                    show={open3}
+                    onMouseEnter={() => setOpen3(true)}
+                    onMouseLeave={() => setOpen3(false)}
+                    className="dropdown-with-fade"
+                  >
+                    <NavDropdown.Item href="/Boletines">Cobertura</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/mapscreen">Desercion</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item onClick={() => i18n.changeLanguage('es')}>Repitencia</NavDropdown.Item>
+                  </NavDropdown>
+
                   <NavDropdown
                     title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>}
                     id="navbarScrollingDropdown"
