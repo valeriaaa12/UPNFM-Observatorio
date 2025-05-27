@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 
 export default function InfoCardsSegment() {
     return (<>
-        <div className="white font">
+        <div className="sectionGray font">
             <p className="blueText fontSection p-4 center">Características Clave</p>
             <Container className="d-flex justify-content-center" >
                 <div style={{ margin: "0 auto", maxWidth: "1200px" }}>
