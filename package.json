@@ -21,10 +21,11 @@
     "i18next-browser-languagedetector": "^8.1.0",
     "i18next-http-backend": "^3.0.2",
     "next": "^15.1.8",
-    "pdfjs-dist": "^5.2.133",
+    "pdfjs-dist": "^2.14.305",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-i18next": "^15.5.2",
     "react-login-page": "^1.0.5"
   },

@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.min.js'; 
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js`;
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PdfCanvasPreviewProps {
   pdf: string;
@@ -17,7 +16,7 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
   useEffect(() => {
     const renderPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({ url: pdf, disableStream: true });
+        const loadingTask = getDocument({ url: pdf });
         const loadedPdf = await loadingTask.promise;
         const page = await loadedPdf.getPage(1);
         const viewport = page.getViewport({ scale: 0.8 });
@@ -36,13 +35,8 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
           renderTaskRef.current = page.render({ canvasContext: context, viewport });
           await renderTaskRef.current.promise;
         }
-      } catch (error) {
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'name' in error &&
-          (error as any).name === 'RenderingCancelledException'
-        ) {
+      } catch (error: any) {
+        if (error?.name === 'RenderingCancelledException') {
           console.log('Render cancelado');
         } else {
           console.error('Error al renderizar el PDF:', error);
@@ -63,7 +57,13 @@ export default function PdfCanvasPreview({ pdf }: PdfCanvasPreviewProps) {
     <canvas
       ref={canvasRef}
       className="card-img-top"
-      style={{ width: '100%', height: 'auto', aspectRatio: '4 / 3', objectFit: 'cover' }}
+      style={{
+        width: '100%',
+        height: 'auto',
+        aspectRatio: '4 / 3',
+        objectFit: 'cover',
+        display: 'block',
+      }}
     />
   );
 }
