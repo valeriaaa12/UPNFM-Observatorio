@@ -6,11 +6,14 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Dropdown } from 'react-bootstrap';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 
 export default function NavBar() {
+    const { t, i18n } = useTranslation('common');  
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
   return (
     <>
       <div className='d-none d-lg-block'>
@@ -33,14 +36,29 @@ export default function NavBar() {
                   className="me-auto my-2 my-lg-0 nav-links-container"
                   style={{ maxHeight: '100px' }}
                 >
-                  <Nav.Link className="whiteText" href="/landingpage"><b>Inicio</b></Nav.Link>
-                  <Nav.Link className="whiteText" href="/aboutUs"><b>Quienes Somos</b></Nav.Link>
-                  <Nav.Link className="whiteText" href="#action2"><b>Indicadores Educativos</b></Nav.Link>
-                  <Nav.Link className="whiteText" href="#action2"><b>Herramientas</b></Nav.Link>
+                  <Nav.Link className=" whiteText" href="/landingpage"><b>{t('Home')}</b></Nav.Link>
+                  <Nav.Link className=" whiteText" href="/aboutUs"><b>{t("About Us")}</b></Nav.Link>
+                  <Nav.Link className=" whiteText" href="#action2"><b>{t("IndicadoresEducativos")}</b></Nav.Link>
+                  <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
 
                   {/* Dropdowns */}
                   <NavDropdown
-                    title={<span className="whiteText fw-bold">Documentos y Publicaciones</span>}
+                    title={<span className="whiteText fw-bold">{t("IndicadoresEducativos")}</span>}
+                    id="navbarScrollingDropdown"
+                    show={open3}
+                    onMouseEnter={() => setOpen3(true)}
+                    onMouseLeave={() => setOpen3(false)}
+                    className="dropdown-with-fade"
+                  >
+                    <NavDropdown.Item href="/Boletines">Cobertura</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/mapscreen">Desercion</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item onClick={() => i18n.changeLanguage('es')}>Repitencia</NavDropdown.Item>
+                  </NavDropdown>
+
+                  <NavDropdown
+                    title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>}
                     id="navbarScrollingDropdown"
                     show={open}
                     onMouseEnter={() => setOpen(true)}
@@ -49,35 +67,51 @@ export default function NavBar() {
                   >
                     <NavDropdown.Item href="/Boletines">Boletines</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action5">Artículos de Interés</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => i18n.changeLanguage('en')}>Artículos de Interés</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action6">Datos Municipales</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => i18n.changeLanguage('es')}>Datos Municipales</NavDropdown.Item>
                   </NavDropdown>
 
                   <NavDropdown
-                    title={<span className="whiteText fw-bold">Comunidad</span>}
+                    title={<span className="whiteText fw-bold">{t("Comunidad")}</span>}
                     id="navbarScrollingDropdown"
                     show={open2}
+                    align="end" 
                     onMouseEnter={() => setOpen2(true)}
                     onMouseLeave={() => setOpen2(false)}
-                    className="dropdown-with-fade" // Add this class
+                    className="dropdown-with-fade"
                   >
-                    <NavDropdown.Item href="/login">Foros</NavDropdown.Item>
+                    <NavDropdown.Item href="/login">{t("Foros")}</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/login">Explorar Investigaciones</NavDropdown.Item>
+                    <NavDropdown.Item href="/login">{t("ExplorarInvestigaciones")}</NavDropdown.Item>
                   </NavDropdown>
 
                   {/*Fin dropdowns */}
                 </Nav>
-                <a href="/login">
+                
+                              <Dropdown className="d-inline mx-2 no-underline no_underline" align="end">
+                  <Dropdown.Toggle 
+                  id="dropdown-autoclose-true"
+                  className="p-0 border-0 bg-transparent userMenu" 
+                  as="div"
+                
+                >
                   <img
                     src="/images/usuario.png"
-                    width={'50px'}
-                    height={'auto'}
+                    width="50px"
+                    height="auto"
                     className="d-inline-block align-top me-3"
-                    alt="React Bootstrap logo"
+                    alt="User menu"
                   />
-                </a>
+                </Dropdown.Toggle>
+                
+                <Dropdown.Menu>
+                  
+                  <Dropdown.Item href="/login">{t("Login")}</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item href="/register">{t("Register")}</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
               </Navbar.Collapse>
             </div>
           </Container>

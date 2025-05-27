@@ -5,8 +5,12 @@ import ImgOverlay from "@/components/imageOverlay";
 import NavBar from "@/navigation/NavBar";
 import Footer from "@/sections/footer";
 import What from "@/sections/what";
+import LanguageSelector from "@/buttons/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 export default function LandingPage() {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="backgroundNavbar navbarSpacing">
@@ -15,11 +19,13 @@ export default function LandingPage() {
       </div>
       <SmallNavBar></SmallNavBar>
       
-      <ImgOverlay image="images/fondo2.jpg" text="OBSERVATORIO UNIVERSITARIO DE LA EDUCACIÓN NACIONAL E INTERNACIONAL (OUDENI)" bottom={true} />
+      <LanguageSelector></LanguageSelector>
+      <ImgOverlay image="images/fondo2.jpg" text={`${t("OUDENI")}(OUDENI)`} bottom={true} />
       <What></What>
       <Carrusel></Carrusel>
       <InfoCardsSegment></InfoCardsSegment>
       <Footer></Footer>
+
     </>
   );
 };
