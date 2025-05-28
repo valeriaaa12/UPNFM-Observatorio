@@ -8,7 +8,7 @@ export default function InfoCardsSegment() {
     return (
         <>
             <div className="sectionGray font fondoGris">
-                <p className="blueText fontSection p-4 center">{t("Caracteristicas Clave")}</p>
+                <p className="blueText fontSection p-4 center">{t("Características Clave")}</p>
                 <Container className="d-flex justify-content-center" >
                     <div style={{ margin: "0 auto", maxWidth: "1200px" }}>
                         <Row xs={1} md={2} lg={3} className="gx-4 justify-content-center">
