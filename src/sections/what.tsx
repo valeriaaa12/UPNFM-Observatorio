@@ -2,8 +2,12 @@ import React from "react";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
+import { useTranslation } from 'react-i18next';
+
 
 export default function InfoCardsSegment() {
+    const { t, i18n } = useTranslation('common');  
+    console.log('Current language:', i18n.language);
     return (
         <div className="textColor font py-5" style={{ backgroundColor: 'sectionGray' }}>
             <Container>
@@ -14,10 +18,10 @@ export default function InfoCardsSegment() {
         className="order-lg-1 order-1 mb-4 mb-lg-0 py-4 text-center text-lg-start"
     >
         <h2 className="mb-4">
-            ¿Qué es el Observatorio Universitario de la Educación Nacional e Internacional (OUDENI)?
+           {t("WhatisOUDENI?")}
         </h2>
         <p className="lead">
-            Somos el Observatorio Universitario de la Educación Nacional e Internacional (OUDENI), una unidad de la Universidad Pedagógica Nacional Francisco Morazán (UPNFM), creada en 2017 con el propósito de recopilar, sistematizar, analizar y difundir datos educativos que contribuyan al mejoramiento continuo de la calidad de la educación en Honduras.Nuestra misión es proporcionar información relevante y actualizada que sirva como base para la toma de decisiones en el ámbito educativo, apoyando la formulación, implementación y evaluación de políticas públicas.
+           {t("OUDENIDescription")}
         </p>
     </Col>
     <Col
