@@ -21,10 +21,24 @@ interface HondurasGeoJSON {
 }
 
 const departmentStats: Record<string, { value: number }> = {
-  'Francisco Morazán': { value: 75 },
-  'Cortés': { value: 40 },
   'Atlántida': { value: 60 },
-  // Add all 18 departments...
+  'Choluteca': { value: 30 },
+  'Colón': { value: 45 },
+  'Comayagua': { value:99.43},
+  'Copán': { value: 70 },
+  'Cortés': { value: 40 },
+  'El Paraíso': { value: 55 },
+  'Francisco Morazán': { value: 75 },
+  'Gracias a Dios': { value: 20 },
+  'Intibucá': { value: 35 },
+  'Islas de la Bahía': { value: 25 },
+  'La Paz': { value: 40 },
+  'Lempira': { value: 50 },
+  'Ocotepeque': { value: 100 },
+  'Olancho': { value: 60 },
+  'Santa Bárbara': { value: 45 },
+  'Valle': { value: 30 },
+  'Yoro': { value: 50 }
 };
 
 const MainMap = () => {
@@ -44,7 +58,7 @@ const MainMap = () => {
 
   // Style function for departments
   const deptStyle = (feature?: DepartmentFeature): L.PathOptions => {
-    const deptName = feature?.properties.NAME_1;
+    const deptName = feature?.properties.name;
     return {
       fillColor: deptName ? getDeptColor(deptName) : '#cccccc',
       weight: 1,
