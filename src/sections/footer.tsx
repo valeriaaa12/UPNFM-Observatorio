@@ -1,6 +1,7 @@
 import React from "react";
-
+import { useTranslation } from 'react-i18next';
 const Footer: React.FC = () => {
+    const { t, i18n } = useTranslation('common');  
   return (
     <div>
       <footer
@@ -32,7 +33,7 @@ const Footer: React.FC = () => {
                 <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
               </svg>
               <p className="text-xs sm:text-sm text-white">
-                Colonia el Dorado, Frente a Plaza Miraflores
+               {t("Ubicacion")} 
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white justify-center mb-2">
@@ -86,7 +87,7 @@ const Footer: React.FC = () => {
         className="border-t border-[#FE5000] text-center text-xs sm:text-sm text-white font"
         style={{ backgroundColor: "rgba(254,80,0,0.95)", width: "100%" }}
       >
-        © 2025 UPNFM - Observatorio Educativo Universidad Pedagógica Nacional Francisco Morazán. Todos los derechos reservados.
+        © 2025 UPNFM - {t("OUDENI")}
       </div>
     </div>
   );
