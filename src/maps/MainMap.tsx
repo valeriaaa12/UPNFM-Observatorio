@@ -11,8 +11,9 @@ interface department{
   name: string;
   legend: string;
   value: number;
+  year: string;
+  level: string;
 }
-
 
 
 //fin de mapeo
@@ -33,9 +34,9 @@ interface HondurasGeoJSON {
 }
 
 interface MapParams {
-  title: string;
-  year: string;
-  level: string;
+  title: string,
+  departments: department[] | null,
+  setDepartments: React.Dispatch<React.SetStateAction<department[] | null>>;
 }
 
 const departmentStats: Record<string, { value: number }> = {
@@ -60,58 +61,16 @@ const departmentStats: Record<string, { value: number }> = {
 };
 
 
-const MainMap = ({ title, year, level }: MapParams) => {
+const MainMap = ({title, departments, setDepartments}: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   //inicio mapeo
   //useState necesarios 
-  const [departments, setDepartments] = useState<department[] | null>(null);
-
+ 
   
-//metodo de mapeo
-const mapData = async () =>{
-  console.log("start")
-  try{
-    const config = {
-      headers: {
-         'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      params : {
-        anio : year,
-        nivel: level 
-      }
-    }  
 
-    
 
-    const url = process.env.NEXT_PUBLIC_API_URL + "/desercion"
-
-    const response = await axios.get(url, config)
-    
-    const tempoDepartments: department[] = response.data.map((item: any)=>({
-      name: item.departamento.toLowerCase(),
-      legend: item.leyenda,
-      value: item.tasa_desercion
-    }))
-
-    console.log(tempoDepartments)
-    setDepartments(tempoDepartments)
-    }catch(error : unknown){
-      console.log(error)
-    }
-}
-//useEffects necesarios para mapeo 
-  
-    useEffect(()=>{
-      
-      mapData()
-    },[])
-
-    useEffect(()=>{
-
-        mapData()
-    },[year, level])
   //fin mapeo
   const getDeptColor = (deptName: string): string => {
     const currentDep = departments?.find((item)=>
@@ -173,12 +132,15 @@ const mapData = async () =>{
   const FitBounds = () => {
     const map = useMap();
 
+  const fittedRef = useRef(false);
     useEffect(() => {
-      if (geoJsonLayerRef.current) {
-        const bounds = geoJsonLayerRef.current.getBounds();
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }, [map]);
+    if (!fittedRef.current && geoJsonLayerRef.current) {
+      const bounds = geoJsonLayerRef.current.getBounds();
+      map.fitBounds(bounds, { padding: [50, 50] });
+      fittedRef.current = true; 
+    }
+  }, []);
+
 
     return null;
   };
