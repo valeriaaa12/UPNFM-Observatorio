@@ -24,7 +24,7 @@ const departmentStats: Record<string, { value: number }> = {
   'Atlántida': { value: 60 },
   'Choluteca': { value: 30 },
   'Colón': { value: 45 },
-  'Comayagua': { value:99.43},
+  'Comayagua': { value: 99.43 },
   'Copán': { value: 70 },
   'Cortés': { value: 40 },
   'El Paraíso': { value: 55 },
@@ -49,10 +49,10 @@ const MainMap = () => {
   // Get color based on department value
   const getDeptColor = (deptName: string): string => {
     const value = departmentStats[deptName]?.value || 0;
-    if (value > 75) return '#4daf4a';
-    if (value > 50) return '#377eb8';
-    if (value > 25) return '#ff7f00';
-    return 'lime';
+    if (value > 75) return '#008000'; //verde oscuro
+    if (value > 50) return '#2ecc71 '; //verde
+    if (value > 25) return '#ff7f00'; //naranja
+    return '#e41a1c'; //rojo
   };
   
   const [geoData, setGeoData] = useState<FeatureCollection | null>(null);
@@ -90,7 +90,7 @@ const MainMap = () => {
       mouseover: () => setHoveredDept(deptName),
       mouseout: () => setHoveredDept(null)
     });
-    
+
     layer.bindTooltip(deptName, {
       permanent: false,
       direction: 'auto',
@@ -103,10 +103,10 @@ const MainMap = () => {
       .then(res => res.json())
       .then(data => setGeoData(data));
   }, []);
-  
+
   const FitBounds = () => {
     const map = useMap();
-    
+
     useEffect(() => {
       if (geoJsonLayerRef.current) {
         const bounds = geoJsonLayerRef.current.getBounds();
@@ -118,19 +118,19 @@ const MainMap = () => {
   };
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      height: '600px', 
+    <div style={{
+      position: 'relative',
+      height: '34rem',
       width: '100%',
-      backgroundColor: 'white' // Add white background to container
+      backgroundColor: 'white'
     }}>
       <MapContainer
         center={[14.8, -86.8]}
         zoom={7}
-        style={{ 
-          height: '100%', 
+        style={{
+          height: '100%',
           width: '100%',
-          backgroundColor: 'white' // Ensure map has white background
+          backgroundColor: 'white'
         }}
         minZoom={6}
         maxBounds={L.latLngBounds(
@@ -139,7 +139,6 @@ const MainMap = () => {
         )}
       >
         {/* Remove the TileLayer component */}
-        
         {geoData && (
           <GeoJSON
             data={geoData}
@@ -148,7 +147,7 @@ const MainMap = () => {
             ref={geoJsonLayerRef}
           />
         )}
-        
+
         <FitBounds />
       </MapContainer>
 
@@ -162,24 +161,24 @@ const MainMap = () => {
         borderRadius: '5px',
         boxShadow: '0 0 10px rgba(0,0,0,0.2)',
         zIndex: 1000,
-        border: '1px solid #ccc' // Add border for better visibility
+        border: '1px solid #ccc'
       }}>
-        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Legend</div>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Nivel de Cumplimiento</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#4daf4a', marginRight: '5px' }}></div>
-          <span>High (76-100)</span>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
+          <span>Supera la meta (76-100%)</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#377eb8', marginRight: '5px' }}></div>
-          <span>Medium (51-75)</span>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+          <span>Cumple la meta (51-75%)</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
-          <span>Low (26-50)</span>
+          <span>Por debajo de la meta (26-50%)</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-          <span>Very Low (0-25)</span>
+          <span>Lejos de la meta (0-25%)</span>
         </div>
       </div>
 
@@ -199,7 +198,7 @@ const MainMap = () => {
         }}>
           <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
           <p>Value: {departmentStats[selectedDept]?.value || 'N/A'}</p>
-          <button 
+          <button
             onClick={() => setSelectedDept(null)}
             style={{
               padding: '5px 10px',
