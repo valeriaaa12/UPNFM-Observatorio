@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 
-import Boletin from "@/cards/Boletin";
+import LanguageSelector from "@/buttons/LanguageSelector";
+import Boletin from "@/cards/Boletin"; // Cambia si tu ruta es diferente
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
@@ -11,6 +13,7 @@ export default function Boletines() {
   const [showModal, setShowModal] = useState(false);
   const [boletinTitle, setBoletinTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const { t } = useTranslation("common");
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -20,28 +23,27 @@ export default function Boletines() {
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { 'application/pdf': [] },
+    accept: { "application/pdf": [] },
     multiple: false,
     onDrop: (acceptedFiles) => {
       const file = acceptedFiles?.[0];
       if (file && file.type === "application/pdf") {
         setFile(file);
       } else {
-        alert("Por favor selecciona un archivo PDF válido.");
+        alert(t("SeleccionarValido"));
       }
-    }
+    },
   });
-
 
   const handleGuardarBoletin = () => {
     if (!boletinTitle || !file) {
-      alert("Por favor, completa el título y selecciona un archivo PDF.");
+      alert(t("CompletarBoletin"));
       return;
     }
 
     // Aquí iría la lógica de subida (a servidor, Firebase, etc.)
-    console.log("Título del boletín:", boletinTitle);
-    console.log("Archivo seleccionado:", file);
+    console.log(t("Titulo del Boletín"), boletinTitle);
+    console.log(t("Archivo seleccionado"), file);
 
     // Cerrar modal
     handleCloseModal();
@@ -49,17 +51,19 @@ export default function Boletines() {
 
   return (
     <>
+      <LanguageSelector />
       <div className="font">
         <div className="blue blueNavbar">
           <NavBar />
           <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
+
         <SmallNavBar />
 
         <div className="d-flex justify-content-between align-items-center px-5 py-4">
-          <p className="fontSection m-0">Boletines</p>
+          <p className="fontSection m-0">{t("Boletines")}</p>
           <Button variant="btn orange" onClick={handleOpenModal}>
-            Nuevo Boletín
+            {t("Nuevo Boletín")}
           </Button>
         </div>
 
@@ -77,12 +81,12 @@ export default function Boletines() {
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Agregar Nuevo Boletín</Modal.Title>
+          <Modal.Title>{t("Agregar Boletín")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group controlId="boletinTitle" className="mb-3">
-              <Form.Label>Título del Boletín</Form.Label>
+              <Form.Label>{t("Titulo del Boletín")}</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Ej: Boletín #"
@@ -92,7 +96,7 @@ export default function Boletines() {
             </Form.Group>
 
             <Form.Group>
-              <Form.Label>Archivo PDF</Form.Label>
+              <Form.Label>{t("Archivo PDF")}</Form.Label>
               <div
                 {...getRootProps()}
                 className={`border border-2 rounded p-4 text-center ${isDragActive ? "bg-light" : ""}`}
@@ -100,11 +104,13 @@ export default function Boletines() {
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
-                  <p>Suelta el archivo aquí...</p>
+                  <p>{t("Suelta el archivo aqui")}</p>
                 ) : file ? (
-                  <p><strong>Archivo seleccionado:</strong> {file.name}</p>
+                  <p>
+                    <strong>{t("Archivo seleccionado")}</strong> {file.name}
+                  </p>
                 ) : (
-                  <p>Arrastra un archivo PDF aquí o haz clic para seleccionarlo</p>
+                  <p>{t("Arrastrar y soltar un archivo PDF aquí o hacer clic para seleccionarlo")}</p>
                 )}
               </div>
             </Form.Group>
@@ -112,10 +118,10 @@ export default function Boletines() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="btn outline-blue" onClick={handleCloseModal}>
-            Cerrar
+            {t("Cerrar")}
           </Button>
           <Button variant="btn orange" onClick={handleGuardarBoletin}>
-            Guardar Boletín
+            {t("Guardar Boletin")}
           </Button>
         </Modal.Footer>
       </Modal>
