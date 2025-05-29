@@ -4,6 +4,18 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 
+import axios from 'axios'
+
+//mapeo de datos
+interface department{
+  name: string;
+  legend: string;
+  value: number;
+}
+
+
+
+//fin de mapeo
 interface DepartmentProperties {
   name: string;
   [key: string]: any;
@@ -22,6 +34,8 @@ interface HondurasGeoJSON {
 
 interface MapParams {
   title: string;
+  year: string;
+  level: string;
 }
 
 const departmentStats: Record<string, { value: number }> = {
@@ -45,16 +59,70 @@ const departmentStats: Record<string, { value: number }> = {
   'Yoro': { value: 50 }
 };
 
-const MainMap = ({ title }: MapParams) => {
+
+const MainMap = ({ title, year, level }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
+  //inicio mapeo
+  //useState necesarios 
+  const [departments, setDepartments] = useState<department[] | null>(null);
 
+  
+//metodo de mapeo
+const mapData = async () =>{
+  console.log("start")
+  try{
+    const config = {
+      headers: {
+         'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      params : {
+        anio : year,
+        nivel: level 
+      }
+    }  
+
+    
+
+    const url = process.env.NEXT_PUBLIC_API_URL + "/desercion"
+
+    const response = await axios.get(url, config)
+    
+    const tempoDepartments: department[] = response.data.map((item: any)=>({
+      name: item.departamento.toLowerCase(),
+      legend: item.leyenda,
+      value: item.tasa_desercion
+    }))
+
+    console.log(tempoDepartments)
+    setDepartments(tempoDepartments)
+    }catch(error : unknown){
+      console.log(error)
+    }
+}
+//useEffects necesarios para mapeo 
+  
+    useEffect(()=>{
+      
+      mapData()
+    },[])
+
+    useEffect(()=>{
+
+        mapData()
+    },[year, level])
+  //fin mapeo
   const getDeptColor = (deptName: string): string => {
-    const value = departmentStats[deptName]?.value || 0;
-    if (value > 75) return '#008000'; //verde oscuro
-    if (value > 50) return '#2ecc71 '; //verde
-    if (value > 25) return '#ff7f00'; //naranja
+    const currentDep = departments?.find((item)=>
+      item.name == deptName.toLowerCase()
+    )
+    const value =  currentDep?.value || 0;
+   
+    console.log
+    if (value <= 2.51) return '#008000'; //verde oscuro
+    if (value <= 4) return '#2ecc71 '; //verde
+    if (value <= 5.58) return '#ff7f00'; //naranja
     return '#e41a1c'; //rojo
   };
 
@@ -184,19 +252,19 @@ const MainMap = ({ title }: MapParams) => {
           <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Nivel de Cumplimiento</div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
-            <span>Supera la meta (76-100%)</span>
+            <span>Supera la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
-            <span>Cumple la meta (51-75%)</span>
+            <span>Cumple la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
-            <span>Por debajo de la meta (26-50%)</span>
+            <span>Por debajo de la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-            <span>Lejos de la meta (0-25%)</span>
+            <span>Lejos de la meta</span>
           </div>
         </div>
 
@@ -215,7 +283,8 @@ const MainMap = ({ title }: MapParams) => {
             border: '1px solid #ccc'
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>Valor: {departmentStats[selectedDept]?.value || 'N/A'}</p>
+            <p>Valor: {departments?.find((item)=>item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
+            <p>{departments?.find((item)=>item.name == selectedDept.toLowerCase())?.legend || ' '}</p>
             <button
               onClick={() => setSelectedDept(null)}
               style={{

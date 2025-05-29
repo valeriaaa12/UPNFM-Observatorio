@@ -9,7 +9,8 @@ const MainMap = dynamic(() => import("@/maps/MainMap"), {
 });
 
 export default function MapScreen() {
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [level, setLevel] = useState("Básica III Ciclo")
   const years = ['Todos', '2020', '2021', '2022', '2023', '2024'];
 
   return (
@@ -36,11 +37,17 @@ export default function MapScreen() {
               <div style={{ marginBottom: '10px' }}>
                 <ComboBox
                   title="Nivel Educativo"
-                  options={["Todos", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}>
+                  options={["Todos", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
+                  value={level}
+                  onChange={setLevel}
+                  >
+                 
                 </ComboBox>
                 <ComboBox
                   title="Año"
-                  options={years}>
+                  options={years}
+                   value={selectedYear}
+                  onChange={setSelectedYear}>
                 </ComboBox>
               </div>
             </div>
@@ -74,7 +81,7 @@ export default function MapScreen() {
 
           {/* Mapa */}
           <div style={{ flex: 1, position: 'relative' }}>
-            <MainMap title="Tasa de Deserción Escolar en Honduras" />
+            <MainMap title="Tasa de Deserción Escolar en Honduras"  year={selectedYear} level={level}/>
           </div>
         </div>
 
