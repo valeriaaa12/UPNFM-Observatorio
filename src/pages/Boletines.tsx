@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 
-import Boletin from "@/pages/cards/Boletin";
+import Boletin from "@/cards/Boletin";
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
@@ -19,18 +19,18 @@ export default function Boletines() {
     setBoletinTitle("");
   };
 
- const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  accept: { 'application/pdf': [] },
-  multiple: false,
-  onDrop: (acceptedFiles) => {
-    const file = acceptedFiles?.[0];
-    if (file && file.type === "application/pdf") {
-      setFile(file);
-    } else {
-      alert("Por favor selecciona un archivo PDF válido.");
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { 'application/pdf': [] },
+    multiple: false,
+    onDrop: (acceptedFiles) => {
+      const file = acceptedFiles?.[0];
+      if (file && file.type === "application/pdf") {
+        setFile(file);
+      } else {
+        alert("Por favor selecciona un archivo PDF válido.");
+      }
     }
-  }
-});
+  });
 
 
   const handleGuardarBoletin = () => {
@@ -124,4 +124,3 @@ export default function Boletines() {
     </>
   );
 }
-  

@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import Button from 'react-bootstrap/Button';
 
-const PdfCanvasPreview = dynamic(() => import("@/pages/cards/PdfCanvasPreview"), {
+const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
 });
 
