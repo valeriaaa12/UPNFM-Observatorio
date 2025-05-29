@@ -1,5 +1,5 @@
-import Card from "@/pages/cards/teamCard"
-import HCard from "@/pages/cards/horizontalCard"
+import Card from "@/cards/teamCard"
+import HCard from "@/cards/horizontalCard"
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar"
 import SmallNavBar from "@/navigation/SmallNavBar"
