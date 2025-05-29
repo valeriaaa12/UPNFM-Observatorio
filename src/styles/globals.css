@@ -287,3 +287,8 @@ a {
   color: #FE5000 !important;
   background-color: #f8f9fa !important;
 }
+
+/*map styles*/
+.leaflet-interactive:focus {
+  outline: none !important;
+}
