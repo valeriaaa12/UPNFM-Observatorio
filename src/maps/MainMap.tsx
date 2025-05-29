@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 
 interface DepartmentProperties {
-  NAME_1: string;
+  name: string;
   [key: string]: any;
 }
 
@@ -54,6 +54,7 @@ const MainMap = () => {
     if (value > 25) return '#ff7f00';
     return 'lime';
   };
+  
   const [geoData, setGeoData] = useState<FeatureCollection | null>(null);
 
   // Style function for departments
@@ -62,24 +63,27 @@ const MainMap = () => {
     return {
       fillColor: deptName ? getDeptColor(deptName) : '#cccccc',
       weight: 1,
-      opacity: 1,
-      color: 'red',
-      fillOpacity: 0.7,
+
+      color: 'black',
+      fillOpacity: 0.5,
       ...(deptName === hoveredDept && {
-        weight: 3,
-        color: 'red',
-        fillOpacity: 0.9
+    
+      
+        fillOpacity: 0.7,
+      
+   
       }),
       ...(deptName === selectedDept && {
-        weight: 4,
-        color: 'red'
+        fillOpacity: 0.7,
+        weight: 2,
+        color: 'black'
       })
     };
   };
 
   // Event handlers
   const onEachDepartment = (feature: DepartmentFeature, layer: L.Layer) => {
-    const deptName = feature.properties.NAME_1;
+    const deptName = feature.properties.name;
     
     layer.on({
       click: () => setSelectedDept(deptName),
