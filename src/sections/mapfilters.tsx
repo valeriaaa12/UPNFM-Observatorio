@@ -7,7 +7,7 @@ interface params {
 }
 
 export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear }: params) {
-  const years = ['Todos', '2020', '2021', '2022', '2023', '2024'];
+  const years = ['Ninguno', '2020', '2021', '2022', '2023', '2024'];
   return (
     <>
       {/* Menú*/}
@@ -26,7 +26,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
               title="Nivel Educativo"
-              options={["Todos", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
+              options={["Ninguno", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
               value={level}
               onChange={setLevel}
             >

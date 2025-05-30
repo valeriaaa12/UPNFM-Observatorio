@@ -53,11 +53,17 @@ export default function NavBar() {
                     onMouseLeave={() => setOpen3(false)}
                     className="dropdown-with-fade"
                   >
-                    <NavDropdown.Item href="/Boletines">{t("Cobertura")}</NavDropdown.Item>
+                    <NavDropdown.Item href="/cobertura_bruta_screen">{t("Cobertura bruta")}</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/mapscreen">{t("Desercion")}</NavDropdown.Item>
+                    <NavDropdown.Item href="/cobertura_neta_screen">{t("Cobertura neta")}</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item onClick={() => i18n.changeLanguage('es')}>{t("Repitencia")}</NavDropdown.Item>
+                    <NavDropdown.Item href="/aprobacion_screen">{t("Aprobacion")}</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/desercion_screen">{t("Desercion")}</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/repitencia_screen">{t("Repitencia")}</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/reprobacion_screen">{t("Reprobacion")}</NavDropdown.Item>
                   </NavDropdown>
 
                   <NavDropdown

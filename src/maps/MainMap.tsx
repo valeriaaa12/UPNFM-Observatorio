@@ -30,11 +30,20 @@ interface HondurasGeoJSON {
   type: string;
   features: DepartmentFeature[];
 }
-
+interface legend{ 
+  level: string;
+  message: string;
+  lowerLimit: number;
+  upperLimit: number;
+}
 interface MapParams {
-  title: string,
-  departments: department[] | null,
+  title: string;
+  departments: department[] | null;
   setDepartments: React.Dispatch<React.SetStateAction<department[] | null>>;
+  legends: legend[] | null;
+  setLegends: React.Dispatch<React.SetStateAction<legend[] | null>>;
+  map: string;
+  level: string;
 }
 
 const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
@@ -57,29 +66,49 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 };
 
 
-const MainMap = ({ title, departments, setDepartments }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, map, level }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
 
+  const fallback: legend = {
+    level: "",
+    message: "",
+    lowerLimit: 0,
+    upperLimit: 0
+  }
   const getDeptColor = (deptName: string): string => {
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
     const value = currentDep?.value || 0;
+    
+    const darkgreen: legend = legends?.find((item) =>
+      item.message === "Mucho mejor que la meta" && item.level === level
+    ) ?? fallback;
+
+    const green: legend = legends?.find((item) =>
+      item.message === "Dentro de la meta" && item.level === level
+    ) ?? fallback;
+
+    const orange: legend = legends?.find((item) =>
+      item.message === "Lejos de la meta" && item.level === level
+    ) ?? fallback;
+
 
     if (value == 0) return '#808080'; //gris
-    if (value <= 2.51) return '#008000'; //verde oscuro
-    if (value <= 4) return '#2ecc71 '; //verde
-    if (value <= 5.58) return '#ff7f00'; //naranja
+    if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
+    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
+    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
     return '#e41a1c'; //rojo 
   };
 
   //Loading...
   useEffect(() => {
     setIsLoading(true);
-    fetch('/others/hn.json')
+    fetch(map)
       .then(res => res.json())
       .then(data => {
         setTimeout(() => {
@@ -219,19 +248,19 @@ const MainMap = ({ title, departments, setDepartments }: MapParams) => {
           <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Nivel de Cumplimiento</div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
-            <span>Supera la meta</span>
+            <span>Mucho mejor que la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
-            <span>Cumple la meta</span>
+            <span>Dentro de la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
-            <span>Por debajo de la meta</span>
+            <span>Lejos de la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-            <span>Lejos de la meta</span>
+            <span>Muy Lejos de la meta</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>

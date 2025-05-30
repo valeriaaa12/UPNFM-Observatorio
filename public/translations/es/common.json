@@ -71,6 +71,9 @@
   "Cerrar": "Cerrar",
   "Guardar Boletin": "Guardar Boletín",
   "CompletarBoletin": "Por favor, completa el título y selecciona un archivo PDF.",
-  "SeleccionarValido": "Por favor, selecciona un archivo PDF válido."
-
+  "SeleccionarValido": "Por favor, selecciona un archivo PDF válido.",
+  "Aprobacion": "Aprobación",
+  "Reprobacion": "Reprobación",
+  "Cobertura bruta": "Cobertura (Tasa Bruta)",
+  "Cobertura neta": "Cobertura (Tasa neta)"
 }
