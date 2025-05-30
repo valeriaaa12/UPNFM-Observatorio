@@ -39,7 +39,7 @@ export default function InfoCardsSegment() {
                 width: '100%',
                 height: 'auto',
                 borderRadius: '8px',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+             
             }}
         />
     </Col>
