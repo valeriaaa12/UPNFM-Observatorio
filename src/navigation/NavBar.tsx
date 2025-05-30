@@ -42,7 +42,6 @@ export default function NavBar() {
                 <Nav className="me-auto my-2 my-lg-0 nav-links-container" style={{ maxHeight: '100px' }}>
                   <Nav.Link className=" whiteText" href="/landingpage"><b>{t('Home')}</b></Nav.Link>
                   <Nav.Link className=" whiteText" href="/aboutUs"><b>{t("About Us")}</b></Nav.Link>
-                  <Nav.Link className=" whiteText" href="#action2"><b>{t("IndicadoresEducativos")}</b></Nav.Link>
                   <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
 
                   {/* Dropdowns */}

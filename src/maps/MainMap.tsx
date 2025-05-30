@@ -3,18 +3,16 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
-
 import axios from 'axios'
 
 //mapeo de datos
-interface department{
+interface department {
   name: string;
   legend: string;
   value: number;
   year: string;
   level: string;
 }
-
 
 //fin de mapeo
 interface DepartmentProperties {
@@ -39,51 +37,58 @@ interface MapParams {
   setDepartments: React.Dispatch<React.SetStateAction<department[] | null>>;
 }
 
-const departmentStats: Record<string, { value: number }> = {
-  'Atlántida': { value: 60 },
-  'Choluteca': { value: 30 },
-  'Colón': { value: 45 },
-  'Comayagua': { value: 99.43 },
-  'Copán': { value: 70 },
-  'Cortés': { value: 40 },
-  'El Paraíso': { value: 55 },
-  'Francisco Morazán': { value: 75 },
-  'Gracias a Dios': { value: 20 },
-  'Intibucá': { value: 35 },
-  'Islas de la Bahía': { value: 25 },
-  'La Paz': { value: 40 },
-  'Lempira': { value: 50 },
-  'Ocotepeque': { value: 100 },
-  'Olancho': { value: 60 },
-  'Santa Bárbara': { value: 45 },
-  'Valle': { value: 30 },
-  'Yoro': { value: 50 }
+const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
+  const map = useMap();
+  const fittedRef = useRef(false);
+
+  useEffect(() => {
+    if (geoData && !fittedRef.current) {
+      const bounds = L.geoJSON(geoData).getBounds();
+      map.fitBounds(bounds, { padding: [50, 50] });
+      fittedRef.current = true;
+
+      return () => {
+        fittedRef.current = true;
+      };
+    }
+  }, [geoData]);
+
+  return null;
 };
 
 
-const MainMap = ({title, departments, setDepartments}: MapParams) => {
+const MainMap = ({ title, departments, setDepartments }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
-  //inicio mapeo
-  //useState necesarios 
- 
-  
 
-
-  //fin mapeo
   const getDeptColor = (deptName: string): string => {
-    const currentDep = departments?.find((item)=>
+    const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
-    const value =  currentDep?.value || 0;
-   
-    console.log
+    const value = currentDep?.value || 0;
+
+    if (value == 0) return '#808080'; //gris
     if (value <= 2.51) return '#008000'; //verde oscuro
     if (value <= 4) return '#2ecc71 '; //verde
     if (value <= 5.58) return '#ff7f00'; //naranja
-    return '#e41a1c'; //rojo
+    return '#e41a1c'; //rojo 
   };
+
+  //Loading...
+  useEffect(() => {
+    setIsLoading(true);
+    fetch('/others/hn.json')
+      .then(res => res.json())
+      .then(data => {
+        setTimeout(() => {
+          setGeoData(data);
+          setIsLoading(false);
+        }, 3000);
+      })
+      .catch(() => setIsLoading(false));
+  }, []);
 
   const [geoData, setGeoData] = useState<FeatureCollection | null>(null);
 
@@ -123,28 +128,6 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
     });
   };
 
-  useEffect(() => {
-    fetch('/others/hn.json')
-      .then(res => res.json())
-      .then(data => setGeoData(data));
-  }, []);
-
-  const FitBounds = () => {
-    const map = useMap();
-
-  const fittedRef = useRef(false);
-    useEffect(() => {
-    if (!fittedRef.current && geoJsonLayerRef.current) {
-      const bounds = geoJsonLayerRef.current.getBounds();
-      map.fitBounds(bounds, { padding: [50, 50] });
-      fittedRef.current = true; 
-    }
-  }, []);
-
-
-    return null;
-  };
-
   return (
     <div style={{
       position: 'relative',
@@ -152,6 +135,27 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
       width: '100%',
       backgroundColor: 'white'
     }}>
+      {/* Spinner de carga */}
+      {isLoading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          zIndex: 1001
+        }}>
+          <div className="loading-spinner-container">
+            <div className="loading-spinner" />
+            <p className="loading-text">Cargando mapa...</p>
+          </div>
+        </div>
+      )}
+
       {/* Título*/}
       <div style={{
         padding: '12px 20px',
@@ -173,6 +177,7 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
         width: '100%',
         position: 'relative'
       }}>
+
         <MapContainer
           center={[14.8, -86.8]}
           zoom={7}
@@ -196,7 +201,7 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
             />
           )}
 
-          <FitBounds />
+          <FitBounds geoData={geoData} />
         </MapContainer>
 
         {/* Leyendas */}
@@ -228,6 +233,10 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
             <span>Lejos de la meta</span>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+            <span>N/A</span>
+          </div>
         </div>
 
         {/* Department Info */}
@@ -245,8 +254,8 @@ const MainMap = ({title, departments, setDepartments}: MapParams) => {
             border: '1px solid #ccc'
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>Valor: {departments?.find((item)=>item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
-            <p>{departments?.find((item)=>item.name == selectedDept.toLowerCase())?.legend || ' '}</p>
+            <p>Valor: {departments?.find((item) => item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
+            <p>{departments?.find((item) => item.name == selectedDept.toLowerCase())?.legend || ' '}</p>
             <button
               onClick={() => setSelectedDept(null)}
               style={{

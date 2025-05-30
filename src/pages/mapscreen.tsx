@@ -11,7 +11,7 @@ const MainMap = dynamic(() => import("@/maps/MainMap"), {
 });
 
 //mapeo de datos
-interface department{
+interface department {
   name: string;
   legend: string;
   value: number;
@@ -27,24 +27,20 @@ export default function MapScreen() {
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
 
-  {/*mapeo*/}
+  {/*mapeo*/ }
   //metodo de mapeo
-  const mapData = async () =>{
+  const mapData = async () => {
     console.log("start")
-    try{
+    try {
       const config = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
-      }  
-
-      
-
-      const url = process.env.NEXT_PUBLIC_API_URL + "/desercion"
-
+      }
+      const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/desercion"
       const response = await axios.get(url, config)
-      
-      const tempoDepartments: department[] = response.data.map((item: any)=>({
+
+      const tempoDepartments: department[] = response.data.map((item: any) => ({
         name: item.departamento.toLowerCase(),
         legend: item.leyenda,
         value: item.tasa_desercion,
@@ -56,26 +52,26 @@ export default function MapScreen() {
       await setDepartments(tempoDepartments)
 
       filterData();
-      }catch(error : unknown){
-        console.log(error)
-        console.log("end")
-      }
+    } catch (error: unknown) {
+      console.log(error)
+      console.log("end")
+    }
   }
 
-  const filterData = async () =>{
-     const filtered = departments?.filter(
+  const filterData = async () => {
+    const filtered = departments?.filter(
       (item) => item.year == selectedYear && item.level == level
-    )?? null;
-      await setFilteredDepartments(filtered)
-      console.log(filtered)
+    ) ?? null;
+    await setFilteredDepartments(filtered)
+    console.log(filtered)
   }
 
   //useStated necesarios
-  useEffect(()=>{
+  useEffect(() => {
     mapData()
   }, [])
 
-  useEffect(()=>{
+  useEffect(() => {
     filterData()
   }, [selectedYear, level])
   return (
@@ -91,7 +87,7 @@ export default function MapScreen() {
 
           {/* Mapa */}
           <div style={{ flex: 1, position: 'relative' }}>
-            <MainMap title="Tasa de Deserción Escolar en Honduras"  departments={filteredDepartments} setDepartments={setFilteredDepartments}/>
+            <MainMap title="Tasa de Deserción Escolar en Honduras" departments={filteredDepartments} setDepartments={setFilteredDepartments} />
           </div>
         </div>
 
