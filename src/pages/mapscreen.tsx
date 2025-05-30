@@ -40,7 +40,7 @@ export default function MapScreen() {
 
       
 
-      const url = process.env.NEXT_PUBLIC_API_URL + "/desercion"
+      const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/desercion"
 
       const response = await axios.get(url, config)
       
