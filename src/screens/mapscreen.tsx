@@ -19,42 +19,71 @@ interface department {
   level: string;
 }
 
+interface params{
+    title: string;
+    extensionData: string; 
+    extensionLimits: string;
+}
 
 
-export default function MapScreen() {
+interface legend{ 
+  level: string;
+  message: string;
+  lowerLimit: number;
+  upperLimit: number;
+}
+export default function MapScreen({title, extensionData, extensionLimits}:params) {
   const [selectedYear, setSelectedYear] = useState("2024");
   const [level, setLevel] = useState("Básica III Ciclo")
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
-
+  const [legends, setLegends] = useState<legend[] | null>(null);
+  const [loading, setLoading] = useState(true);
   {/*mapeo*/ }
   //metodo de mapeo
   const mapData = async () => {
-    console.log("start")
+    setLoading(true);
     try {
       const config = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
       }
-      const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/desercion"
-      const response = await axios.get(url, config)
+      const url = process.env.NEXT_PUBLIC_BACKEND_URL + extensionData
+      //segundo query para los limites
+      const url2 = process.env.NEXT_PUBLIC_BACKEND_URL + extensionLimits
 
+       const [response, response2] = await Promise.all([
+      axios.get(url, config),
+      axios.get(url2, config)
+    ]);
       const tempoDepartments: department[] = response.data.map((item: any) => ({
         name: item.departamento.toLowerCase(),
         legend: item.leyenda,
-        value: item.tasa_desercion,
+        value: parseFloat(item.tasa),
         year: item.periodo_anual,
         level: item.nivel
       }))
 
-      console.log(response)
-      await setDepartments(tempoDepartments)
 
+      
+      
+console.log("got here")
+      console.log(response2)
+      const tempoLegends: legend[] = response2.data.map((item:any)=>({
+        level: item.nivel,
+        message: item.leyenda,
+        lowerLimit: parseFloat(item.min),
+        upperLimit: parseFloat(item.max)
+
+      }))
+      console.log(tempoLegends)
+      setLegends(tempoLegends)
+      setDepartments(tempoDepartments)
       filterData();
+      setLoading(false);
     } catch (error: unknown) {
-      console.log(error)
-      console.log("end")
+    
     }
   }
 
@@ -63,7 +92,7 @@ export default function MapScreen() {
       (item) => item.year == selectedYear && item.level == level
     ) ?? null;
     await setFilteredDepartments(filtered)
-    console.log(filtered)
+
   }
 
   //useStated necesarios
@@ -74,6 +103,7 @@ export default function MapScreen() {
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
+
   return (
     <>
       <div className="font">
@@ -81,15 +111,20 @@ export default function MapScreen() {
           <NavBar />
           <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
-        <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+        {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div> :
+          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
           {/*menu */}
           <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel}></MapFilters>
-
+        
           {/* Mapa */}
           <div style={{ flex: 1, position: 'relative' }}>
-            <MainMap title="Tasa de Deserción Escolar en Honduras" departments={filteredDepartments} setDepartments={setFilteredDepartments} />
+            <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends}/>
           </div>
-        </div>
+        </div>}
 
       </div >
     </>

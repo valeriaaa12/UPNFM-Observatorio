@@ -71,6 +71,9 @@
   "Cerrar": "Close",
   "Guardar Boletin": "Save Bulletin",
   "CompletarBoletin": "Please complete the title and select a PDF file.",
-  "SeleccionarValido": "Please select a valid PDF file."
-    
+  "SeleccionarValido": "Please select a valid PDF file.",
+  "Aprobacion": "Approval",
+  "Reprobacion": "Reprobation",
+  "Cobertura bruta": "Coverage (Gross Rate)",
+  "Cobertura neta": "Coverage (Net Rate)"
 }
