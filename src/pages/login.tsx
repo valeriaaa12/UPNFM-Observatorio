@@ -63,13 +63,15 @@ const Demo = () => {
                     background: '#19467f',
                     display: 'flex',
                     alignItems: 'center',
-                    paddingLeft: '5vw',
+                    justifyContent: 'flex-start',
+                    paddingLeft: '20px',
                     boxSizing: 'border-box',
                     marginBottom: '32px',
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    zIndex: 1000,
+                    zIndex: 1000
+
                 }}
             >   
                 <a href="/landingpage" style={{ display: 'inline-block' }}>
@@ -135,7 +137,7 @@ const Demo = () => {
                                         width: '100%',
                                         minWidth: 0,
                                         padding: '8px',
-                                        fontSize: '1rem',
+                                        fontSize: '0.10rem',
                                        
                                     }} />
                                 </div>
@@ -146,7 +148,7 @@ const Demo = () => {
                                         width: '100%',
                                         minWidth: 0,
                                         padding: '8px',
-                                        fontSize: '1rem',
+                                        fontSize: '0.10rem',
                                     }} />
                                 </div>
                                 <div
@@ -169,6 +171,7 @@ const Demo = () => {
                                             cursor: 'pointer',
                                             width: '100%',
                                             fontSize: '1rem',
+                                            marginBottom: '1rem',
                                         }}
                                     >
                                         Iniciar Sesión

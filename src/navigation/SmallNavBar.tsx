@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SmallNavBar() {
-   const { t, i18n } = useTranslation('common');  
+  const { t, i18n } = useTranslation('common');  
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   return (
@@ -36,20 +36,20 @@ export default function SmallNavBar() {
                 <Nav.Link className=" whiteText" href="#action2"><b>Indicadores Educativos</b></Nav.Link>
                 <Nav.Link className=" whiteText" href="#action2"><b>Herramientas</b></Nav.Link>
 
-                <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>} id="basic-nav-dropdown">
+                <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">DocumentosPublicaciones</span>} id="basic-nav-dropdown">
 
-                  <NavDropdown.Item className='whiteText' href="/Boletines">{t("Boletines")}</NavDropdown.Item>
+                  <NavDropdown.Item className='whiteText' href="/Boletines">Boletines</NavDropdown.Item>
 
-                  <NavDropdown.Item className='whiteText' href="#action5">{t("Artículos")}</NavDropdown.Item>
+                  <NavDropdown.Item className='whiteText' href="#action5">Artículos</NavDropdown.Item>
 
-                  <NavDropdown.Item className='whiteText' href="#action6">{t("DatosMunicipales")}</NavDropdown.Item>
+                  <NavDropdown.Item className='whiteText' href="#action6">DatosMunicipales</NavDropdown.Item>
                 </NavDropdown>
 
-                <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">{t("Comunidad")}</span>} id="basic-nav-dropdown">
+                <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">Comunidad</span>} id="basic-nav-dropdown">
 
-                  <NavDropdown.Item href="/login">{t("Foros")}</NavDropdown.Item>
+                  <NavDropdown.Item href="/login">Foros</NavDropdown.Item>
 
-                  <NavDropdown.Item href="/login">{t("ExplorarInvestigaciones")}</NavDropdown.Item>
+                  <NavDropdown.Item href="/login">ExplorarInvestigaciones</NavDropdown.Item>
                 </NavDropdown>
 
                 <Nav.Link className=" whiteText" href="/login"><b>{t("Login")}</b></Nav.Link>

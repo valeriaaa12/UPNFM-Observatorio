@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
-import Button from 'react-bootstrap/Button';
+import { useTranslation } from 'react-i18next';
 
+// Ajusta la ruta según tu estructura de carpetas
 const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
 });
@@ -11,6 +12,8 @@ interface Boletin {
 }
 
 export default function Card({ title, pdf }: Boletin) {
+  const { t } = useTranslation('common');
+
   return (
     <div className="card mb-2 hover-effect" style={{ width: '100%', height: 'auto' }}>
       <PdfCanvasPreview pdf={pdf} />
@@ -23,13 +26,14 @@ export default function Card({ title, pdf }: Boletin) {
             rel="noopener noreferrer"
             className="btn orange text-white"
           >
-            Ver PDF
+            {t("Ver PDF")}
           </a>
           <a href={pdf} download className="btn btn-outline-dark">
-            Descargar PDF
+            {t("Descargar PDF")}
           </a>
         </div>
       </div>
     </div>
   );
 }
+
