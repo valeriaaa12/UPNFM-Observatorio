@@ -27,6 +27,7 @@
     "jspdf": "^3.0.1",
     "leaflet": "^1.9.4",
     "next": "^15.1.8",
+    "next-i18next": "^15.4.2",
     "pdfjs-dist": "^2.14.305",
     "powerbi-client": "^2.23.1",
     "react": "^19.1.0",

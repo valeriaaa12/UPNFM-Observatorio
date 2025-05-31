@@ -169,7 +169,7 @@ a {
 /*floating language selector*/
 .floating-sl {
   position: fixed;
-  z-index: 10;
+  z-index: 9999;
   margin-bottom: 20px;
   margin-right: 20px;
   right: 0%;
