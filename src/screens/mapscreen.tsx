@@ -5,7 +5,8 @@ import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
-
+import LanguageSelector from "@/buttons/LanguageSelector";
+import { useTranslation } from "react-i18next";
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -33,8 +34,8 @@ interface legend {
   upperLimit: number;
 }
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
-  const [selectedYear, setSelectedYear] = useState("2024");
-  const [level, setLevel] = useState("Básica III Ciclo")
+  const [selectedYear, setSelectedYear] = useState("Ninguno");
+  const [level, setLevel] = useState("Ninguno")
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
   const [legends, setLegends] = useState<legend[] | null>(null);
@@ -104,7 +105,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
-
+  const { t } = useTranslation('common');
   return (
     <>
       <div className="font">
@@ -126,7 +127,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
               <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
             </div>
           </div>}
-
+      <LanguageSelector></LanguageSelector>
       </div >
     </>
   );

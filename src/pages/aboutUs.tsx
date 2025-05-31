@@ -1,15 +1,23 @@
  import Card from "@/cards/teamCard"
 import HCard from "@/cards/horizontalCard"
 import Footer from "@/sections/footer";
-import NavBar from "@/navigation/NavBar"
-import SmallNavBar from "@/navigation/SmallNavBar"
+import dynamic from "next/dynamic";
 import ImgOverlay from "@/components/imageOverlay";
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from 'react-i18next';
+import {useState, useEffect} from 'react'
+import Client from "@/components/client";
+import NavBar from "@/navigation/NavBar";
+import SmallNavBar from "@/navigation/SmallNavBar";
+
+
 export default function aboutUs() {
      const { t, i18n } = useTranslation('common');  
+     const [isClient, setIsClient] = useState(false);
+
     return (
-        <>
+        
+        <Client>
         <LanguageSelector></LanguageSelector>
             <div className="backgroundNavbar navbarSpacing">
                 <NavBar />
@@ -246,6 +254,6 @@ export default function aboutUs() {
                 </div>
             </div>
             <Footer />
-        </>
+        </Client>
     );
 };

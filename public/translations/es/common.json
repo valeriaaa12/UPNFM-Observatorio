@@ -75,5 +75,17 @@
   "Aprobacion": "Aprobación",
   "Reprobacion": "Reprobación",
   "Cobertura bruta": "Cobertura (Tasa Bruta)",
-  "Cobertura neta": "Cobertura (Tasa neta)"
+  "Cobertura neta": "Cobertura (Tasa neta)",
+  "l1":"Mucho mejor que la meta",
+  "l2":"Dentro de la meta",
+  "l3":"Lejos de la meta",
+  "Cargando":"Cargando datos...",
+  "NivelCumplimiento":"Nivel de Cumplimiento",
+  "l4":"Muy lejos de la meta",
+  "Valor": "Valor",
+  "OpcionesMapa": "Opciones del Mapa",
+  "Filtro": "Filtros",
+  "Visualizacion": "Visualización",
+  "Imprimir": "Imprimir Mapa",
+  "ReiniciarVista": "Reiniciar Vista"
 }

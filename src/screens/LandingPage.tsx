@@ -7,12 +7,14 @@ import Footer from "@/sections/footer";
 import What from "@/sections/what";
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
-
+import {useState, useEffect} from 'react';
+import Client from "@/components/client";
 export default function LandingPage() {
   const { t } = useTranslation();
 
   return (
     <>
+    <Client>
       <div className="backgroundNavbar navbarSpacing">
         <NavBar></NavBar>
       
@@ -25,7 +27,7 @@ export default function LandingPage() {
       <Carrusel></Carrusel>
       <InfoCardsSegment></InfoCardsSegment>
       <Footer></Footer>
-
+      </Client>
     </>
   );
 };
