@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
-import axios from 'axios'
+import { useTranslation } from 'react-i18next';
 
 //mapeo de datos
 interface department {
@@ -30,7 +30,7 @@ interface HondurasGeoJSON {
   type: string;
   features: DepartmentFeature[];
 }
-interface legend{ 
+interface legend {
   level: string;
   message: string;
   lowerLimit: number;
@@ -79,22 +79,23 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
     lowerLimit: 0,
     upperLimit: 0
   }
+
   const getDeptColor = (deptName: string): string => {
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
     const value = currentDep?.value || 0;
-    
+
     const darkgreen: legend = legends?.find((item) =>
-      item.message === "Mucho mejor que la meta" && item.level === level
+      item.message === t("l1") && item.level === level
     ) ?? fallback;
 
     const green: legend = legends?.find((item) =>
-      item.message === "Dentro de la meta" && item.level === level
+      item.message === t("l2") && item.level === level
     ) ?? fallback;
 
     const orange: legend = legends?.find((item) =>
-      item.message === "Lejos de la meta" && item.level === level
+      item.message === t("l3") && item.level === level
     ) ?? fallback;
 
 
@@ -156,7 +157,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
       className: 'dept-tooltip'
     });
   };
-
+   const { t, i18n } = useTranslation('common');  
+   console.log('Current language:', i18n.language);
   return (
     <div style={{
       position: 'relative',
@@ -180,7 +182,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
         }}>
           <div className="loading-spinner-container">
             <div className="loading-spinner" />
-            <p className="loading-text">Cargando mapa...</p>
+            <p className="loading-text">{t("Cargando")}</p>
           </div>
         </div>
       )}
@@ -245,22 +247,22 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
           zIndex: 1000,
           border: '1px solid #ccc'
         }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Nivel de Cumplimiento</div>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("NivelCumplimiento")}</div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
-            <span>Mucho mejor que la meta</span>
+            <span>{t("l1")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
-            <span>Dentro de la meta</span>
+            <span>{t("l2")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
-            <span>Lejos de la meta</span>
+            <span>{t("l3")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-            <span>Muy Lejos de la meta</span>
+            <span>{t("l4")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
@@ -283,7 +285,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
             border: '1px solid #ccc'
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>Valor: {departments?.find((item) => item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
+            <p>{t("Valor")}: {departments?.find((item) => item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
             <p>{departments?.find((item) => item.name == selectedDept.toLowerCase())?.legend || ' '}</p>
             <button
               onClick={() => setSelectedDept(null)}
