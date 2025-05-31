@@ -75,5 +75,18 @@
   "Aprobacion": "Approval",
   "Reprobacion": "Reprobation",
   "Cobertura bruta": "Coverage (Gross Rate)",
-  "Cobertura neta": "Coverage (Net Rate)"
+  "Cobertura neta": "Coverage (Net Rate)",
+  "l1": "Much better than the goal",
+  "l2": "Within the goal",
+  "l3": "Far from the goal",
+  "Cargando": "Loading data...",
+  "NivelCumplimiento": "Compliance Level",
+  "l4": "Very far from the goal",
+  "Valor": "Value",
+  "OpcionesMapa": "Map Options",
+  "Filtro": "Filters",
+  "Visualizacion": "Visualization",
+  "Imprimir": "Print Map",
+  "ReiniciarVista": "Reset View"
+
 }

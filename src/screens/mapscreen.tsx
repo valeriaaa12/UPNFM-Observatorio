@@ -5,7 +5,8 @@ import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
-
+import LanguageSelector from "@/buttons/LanguageSelector";
+import { useTranslation } from "react-i18next";
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -104,7 +105,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
-
+  const { t } = useTranslation();
   return (
     <>
       <div className="font">
@@ -126,7 +127,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
               <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
             </div>
           </div>}
-
+      <LanguageSelector></LanguageSelector>
       </div >
     </>
   );
