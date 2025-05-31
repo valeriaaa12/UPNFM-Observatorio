@@ -24,7 +24,7 @@ const Demo = () => {
     }, []);
 
     const handleLogin = async () => {
-        setError(""); // limpia errores anteriores
+        setError("");
         console.log("🔐 Se ejecutó handleLogin");
 
         try {
@@ -37,7 +37,7 @@ const Demo = () => {
 
             if (data.admin) {
                 console.log("🛡️ Usuario es administrador");
-                // Redirigir o manejar permisos...
+
             } else {
                 console.log("👤 Usuario no es administrador");
             }
