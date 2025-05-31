@@ -234,7 +234,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
 
           <FitBounds geoData={geoData} />
         </MapContainer>
-
+          
         {/* Leyendas */}
         <div style={{
           position: 'absolute',

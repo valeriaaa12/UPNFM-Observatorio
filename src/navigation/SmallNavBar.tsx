@@ -5,13 +5,14 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Dropdown } from 'react-bootstrap';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SmallNavBar() {
   const { t, i18n } = useTranslation('common');  
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
+
   return (
     <>
       <div className='d-lg-none'>

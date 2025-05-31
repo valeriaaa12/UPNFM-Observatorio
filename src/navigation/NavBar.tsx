@@ -15,14 +15,9 @@ export default function NavBar() {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) return null;
-
+  
   return (
-    <>
+    <div suppressHydrationWarning>
       <div className='d-none d-lg-block'>
         <Navbar expand="lg" className="font vw-100">
           <Container fluid className='d-flex justify-content-between align-items-center'>
@@ -308,6 +303,7 @@ export default function NavBar() {
           </Container>
         </Navbar>
       </div>
-    </>
+    </div>
   );
 }
+
