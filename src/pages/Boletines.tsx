@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 
 import LanguageSelector from "@/buttons/LanguageSelector";
-import Boletin from "@/cards/Boletin"; // Cambia si tu ruta es diferente
+import Boletin from "@/cards/Boletin";
 import Footer from "@/sections/footer";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";

@@ -14,18 +14,15 @@ export default function LandingPage() {
   return (
     <>
       <div className="backgroundNavbar navbarSpacing">
-        <NavBar></NavBar>
-      
+        <NavBar />
       </div>
       <SmallNavBar></SmallNavBar>
-      
       <LanguageSelector></LanguageSelector>
       <ImgOverlay image="images/fondo2.jpg" text={`${t("OUDENI")}(OUDENI)`} bottom={true} />
       <What></What>
       <Carrusel></Carrusel>
       <InfoCardsSegment></InfoCardsSegment>
       <Footer></Footer>
-
     </>
   );
 };

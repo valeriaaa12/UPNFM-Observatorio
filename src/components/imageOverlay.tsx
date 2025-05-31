@@ -17,7 +17,7 @@ export default function ImgOverlay({ image, text, center, bottom }: ImgParams) {
             <Card.Title className='bigTitle2 fw-bold font text-bottom-left'>{text}</Card.Title>
           )}
           {center && (
-            <Card.Title className='bigTitle fw-bold font'>{text}</Card.Title>
+            <Card.Title className='bigTitle2 fw-bold font text-center'>{text}</Card.Title>
           )}
         </Card.ImgOverlay>
       </Card>

@@ -9,6 +9,71 @@
 
 .bigTitle2 {
     font-size: 300% !important;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    padding-left: 0 !important;
+
+    max-width: 90vw;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    padding: 0 5%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Estilos responsive para el título */
+/* Media queries para ajustar el tamaño en diferentes dispositivos */
+@media (max-width: 1200px) {
+    .bigTitle2 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .bigTitle2 {
+        font-size: 2.5rem;
+        padding: 0 7%;
+    }
+}
+
+@media (max-width: 768px) {
+    .bigTitle2 {
+        font-size: 2rem;
+        max-width: 95vw;
+        padding: 0 10px;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 576px) {
+    .bigTitle2 {
+        font-size: 1.75rem;
+        white-space: normal;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 430px) {
+    .bigTitle2 {
+        font-size: 1.8rem !important;
+        line-height: 1.3;
+        padding: 0 15px;
+        max-width: 100vw;
+
+        @media (max-height: 932px) and (orientation: portrait) {
+            font-size: 2.5rem !important;
+            margin-top: -10px;
+        }
+    }
+}
+
+@media (max-width: 400px) {
+    .bigTitle2 {
+        font-size: 1.5rem;
+        max-width: 100vw;
+        padding: 0 15px;
+    }
 }
 
 .text-bottom-left {
@@ -16,6 +81,7 @@
     bottom: 1rem;
     left: 2rem;
     margin: 0;
+    padding-right: 2rem;
 }
 
 .orangeText {
