@@ -33,7 +33,7 @@ interface legend {
   upperLimit: number;
 }
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
-  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedYear, setSelectedYear] = useState("2023");
   const [level, setLevel] = useState("Básica III Ciclo")
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
