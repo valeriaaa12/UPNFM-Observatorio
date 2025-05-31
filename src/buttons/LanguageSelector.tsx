@@ -22,12 +22,26 @@ export default function LanguageSelector() {
     return (
         <Dropdown>
             <Dropdown.Toggle
-                className="bg-opacity-25 floating-sl"
+                className="bg-opacity-25 floating-sl d-flex align-items-center"
                 id="dropdown-language"
-                style={{ backgroundColor: 'white', color: '#19467f' }}
+                style={{
+                    color: 'gray',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    padding: '0.5rem 1rem',
+                    border: '1px solid gray',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
             >
-                <img src={currentLang.img} alt={currentLang.label} width={20} style={{ marginRight: 8 }} />
-                {currentLang.label}
+                <img
+                    src={currentLang.img}
+                    alt={currentLang.label}
+                    width={20}
+                    height={20}
+                    style={{ marginRight: 8, objectFit: 'cover', display: 'block',marginLeft: '12px' }}
+                />
+                <span>{currentLang.label}</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 {languages.map(lang => (
@@ -35,13 +49,19 @@ export default function LanguageSelector() {
                         key={lang.code}
                         onClick={() => i18n.changeLanguage(lang.code)}
                         active={i18n.language === lang.code}
+                        className="d-flex align-items-center"
                     >
-                        <img src={lang.img} alt={lang.label} width={20} style={{ marginRight: 8 }} />
-                        {lang.label}
+                        <img
+                            src={lang.img}
+                            alt={lang.label}
+                            width={20}
+                            height={20}
+                            style={{ marginRight: 8, objectFit: 'cover', display: 'block' }}
+                        />
+                        <span>{lang.label}</span>
                     </Dropdown.Item>
                 ))}
             </Dropdown.Menu>
         </Dropdown>
     );
 }
-
