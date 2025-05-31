@@ -2,7 +2,8 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 
-const PdfCanvasPreview = dynamic(() => import("@/pages/cards/PdfCanvasPreview"), {
+// Ajusta la ruta según tu estructura de carpetas
+const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
 });
 
@@ -72,3 +73,4 @@ export default function Card({ id, title, pdf, mutateList, index }: BoletinProps
     </div>
   );
 }
+

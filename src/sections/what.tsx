@@ -2,30 +2,49 @@ import React from "react";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
+import { useTranslation } from 'react-i18next';
+
 
 export default function InfoCardsSegment() {
+    const { t, i18n } = useTranslation('common');  
+    console.log('Current language:', i18n.language);
     return (
-        <div className="textColor font">
-            <Container className="d-flex justify-content-center">
-                <div style={{ margin: "0 auto", height: "500px", width: "100%", maxWidth: "1200px" }}>
-                    <Row className="align-items-center h-100">
-                        <Col md={7} className="d-flex flex-column justify-content-center">
-                            <h2>
-                                ¿Qué es el Observatorio Universitario de la Educación Nacional e Internacional (OUDENI)?
-                            </h2>
-                            <p>
-                                Somos el Observatorio Universitario de la Educación Nacional e Internacional (OUDENI), una unidad de la Universidad Pedagógica Nacional Francisco Morazán (UPNFM), creada en 2017 con el propósito de recopilar, sistematizar, analizar y difundir datos educativos que contribuyan al mejoramiento continuo de la calidad de la educación en Honduras. Nuestra misión es proporcionar información relevante y actualizada que sirva como base para la toma de decisiones en el ámbito educativo, apoyando la formulación, implementación y evaluación de políticas públicas. Trabajamos en áreas clave como cobertura educativa, deserción, repitencia, rendimiento académico y problemáticas sociales como la migración estudiantil y la violencia escolar, brindando herramientas fundamentadas en evidencia científica para fortalecer el sistema educativo nacional.
-                            </p>
-                        </Col>
-                        <Col md={5} className="d-flex justify-content-end">
-                            <img
-                                src="/images/upnfm.png"
-                                alt="Infórmate de la educación"
-                                style={{ maxWidth: "100%", maxHeight: "400px" }}
-                            />
-                        </Col>
-                    </Row>
-                </div>
+        <div className="textColor font py-5" style={{ backgroundColor: 'sectionGray' }}>
+            <Container>
+                <Row className="align-items-center">
+    <Col
+        lg={7}
+        md={12}
+        className="order-lg-1 order-1 mb-4 mb-lg-0 py-4 text-center text-lg-start"
+    >
+        <h2 className="mb-4">
+           {t("WhatisOUDENI?")}
+        </h2>
+        <p className="lead">
+           {t("OUDENIDescription")}
+        </p>
+    </Col>
+    <Col
+        lg={5}
+        md={12}
+        className="order-lg-2 order-2 d-flex justify-content-center align-items-center mb-4 mb-lg-0"
+    >
+        <img
+            src="/images/upnfm.png"
+            alt="Infórmate de la educación"
+            className="img-fluid"
+            style={{
+                maxHeight: '300px',
+                maxWidth: '50%',
+                width: '100%',
+                height: 'auto',
+                borderRadius: '8px',
+             
+            }}
+        />
+    </Col>
+</Row>
+
             </Container>
         </div>
     );

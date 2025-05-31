@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CardParams {
     image: string;
@@ -16,9 +16,17 @@ interface school {
     institucion: string;
 }
 
-export default function TeamCard({ image, title, role, email, studies, experience }: CardParams) {
+export default function TeamCard({
+    image,
+    title,
+    role,
+    email,
+    studies = [],
+    experience = [],
+}: CardParams) {
     const [activeTab, setActiveTab] = useState<'studies' | 'experience'>('studies');
-    const hasExperience = Boolean(experience);
+    const hasExperience = Boolean(experience?.length);
+    const { t } = useTranslation('common');
 
     return (
         <Card className="h-100 shadow-sm border-0 rounded-4 overflow-hidden team-card font">
@@ -38,13 +46,13 @@ export default function TeamCard({ image, title, role, email, studies, experienc
                                     className={`btn btn-sm btn-outline-light me-2 ${activeTab === 'studies' ? 'active' : ''}`}
                                     onClick={() => setActiveTab('studies')}
                                 >
-                                    Estudios
+                                    {t('Estudios')}
                                 </button>
                                 <button
                                     className={`btn btn-sm btn-outline-light ${activeTab === 'experience' ? 'active' : ''}`}
                                     onClick={() => setActiveTab('experience')}
                                 >
-                                    Experiencia
+                                    {t('Experiencia')}
                                 </button>
                             </div>
                         )}
@@ -52,7 +60,7 @@ export default function TeamCard({ image, title, role, email, studies, experienc
                         <div className="overflow-auto flex-grow-1">
                             {(!hasExperience || activeTab === 'studies') ? (
                                 <div className="studies-content text-white">
-                                    <h6 className="fw-bold mb-3">Formación Académica</h6>
+                                    <h6 className="fw-bold mb-3">{t('Formacion')}</h6>
                                     <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
                                         {studies.map((estudio, index) => (
                                             <li key={index} className="mb-1">
@@ -63,13 +71,13 @@ export default function TeamCard({ image, title, role, email, studies, experienc
                                 </div>
                             ) : (
                                 <div className="experience-content text-white">
-                                    <h6 className="fw-bold mb-3">Trayectoria Profesional</h6>
+                                    <h6 className="fw-bold mb-3">{t('Trayectoria')}</h6>
                                     <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
-                                        {experience?.map((listbox, index) =>
+                                        {experience.map((exp, index) => (
                                             <li key={index} className="mb-1">
-                                                {listbox}
+                                                {exp}
                                             </li>
-                                        )}
+                                        ))}
                                     </ul>
                                 </div>
                             )}

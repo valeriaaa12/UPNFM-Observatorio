@@ -71,11 +71,13 @@ export default function Boletines() {
 
   return (
     <>
+      <LanguageSelector />
       <div className="font">
         <div className="blue blueNavbar">
           <NavBar />
           <div className="orange d-none d-md-block" style={{ height: '0.5rem' }} />
         </div>
+
         <SmallNavBar />
         <div className="d-flex justify-content-between align-items-center px-5 py-4">
           <h2>Boletines</h2>
@@ -102,7 +104,7 @@ export default function Boletines() {
 
       <Modal show={showModal} onHide={() => setShowModal(false)}centered>
         <Modal.Header closeButton>
-          <Modal.Title>Agregar Nuevo Boletín</Modal.Title>
+          <Modal.Title>{t("Agregar Boletín")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>

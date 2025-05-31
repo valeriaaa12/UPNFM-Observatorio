@@ -110,19 +110,22 @@ a {
 }
 
 @media (max-width: 992px) {
-.smolNavbar{
-  background-color: #19467f; 
-  width: 100%;
+  .smolNavbar {
+    background-color: #19467f;
+    width: 100%;
+  }
 }
-}
-.paddingSmolNavbar{
+
+.paddingSmolNavbar {
   padding-right: 0;
 }
-.smolSubmenu{
+
+.smolSubmenu {
   background: #1c395d !important;
   background-color: #1c395d !important;
 }
-.centeredNavbar{
+
+.centeredNavbar {
   justify-content: center;
   display: flex;
 }
@@ -154,6 +157,28 @@ a {
 .dropdown-menu {
   margin-top: 0;
 }
+
+.userMenu {
+  border-style: none !important;
+}
+
+.userMenu::after {
+  display: none !important;
+}
+
+/*floating language selector*/
+.floating-sl {
+  position: fixed;
+  z-index: 10;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  right: 0%;
+  bottom: 0%;
+  border-radius: 20px !important;
+  width: 150px !important;
+  opacity: 25;
+}
+
 
 /*animación de underline naranja*/
 .backgroundNavbar .nav-link,
@@ -209,6 +234,10 @@ a {
   background-color: #f8f9fa !important;
 }
 
+.backgroundNavbar .no_underline .dropdown-toggle::before {
+  display: none !important;
+}
+
 /*animación de underline naranja para navbar azul*/
 .blueNavbar .nav-link,
 .blueNavbar .dropdown-toggle {
@@ -261,4 +290,9 @@ a {
   padding-left: 1.5rem;
   color: #FE5000 !important;
   background-color: #f8f9fa !important;
+}
+
+/*map styles*/
+.leaflet-interactive:focus {
+  outline: none !important;
 }
