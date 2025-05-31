@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
-import axios from 'axios'
+
 
 //mapeo de datos
 interface department {
@@ -30,7 +30,7 @@ interface HondurasGeoJSON {
   type: string;
   features: DepartmentFeature[];
 }
-interface legend{ 
+interface legend {
   level: string;
   message: string;
   lowerLimit: number;
@@ -79,12 +79,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
     lowerLimit: 0,
     upperLimit: 0
   }
+
   const getDeptColor = (deptName: string): string => {
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
     const value = currentDep?.value || 0;
-    
+
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
@@ -180,7 +181,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
         }}>
           <div className="loading-spinner-container">
             <div className="loading-spinner" />
-            <p className="loading-text">Cargando mapa...</p>
+            <p className="loading-text">Cargando datos...</p>
           </div>
         </div>
       )}

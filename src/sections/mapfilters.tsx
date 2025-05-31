@@ -1,13 +1,16 @@
 import ComboBox from "@/components/combobox";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'
+
 interface params {
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   selectedYear: string;
   setSelectedYear: React.Dispatch<React.SetStateAction<string>>;
+  years: string[];
 }
 
-export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear }: params) {
-  const years = ['Ninguno', '2020', '2021', '2022', '2023', '2024'];
+export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear, years }: params) {
   return (
     <>
       {/* Menú*/}
