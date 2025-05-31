@@ -34,10 +34,9 @@
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "react-i18next": "^15.5.2",
-    "react-login-page": "^1.0.5",
-    "swr": "^2.3.3",
     "react-leaflet": "^5.0.0",
     "react-login-page": "^1.0.5",
+    "swr": "^2.3.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

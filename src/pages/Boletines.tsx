@@ -3,8 +3,10 @@ import useSWR from 'swr';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "@/buttons/LanguageSelector";
 
-import Card from '@/pages/cards/Boletin';
+import Card from '@/cards/Boletin';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
@@ -30,6 +32,7 @@ export default function Boletines() {
   const [modalTitle, setModalTitle] = useState('');
   const [message, setMessage] = useState('');
   const etiquetaFiltro = 'Boletin';
+  const { t } = useTranslation("common");
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'application/pdf': [] },
@@ -70,7 +73,8 @@ export default function Boletines() {
   };
 
   return (
-    <>
+  <div className="d-flex flex-column min-vh-100">
+    <div className="flex-grow-1">
       <LanguageSelector />
       <div className="font">
         <div className="blue blueNavbar">
@@ -86,23 +90,27 @@ export default function Boletines() {
           </Button>
         </div>
         <div className="card-gallery pt-0 Boletines">
-          {boletines
-            .filter(b => b.etiqueta === etiquetaFiltro)
-            .map((b, idx) => (
-              <Card
-                key={b.id}
-                id={b.id}
-                etiqueta={b.etiqueta}
-                index={idx + 1}
-                title={b.nombre}
-                pdf={`${API_URL}/traerPDF/${b.id}`}
-                mutateList={mutate}
-              />
-            ))}
+          {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
+            <p className="w-100 text-center">No hay boletines disponibles.</p>
+          ) : (
+            boletines
+              .filter(b => b.etiqueta === etiquetaFiltro)
+              .map((b, idx) => (
+                <Card
+                  key={b.id}
+                  id={b.id}
+                  etiqueta={b.etiqueta}
+                  index={idx + 1}
+                  title={b.nombre}
+                  pdf={`${API_URL}/traerPDF/${b.id}`}
+                  mutateList={mutate}
+                />
+              ))
+          )}
         </div>
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}centered>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{t("Agregar Boletín")}</Modal.Title>
         </Modal.Header>
@@ -125,7 +133,13 @@ export default function Boletines() {
                 style={{ cursor: 'pointer', minHeight: '120px' }}
               >
                 <input {...getInputProps()} />
-                {isDragActive ? <p>Suelta aquí...</p> : file ? <p>{file.name}</p> : <p>Arrastra o haz clic para seleccionar un PDF</p>}
+                {isDragActive ? (
+                  <p>Suelta aquí...</p>
+                ) : file ? (
+                  <p>{file.name}</p>
+                ) : (
+                  <p>Arrastra o haz clic para seleccionar un PDF</p>
+                )}
               </div>
             </Form.Group>
           </Form>
@@ -139,9 +153,10 @@ export default function Boletines() {
           </Button>
         </Modal.Footer>
       </Modal>
+    </div>
 
-      <Footer />
-      {infoModal && <InfoModal title={modalTitle} message={message} />}
-    </>
-  );
+    <Footer />
+    {infoModal && <InfoModal title={modalTitle} message={message} />}
+  </div>
+);
 }
