@@ -34,8 +34,8 @@ interface legend {
   upperLimit: number;
 }
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
-  const [selectedYear, setSelectedYear] = useState("2023");
-  const [level, setLevel] = useState("Básica III Ciclo")
+  const [selectedYear, setSelectedYear] = useState("Ninguno");
+  const [level, setLevel] = useState("Ninguno")
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
   const [legends, setLegends] = useState<legend[] | null>(null);
@@ -107,7 +107,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   return (
     <>
       <div className="font">

@@ -141,6 +141,60 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
     };
   };
 
+  //Limites
+  const limites = () =>{
+      const darkgreen: legend = legends?.find((item) =>
+      item.message === t("l1") && item.level === level
+    ) ?? fallback;
+
+    const green: legend = legends?.find((item) =>
+      item.message === t("l2") && item.level === level
+    ) ?? fallback;
+
+    const orange: legend = legends?.find((item) =>
+      item.message === t("l3") && item.level === level
+    ) ?? fallback;
+
+     const red: legend = legends?.find((item) =>
+      item.message === t("l4") && item.level === level
+    ) ?? fallback;
+
+    return(<>
+              <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '20px',
+          backgroundColor: '#F0F0F0',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          border: '1px solid #ccc'
+        }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Limites</div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
+            <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+            <span>{green.lowerLimit} - {green.upperLimit}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+            <span>{orange.lowerLimit} - {orange.upperLimit}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
+            <span>{red.lowerLimit} - {red.upperLimit}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+            <span>N/A</span>
+          </div>
+        </div>
+    </>);
+  }
   // Event handlers
   const onEachDepartment = (feature: DepartmentFeature, layer: L.Layer) => {
     const deptName = feature.properties.name;
@@ -234,7 +288,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
 
           <FitBounds geoData={geoData} />
         </MapContainer>
-
+        
+        {/* Limites */}
+        {limites()}
         {/* Leyendas */}
         <div style={{
           position: 'absolute',

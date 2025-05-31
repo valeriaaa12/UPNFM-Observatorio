@@ -40,7 +40,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
               title="Año"
-              options={years}
+              options={["Ninguno",...years]}
               value={selectedYear}
               onChange={setSelectedYear}>
             </ComboBox>

@@ -460,6 +460,18 @@
     color: white !important;
 }
 
+.btn-rojo{
+    background-color: #d22607 !important;
+    /*outline: transparent !important;*/
+    color: white !important;
+    outline: transparent !important;
+    border: transparent !important;
+}
+
+.btn-rojo:hover{
+    background-color: #B22222 !important;
+    color: white;
+}
 .spinnerAnimation {
     border: 5px solid #f3f3f3;
     border-top: 5px solid #3498db;
