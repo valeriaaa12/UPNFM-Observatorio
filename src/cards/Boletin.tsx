@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import {useTranslation} from 'react-i18next';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 
