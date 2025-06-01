@@ -1,0 +1,55 @@
+/* Container principal para toda la página */
+.upload-excel-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    background-color: #f9f9f9;
+}
+
+/* Contenido principal (entre NavBar y Footer) */
+.upload-excel-container>div {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Dropzone */
+.dropzone {
+    border: 2px dashed #19467f;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    border-radius: 8px;
+    background-color: white;
+    color: #19467f;
+    transition: border-color 0.3s;
+    cursor: pointer;
+    /* Para que sea claro que es clickable */
+}
+
+.dropzone-active {
+    border-color: #0d6efd;
+}
+
+/* Tabla de vista previa */
+.preview-table {
+    overflow-x: auto;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Botón subir */
+.upload-button {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Texto del progreso */
+.progress-text {
+    margin-left: 0.5rem;
+    font-weight: bold;
+}

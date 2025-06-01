@@ -1,13 +1,18 @@
 import ComboBox from "@/components/combobox";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'
+import { useTranslation } from 'react-i18next';
 interface params {
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   selectedYear: string;
   setSelectedYear: React.Dispatch<React.SetStateAction<string>>;
+  years: string[];
 }
 
-export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear }: params) {
-  const years = ['Ninguno', '2020', '2021', '2022', '2023', '2024'];
+export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear, years }: params) {
+  const { t, i18n } = useTranslation('common');
+  console.log('Current language:', i18n.language);
   return (
     <>
       {/* Menú*/}
@@ -18,15 +23,15 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
         borderRight: '1px solid #dee2e6',
         boxShadow: '2px 0 5px rgba(0,0,0,0.1)'
       }}>
-        <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>Opciones del Mapa</h2>
+        <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>{t("OpcionesMapa")}</h2>
 
         {/* Filtros */}
         <div style={{ marginBottom: '20px' }}>
-          <h4 style={{ marginBottom: '10px' }}>Filtros</h4>
+          <h4 style={{ marginBottom: '10px' }}>{t("Filtro")}</h4>
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
-              title="Nivel Educativo"
-              options={["Ninguno", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
+              title={t("Nivel Educativo")}
+              options={["Ninguno", "Pre-básica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
               value={level}
               onChange={setLevel}
             >
@@ -34,8 +39,8 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           </div>
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
-              title="Año"
-              options={years}
+              title={t("Año")}
+              options={["Ninguno",...years]}
               value={selectedYear}
               onChange={setSelectedYear}>
             </ComboBox>
@@ -45,7 +50,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
 
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
-          <h4 style={{ marginBottom: '10px' }}>Visualización</h4>
+          <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
           <button style={{
             width: '100%',
             padding: '8px',
@@ -55,7 +60,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
             borderRadius: '4px',
             cursor: 'pointer'
           }}>
-            Reiniciar vista
+            {t("ReiniciarVista")}
           </button>
           <button style={{
             width: '100%',
@@ -65,7 +70,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
             borderRadius: '4px',
             cursor: 'pointer'
           }}>
-            Imprimir Mapa
+            {t("Imprimir")}
           </button>
         </div>
       </div>

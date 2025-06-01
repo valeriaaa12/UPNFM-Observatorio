@@ -5,7 +5,8 @@ import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
-
+import LanguageSelector from "@/buttons/LanguageSelector";
+import { useTranslation } from "react-i18next";
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -19,26 +20,28 @@ interface department {
   level: string;
 }
 
-interface params{
-    title: string;
-    extensionData: string; 
-    extensionLimits: string;
+interface params {
+  title: string;
+  extensionData: string;
+  extensionLimits: string;
 }
 
 
-interface legend{ 
+interface legend {
   level: string;
   message: string;
   lowerLimit: number;
   upperLimit: number;
 }
-export default function MapScreen({title, extensionData, extensionLimits}:params) {
-  const [selectedYear, setSelectedYear] = useState("2024");
-  const [level, setLevel] = useState("Básica III Ciclo")
+export default function MapScreen({ title, extensionData, extensionLimits }: params) {
+  const [selectedYear, setSelectedYear] = useState("Ninguno");
+  const [level, setLevel] = useState("Ninguno")
   const [departments, setDepartments] = useState<department[] | null>(null);
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
   const [legends, setLegends] = useState<legend[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [years, setYears] = useState<string[]>([]);
+
   {/*mapeo*/ }
   //metodo de mapeo
   const mapData = async () => {
@@ -52,11 +55,15 @@ export default function MapScreen({title, extensionData, extensionLimits}:params
       const url = process.env.NEXT_PUBLIC_BACKEND_URL + extensionData
       //segundo query para los limites
       const url2 = process.env.NEXT_PUBLIC_BACKEND_URL + extensionLimits
+      //años
+      const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
 
-       const [response, response2] = await Promise.all([
-      axios.get(url, config),
-      axios.get(url2, config)
-    ]);
+      const [response, response2, response3] = await Promise.all([
+        axios.get(url, config),
+        axios.get(url2, config),
+        axios.get(BACKEND + '/periodosAnuales')
+      ]);
+      console.log(response2)
       const tempoDepartments: department[] = response.data.map((item: any) => ({
         name: item.departamento.toLowerCase(),
         legend: item.leyenda,
@@ -65,25 +72,23 @@ export default function MapScreen({title, extensionData, extensionLimits}:params
         level: item.nivel
       }))
 
+      console.log("Datos de prebásica:", tempoDepartments);
 
-      
-      
-console.log("got here")
-      console.log(response2)
-      const tempoLegends: legend[] = response2.data.map((item:any)=>({
+      const tempoLegends: legend[] = response2.data.map((item: any) => ({
         level: item.nivel,
         message: item.leyenda,
         lowerLimit: parseFloat(item.min),
         upperLimit: parseFloat(item.max)
 
       }))
-      console.log(tempoLegends)
+
+      setYears(response3.data);
       setLegends(tempoLegends)
       setDepartments(tempoDepartments)
       filterData();
       setLoading(false);
     } catch (error: unknown) {
-    
+
     }
   }
 
@@ -103,7 +108,7 @@ console.log("got here")
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
-
+  const { t } = useTranslation('common');
   return (
     <>
       <div className="font">
@@ -112,20 +117,20 @@ console.log("got here")
           <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
         {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div> :
-          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-          {/*menu */}
-          <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel}></MapFilters>
-        
-          {/* Mapa */}
-          <div style={{ flex: 1, position: 'relative' }}>
-            <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends}/>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
-        </div>}
+        </div> :
+          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+            {/* Menu */}
+            <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} />
 
+            {/* Mapa */}
+            <div style={{ flex: 1, position: 'relative' }}>
+              <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+            </div>
+          </div>}
+        <LanguageSelector></LanguageSelector>
       </div >
     </>
   );

@@ -5,31 +5,24 @@ import Carousel from 'react-bootstrap/Carousel';
 
 export default function Carrusel() {
   return (
-    <div className="sectionWhite font pb-5 mb-4">
-      <Container fluid className="c1">
-        <Row className="justify-content-center">
-          <Col xs={12} md={10} lg={8}>
-            <div className="block-carousel mx-auto">
-              <Carousel fade interval={2250}>
-                {["carrusel1.jpg", "carrusel2.jpg", "carrusel3.jpg", "carrusel44.jpg", "carrusel5.jpg"].map((img, idx) => (
-                  <Carousel.Item key={idx}>
-                    <div style={{ aspectRatio: '16/9', width: '100%' }}>
-                      <img
-                        src={`/images/${img}`}
-                        alt={`Slide ${idx + 1}`}
-                        className="carousel-img img-fluid w-100 h-100"
-                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                      />
-                    </div>
-                  </Carousel.Item>
-                ))}
-              </Carousel>
-            </div>
+    <div className="sectionWhite font carrusel-compact pb-5">
+      <Container fluid className="p-0">
+        <Row className="g-0">
+          <Col xs={12} className="p-0">
+            <Carousel fade interval={2250} className="compact-carousel">
+              {["carrusel1.jpg", "carrusel2.jpg", "carrusel3.jpg", "carrusel44.jpg", "carrusel5.jpg"].map((img, idx) => (
+                <Carousel.Item key={idx} className="compact-carousel-item">
+                  <img
+                    src={`/images/${img}`}
+                    alt={`Slide ${idx + 1}`}
+                    className="compact-carousel-img"
+                  />
+                </Carousel.Item>
+              ))}
+            </Carousel>
           </Col>
         </Row>
       </Container>
     </div>
   );
 }
-
-

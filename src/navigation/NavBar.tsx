@@ -19,10 +19,12 @@ export default function NavBar() {
     setIsClient(true);
   }, []);
 
-  if (!isClient) return null;
+  if (!isClient) {
+    return null; 
+  }
 
   return (
-    <>
+    <div>
       <div className='d-none d-lg-block'>
         <Navbar expand="lg" className="font vw-100">
           <Container fluid className='d-flex justify-content-between align-items-center'>
@@ -39,65 +41,242 @@ export default function NavBar() {
             <div className="d-flex align-items-center gap-3 ms-auto whiteText">
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="me-auto my-2 my-lg-0 nav-links-container" style={{ maxHeight: '100px' }}>
-                  <Nav.Link className=" whiteText" href="/landingpage"><b>{t('Home')}</b></Nav.Link>
-                  <Nav.Link className=" whiteText" href="/aboutUs"><b>{t("About Us")}</b></Nav.Link>
-                  <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
+                <Nav className="me-auto my-2 my-lg-0 nav-links-container" style={{
+                  maxHeight: '100px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  {/* Enlaces simples */}
+                  <Nav.Link
+                    className="whiteText"
+                    href="/landingpage"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
+                  >
+                    <b style={{
+                      width: '100%',
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      lineHeight: '1.2'
+                    }}>
+                      {t('Home')}
+                    </b>
+                  </Nav.Link>
+
+                  <Nav.Link
+                    className="whiteText"
+                    href="/aboutUs"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
+                  >
+                    <b style={{
+                      width: '100%',
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      lineHeight: '1.2'
+                    }}>
+                      {t('About Us')}
+                    </b>
+                  </Nav.Link>
+
+                  <Nav.Link
+                    className="whiteText"
+                    href="#action2"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
+                  >
+                    <b style={{
+                      width: '100%',
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      lineHeight: '1.2'
+                    }}>
+                      {t('Herramientas')}
+                    </b>
+                  </Nav.Link>
 
                   {/* Dropdowns */}
                   <NavDropdown
-                    title={<span className="whiteText fw-bold">Indicadores Educativos</span>}
+                    title={
+                      <span className="whiteText fw-bold" style={{
+                        display: 'inline-block',
+                        width: '100%',
+                        whiteSpace: 'normal',
+                        textAlign: 'center',
+                        lineHeight: '1.2',
+                        padding: '5px 0'
+                      }}>
+                        {t("IndicadoresEducativos")}
+                      </span>
+                    }
                     id="navbarScrollingDropdown"
                     show={open3}
                     onMouseEnter={() => setOpen3(true)}
                     onMouseLeave={() => setOpen3(false)}
                     className="dropdown-with-fade"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
                   >
-                    <NavDropdown.Item href="/cobertura_bruta_screen">{t("Cobertura bruta")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/cobertura_bruta_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Cobertura bruta")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/cobertura_neta_screen">{t("Cobertura neta")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/cobertura_neta_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Cobertura neta")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/aprobacion_screen">{t("Aprobacion")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/aprobacion_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Aprobacion")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/desercion_screen">{t("Desercion")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/desercion_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Desercion")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/repitencia_screen">{t("Repitencia")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/repitencia_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Repitencia")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/reprobacion_screen">{t("Reprobacion")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/reprobacion_screen"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Reprobacion")}
+                    </NavDropdown.Item>
                   </NavDropdown>
 
                   <NavDropdown
-                    title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>}
+                    title={
+                      <span className="whiteText fw-bold" style={{
+                        display: 'inline-block',
+                        width: '100%',
+                        whiteSpace: 'normal',
+                        textAlign: 'center',
+                        lineHeight: '1.2',
+                        padding: '5px 0'
+                      }}>
+                        {t("DocumentosPublicaciones")}
+                      </span>
+                    }
                     id="navbarScrollingDropdown"
                     show={open}
                     onMouseEnter={() => setOpen(true)}
                     onMouseLeave={() => setOpen(false)}
                     className="dropdown-with-fade"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
                   >
-                    <NavDropdown.Item href="/Boletines">{t("Boletines")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/Boletines"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Boletines")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item onClick={() => i18n.changeLanguage('en')}>{t("Artículos")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/Articulos_de_Interes"
+                      onClick={() => i18n.changeLanguage('en')}
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Artículos")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item onClick={() => i18n.changeLanguage('es')}>{t("DatosMunicipales")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/Datos_Municipales"
+                      onClick={() => i18n.changeLanguage('es')}
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("DatosMunicipales")}
+                    </NavDropdown.Item>
                   </NavDropdown>
 
                   <NavDropdown
-                    title={<span className="whiteText fw-bold">{t("Comunidad")}</span>}
+                    title={
+                      <span className="whiteText fw-bold" style={{
+                        display: 'inline-block',
+                        width: '100%',
+                        whiteSpace: 'normal',
+                        textAlign: 'center',
+                        lineHeight: '1.2',
+                        padding: '5px 0'
+                      }}>
+                        {t("Comunidad")}
+                      </span>
+                    }
                     id="navbarScrollingDropdown"
                     show={open2}
                     align="end"
                     onMouseEnter={() => setOpen2(true)}
                     onMouseLeave={() => setOpen2(false)}
                     className="dropdown-with-fade"
+                    style={{
+                      minHeight: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 15px'
+                    }}
                   >
-                    <NavDropdown.Item href="/login">{t("Foros")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/login"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Foros")}
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="/login">{t("ExplorarInvestigaciones")}</NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/login"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("ExplorarInvestigaciones")}
+                    </NavDropdown.Item>
                   </NavDropdown>
-                  {/* Fin dropdowns */}
                 </Nav>
 
-                <Dropdown className="d-inline mx-2 no-underline no_underline" align="end">
+                {/* Avatar de usuario */}
+                <Dropdown
+                  className="d-inline mx-2 no-underline no_underline"
+                  align="end"
+                  style={{
+                    minHeight: '50px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
                   <Dropdown.Toggle
                     id="dropdown-autoclose-true"
                     className="p-0 border-0 bg-transparent userMenu"
@@ -113,9 +292,19 @@ export default function NavBar() {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item href="/login">{t("Login")}</Dropdown.Item>
+                    <Dropdown.Item
+                      href="/login"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Login")}
+                    </Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item href="/register">{t("Register")}</Dropdown.Item>
+                    <Dropdown.Item
+                      href="/register"
+                      style={{ whiteSpace: 'normal' }}
+                    >
+                      {t("Register")}
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </Navbar.Collapse>
@@ -123,6 +312,6 @@ export default function NavBar() {
           </Container>
         </Navbar>
       </div>
-    </>
+    </div>
   );
 }
