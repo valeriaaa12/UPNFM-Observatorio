@@ -5,7 +5,7 @@ import { auth } from '@/firebase/firebaseConfig';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/buttons/LanguageSelector";
 import Client from '@/components/client';
-import { useUser } from './usertype';
+import { useUser } from '../context/usertype';
 import { useRouter } from 'next/router';
 
 
