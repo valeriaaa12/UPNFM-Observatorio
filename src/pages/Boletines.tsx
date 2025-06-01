@@ -5,7 +5,6 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/buttons/LanguageSelector";
-
 import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
@@ -73,6 +72,7 @@ export default function Boletines() {
   };
 
   return (
+    <Client>
     <>
       <div className="d-flex flex-column min-vh-100">
         <div className="flex-grow-1">
@@ -206,5 +206,6 @@ export default function Boletines() {
         <Footer />
       </div>
     </>
+    </Client>
   );
 }
