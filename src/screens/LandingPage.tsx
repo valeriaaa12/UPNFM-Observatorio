@@ -14,24 +14,33 @@ import Cookies from "@/components/cookies";
 export default function LandingPage() {
   const { t } = useTranslation();
   const [cookies, setCookies] = useCookies(["cookieConsent"]);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [cookiesClosed, setCookiesClosed] = useState(false);
+
+  useEffect(() => {
+    if (cookies.cookieConsent || cookiesClosed) {
+      setShowLanguageSelector(true);
+    }
+  }, [cookies.cookieConsent, cookiesClosed]);
 
   return (
-    <>
-      <Client>
-        <div className="backgroundNavbar navbarSpacing">
-          <NavBar />
-        </div>
-        <SmallNavBar />
-        <LanguageSelector />
-        <ImgOverlay image="images/fondo2.jpg" text={`${t("OUDENI")}(OUDENI)`} bottom={true} />
-        <What />
-        <Carrusel />
-        <InfoCardsSegment />
-        {!cookies.cookieConsent && <Cookies />}
-        <Footer />
-      </Client>
-    </>
+    <Client>
+      <div className="backgroundNavbar navbarSpacing">
+        <NavBar />
+      </div>
+      <SmallNavBar />
+      {!cookies.cookieConsent && !cookiesClosed && (
+        <Cookies onClose={() => setCookiesClosed(true)} />
+      )}
+      {showLanguageSelector && <LanguageSelector />}
+      <ImgOverlay image="images/fondo2.jpg" text={`${t("OUDENI")}(OUDENI)`} bottom={true} />
+      <What />
+      <Carrusel />
+      <InfoCardsSegment />
+      <Footer />
+    </Client>
   );
 }
+
 
 
