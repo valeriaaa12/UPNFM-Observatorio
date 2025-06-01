@@ -5,13 +5,14 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Dropdown } from 'react-bootstrap';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SmallNavBar() {
-   const { t, i18n } = useTranslation('common');  
+  const { t, i18n } = useTranslation('common');  
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
+
   return (
     <>
       <div className='d-lg-none'>
@@ -31,10 +32,10 @@ export default function SmallNavBar() {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
-                <Nav.Link className=" whiteText" href="/landingpage"><b>Inicio</b></Nav.Link>
-                <Nav.Link className=" whiteText" href="/aboutUs"><b>Quienes Somos</b></Nav.Link>
-                <Nav.Link className=" whiteText" href="#action2"><b>Indicadores Educativos</b></Nav.Link>
-                <Nav.Link className=" whiteText" href="#action2"><b>Herramientas</b></Nav.Link>
+                <Nav.Link className=" whiteText" href="/landingpage"><b>{t("Home")}</b></Nav.Link>
+                <Nav.Link className=" whiteText" href="/aboutUs"><b>{t("About Us")}</b></Nav.Link>
+                <Nav.Link className=" whiteText" href="#action2"><b>{t("Indicadores Educativos")}</b></Nav.Link>
+                <Nav.Link className=" whiteText" href="#action2"><b>{t("Herramientas")}</b></Nav.Link>
 
                 <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>} id="basic-nav-dropdown">
 

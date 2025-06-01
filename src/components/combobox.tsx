@@ -8,11 +8,11 @@ type ComboBoxProps = {
 const ComboBox = ({ title, options, value, onChange }: ComboBoxProps) => {
   return (
     <div>
-      <label>{title}</label>
+      <label style={{ display: 'block', marginBottom: '5px' }}>{title}</label>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        style={{ /* your existing styles here */ }}
+        style={{ width: '100%', padding: '5px' }}
       >
         {options.map(option => (
           <option key={option} value={option}>
