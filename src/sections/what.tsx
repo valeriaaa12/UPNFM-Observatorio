@@ -36,7 +36,7 @@ export default function InfoCardsSegment() {
                             style={{
                                 maxHeight: '300px',
                                 maxWidth: '50%',
-                                width: '100%',
+                                width: 'auto',
                                 height: 'auto',
                                 borderRadius: '8px',
 
