@@ -71,7 +71,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+ 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   const hasZero = () =>{
     if(legends?.find((item)=>item.lowerLimit==0) && level != 'Ninguno'){
@@ -96,7 +96,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.name == deptName.toLowerCase()
     )
     console.log(departments)
-    const value = currentDep?.value || 0;
+    const value = currentDep?.value || -1;
     console.log(level)
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
@@ -119,7 +119,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
     if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
-    if (value == 0) return '#808080'; //gris
+    if (value == -1) return '#808080'; //gris
     return '#e41a1c'; //rojo 
   };
 
