@@ -7,7 +7,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Dropdown } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import Client from '@/components/client';
 export default function NavBar() {
   const { t, i18n } = useTranslation('common');
   const [isClient, setIsClient] = useState(false);
@@ -15,16 +15,10 @@ export default function NavBar() {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return null; 
-  }
 
   return (
-    <div>
+    <Client>
+    <div suppressHydrationWarning>
       <div className='d-none d-lg-block'>
         <Navbar expand="lg" className="font vw-100">
           <Container fluid className='d-flex justify-content-between align-items-center'>
@@ -209,7 +203,6 @@ export default function NavBar() {
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/Articulos_de_Interes"
                       onClick={() => i18n.changeLanguage('en')}
                       style={{ whiteSpace: 'normal' }}
                     >
@@ -217,7 +210,6 @@ export default function NavBar() {
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/Datos_Municipales"
                       onClick={() => i18n.changeLanguage('es')}
                       style={{ whiteSpace: 'normal' }}
                     >
@@ -313,5 +305,6 @@ export default function NavBar() {
         </Navbar>
       </div>
     </div>
+    </Client>
   );
 }

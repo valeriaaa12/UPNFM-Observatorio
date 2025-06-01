@@ -7,6 +7,7 @@ import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
+import Client from '@/components/client';
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -110,6 +111,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   }, [selectedYear, level])
   const { t } = useTranslation('common');
   return (
+    <Client>
     <>
       <div className="font">
         <div className="blue blueNavbar">
@@ -133,5 +135,6 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         <LanguageSelector></LanguageSelector>
       </div >
     </>
+  </Client>
   );
 }
