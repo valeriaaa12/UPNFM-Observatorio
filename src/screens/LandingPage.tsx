@@ -8,9 +8,12 @@ import What from "@/sections/what";
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import Client from "@/components/client";
+import Cookies from "@/components/cookies";
 export default function LandingPage() {
   const { t } = useTranslation();
+  const [cookies, setCookies] = useCookies(["cookieConsent"]);
 
   return (
     <>
@@ -18,15 +21,17 @@ export default function LandingPage() {
         <div className="backgroundNavbar navbarSpacing">
           <NavBar />
         </div>
-        <SmallNavBar></SmallNavBar>
-        <LanguageSelector></LanguageSelector>
+        <SmallNavBar />
+        <LanguageSelector />
         <ImgOverlay image="images/fondo2.jpg" text={`${t("OUDENI")}(OUDENI)`} bottom={true} />
-        <What></What>
-        <Carrusel></Carrusel>
-        <InfoCardsSegment></InfoCardsSegment>
-        <Footer></Footer>
+        <What />
+        <Carrusel />
+        <InfoCardsSegment />
+        {!cookies.cookieConsent && <Cookies />}
+        <Footer />
       </Client>
     </>
   );
-};
+}
+
 

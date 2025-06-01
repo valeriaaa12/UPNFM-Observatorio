@@ -111,7 +111,7 @@ export default function NavBar() {
                         lineHeight: '1.2',
                         padding: '5px 0'
                       }}>
-                        {t("Indicadores Educativos")}
+                        {t("IndicadoresEducativos")}
                       </span>
                     }
                     id="navbarScrollingDropdown"

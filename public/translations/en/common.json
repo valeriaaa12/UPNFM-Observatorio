@@ -87,6 +87,10 @@
   "Filtro": "Filters",
   "Visualizacion": "Visualization",
   "Imprimir": "Print Map",
-  "ReiniciarVista": "Reset View"
-
+  "ReiniciarVista": "Reset View",
+  "CookieConsent": "This website uses cookies to enhance the user experience.By using our website, you consent to all cookies in accordance with our Cookie Policy.",
+  "CookiePolicy": "Cookie Policy",
+  "AcceptCookies": "Accept",
+  "Correo": "Email",
+  "Contraseña": "Password"
 }
