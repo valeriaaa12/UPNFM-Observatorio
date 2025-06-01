@@ -202,6 +202,7 @@ export default function NavBar() {
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
+                      href="/Articulos_de_Interes"
                       onClick={() => i18n.changeLanguage('en')}
                       style={{ whiteSpace: 'normal' }}
                     >
@@ -209,6 +210,7 @@ export default function NavBar() {
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
+                      href="/Datos_Municipales"
                       onClick={() => i18n.changeLanguage('es')}
                       style={{ whiteSpace: 'normal' }}
                     >

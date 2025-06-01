@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/buttons/LanguageSelector";
 
 
-import Card from '@/cards/Boletin';
+import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
@@ -57,14 +57,14 @@ export default function Articulos_de_interes() {
 
     try {
       await axios.post(`${API_URL}/subirPDF`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setModalTitle('Articulo de Interes creado');
-      setMessage(`Se agrego el Articulo de Interes "${boletinTitle}" con éxito.`);
+      setModalTitle('Artículo de Interés creado');
+      setMessage(`Se agrego el Artículo de Interés "${boletinTitle}" con éxito.`);
       setInfoModal(true);
       mutate();
     } catch (err) {
-      console.error('Error creando el Articulo de Interes:', err);
-      setModalTitle('Error al crear el Articulo de Interes');
-      setMessage('No se pudo crear el Articulo de Interes. Inténtalo de nuevo.');
+      console.error('Error creando el Artículo de Interés:', err);
+      setModalTitle('Error al crear el Artículo de Interés');
+      setMessage('No se pudo crear el Artículo de Interés. Inténtalo de nuevo.');
       setInfoModal(true);
     } finally {
       setShowModal(false);
@@ -85,14 +85,14 @@ export default function Articulos_de_interes() {
 
           <SmallNavBar />
           <div className="d-flex justify-content-between align-items-center px-5 py-4">
-            <h2>Articulos de Interes</h2>
-            <Button variant="btn orange" onClick={() => setShowModal(true)}>
-              Nuevo Articulo de Interes
+            <h2>Artículo de Interés</h2>
+            <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
+              Agregar Artículo
             </Button>
           </div>
-          <div className="card-gallery pt-0 Articulos de Interes">
+          <div className="card-gallery pt-0 Documentos">
             {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
-              <p className="w-100 text-center">No hay Articulos de Interes disponibles.</p>
+              <p>No hay artículos de interés disponibles.</p>
             ) : (
               boletines
                 .filter(b => b.etiqueta === etiquetaFiltro)
@@ -113,7 +113,7 @@ export default function Articulos_de_interes() {
 
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
           <Modal.Header closeButton>
-            <Modal.Title>{t("Agregar Articulo de Interes")}</Modal.Title>
+            <Modal.Title>{t("Agregar Artículo de Interés")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
@@ -123,7 +123,7 @@ export default function Articulos_de_interes() {
                   type="text"
                   value={boletinTitle}
                   onChange={e => setBoletinTitle(e.target.value)}
-                  placeholder="Ej: Articulo de Interes #"
+                  placeholder="Ej: Artículo de Interés #"
                 />
               </Form.Group>
               <Form.Group>
@@ -140,10 +140,10 @@ export default function Articulos_de_interes() {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="btn outline-blue" onClick={() => setShowModal(false)}>
+            <Button variant="btn btn-outline-blue" onClick={() => setShowModal(false)}>
               Cerrar
             </Button>
-            <Button variant="btn orange" onClick={handleGuardarBoletin}>
+            <Button variant="btn btn-orange" onClick={handleGuardarBoletin}>
               Guardar
             </Button>
           </Modal.Footer>
@@ -151,7 +151,7 @@ export default function Articulos_de_interes() {
       </div>
 
       <Footer />
-      {infoModal && <InfoModal title={modalTitle} message={message} />}
+      {infoModal && <InfoModal title={modalTitle} message={message} show={showModal} onHide={() => setShowModal(false)} />}
     </div>
   );
 }
