@@ -148,15 +148,26 @@
 }
 
 /* Buttons */
-.outline-blue {
+.btn-outline-blue {
     background-color: transparent !important;
     color: #19467f !important;
-    border: 2px solid #19467f !important;
+    border: 1px solid #19467f !important;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.outline-blue:hover {
+.btn-outline-blue:hover {
     background-color: #19467f !important;
+    color: white !important;
+}
+
+.btn-orange {
+    background-color: #ff6600 !important;
+    color: white !important;
+    transition: background-color 0.3s ease;
+}
+
+.btn-orange:hover {
+    background-color: #b74814 !important;
     color: white !important;
 }
 
@@ -170,6 +181,12 @@
 .btn-rojo:hover {
     background-color: #B22222 !important;
     color: white;
+}
+
+.btn-small {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.9rem !important;
+    line-height: 2 !important;
 }
 
 /* Form Elements*/
@@ -340,7 +357,22 @@
     height: 100%;
 }
 
-.Boletines {
+.container-boletin {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+}
+
+.card-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.Documentos {
     padding: 3%;
     padding-top: 2%;
 }
@@ -351,7 +383,7 @@
     filter: invert(61%) sepia(90%) saturate(1242%) hue-rotate(1deg) brightness(97%) contrast(89%);
 }
 
-/* NAVIGATIONm*/
+/* NAVIGATION*/
 
 .nav-links-container {
     display: flex;
@@ -479,6 +511,20 @@
 }
 
 /* Responsive Cards */
+@media (max-width: 1024px) {
+    .card-gallery {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columnas para pantallas medianas */
+    }
+}
+
+@media (max-width: 600px) {
+    .card-gallery {
+        grid-template-columns: 1fr;
+        /* 1 columna para pantallas pequeñas */
+    }
+}
+
 @media (max-width: 768px) {
     #cardsInfo .card {
         min-height: 300px;
