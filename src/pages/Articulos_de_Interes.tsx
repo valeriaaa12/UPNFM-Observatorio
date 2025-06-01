@@ -5,8 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/buttons/LanguageSelector";
-
-
+import Client from '@/components/client';
 import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
@@ -72,8 +71,9 @@ export default function Articulos_de_interes() {
       setBoletinTitle('');
     }
   };
-
+  
   return (
+    <Client>
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
         <LanguageSelector />
@@ -153,5 +153,6 @@ export default function Articulos_de_interes() {
       <Footer />
       {infoModal && <InfoModal title={modalTitle} message={message} show={showModal} onHide={() => setShowModal(false)} />}
     </div>
+    </Client>
   );
 }

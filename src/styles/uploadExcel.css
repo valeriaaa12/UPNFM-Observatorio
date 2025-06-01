@@ -1,40 +1,51 @@
-/* Container principal para toda la página */
 .upload-excel-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
+    padding: 4rem 2rem 2rem 2rem;
     background-color: #f9f9f9;
-}
-
-/* Contenido principal (entre NavBar y Footer) */
-.upload-excel-container>div {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
     align-items: center;
 }
 
-/* Dropzone */
+.upload-excel-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    color: #19467f;
+}
+
+/* Dropzone normal */
 .dropzone {
     border: 2px dashed #19467f;
     padding: 2rem;
-    width: 100%;
-    max-width: 600px;
+    width: 400px;
+    height: 200px;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: white;
     color: #19467f;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, background-color 0.3s;
     cursor: pointer;
-    /* Para que sea claro que es clickable */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
 }
 
+/* Cuando se arrastra encima */
 .dropzone-active {
     border-color: #0d6efd;
 }
 
-/* Tabla de vista previa */
+/* Dropzone desactivado (cuando ya hay archivo) */
+.dropzone-disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-style: dashed;
+    cursor: not-allowed;
+}
+
+/* Vista previa tabla */
 .preview-table {
     overflow-x: auto;
     margin-top: 1rem;
@@ -42,14 +53,23 @@
     max-width: 800px;
 }
 
-/* Botón subir */
+/* Botón de subir */
 .upload-button {
     margin-top: 1rem;
     text-align: center;
 }
 
-/* Texto del progreso */
 .progress-text {
     margin-left: 0.5rem;
     font-weight: bold;
+}
+
+/* Botones de acciones */
+.file-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 1rem;
 }
