@@ -8,11 +8,11 @@ type CardParams = {
 
 export default function InfoCard({ title, body, img }: CardParams) {
   return (
-    <Card className="cardShadow mb-5 hover-effect" style={{ width: '20rem', height: '20rem' }}>
-      <Card.Img variant="top" className="imgBorder" style={{ height: '50%' }} src={img} />
-      <Card.Body>
-        <b><Card.Title className="textColor">{title}</Card.Title></b>
-        <Card.Text className="textColor">
+    <Card className="info-card cardShadow hover-effect">
+      <Card.Img variant="top" className="info-card-img" src={img} />
+      <Card.Body className="info-card-body">
+        <Card.Title className="textColor">{title}</Card.Title>
+        <Card.Text className="info-card-text textColor">
           {body}
         </Card.Text>
       </Card.Body>

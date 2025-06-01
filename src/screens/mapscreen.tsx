@@ -71,6 +71,8 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         level: item.nivel
       }))
 
+      console.log("Datos de prebásica:", tempoDepartments);
+
       const tempoLegends: legend[] = response2.data.map((item: any) => ({
         level: item.nivel,
         message: item.leyenda,
@@ -127,7 +129,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
               <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
             </div>
           </div>}
-      <LanguageSelector></LanguageSelector>
+        <LanguageSelector></LanguageSelector>
       </div >
     </>
   );

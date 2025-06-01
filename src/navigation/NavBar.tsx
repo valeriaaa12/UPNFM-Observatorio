@@ -15,7 +15,7 @@ export default function NavBar() {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
 
-  
+
   return (
     <div suppressHydrationWarning>
       <div className='d-none d-lg-block'>
@@ -111,7 +111,7 @@ export default function NavBar() {
                         lineHeight: '1.2',
                         padding: '5px 0'
                       }}>
-                        {t("Indicadores Educativos")}
+                        {t("IndicadoresEducativos")}
                       </span>
                     }
                     id="navbarScrollingDropdown"
@@ -306,4 +306,3 @@ export default function NavBar() {
     </div>
   );
 }
-
