@@ -7,7 +7,7 @@ import Footer from "@/sections/footer";
 import What from "@/sections/what";
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import Client from "@/components/client";
 import Cookies from "@/components/cookies";

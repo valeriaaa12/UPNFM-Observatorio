@@ -1,24 +1,24 @@
- import Card from "@/cards/teamCard"
+import Card from "@/cards/teamCard"
 import HCard from "@/cards/horizontalCard"
 import Footer from "@/sections/footer";
 import dynamic from "next/dynamic";
 import ImgOverlay from "@/components/imageOverlay";
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from 'react-i18next';
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import Client from "@/components/client";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
 
 
 export default function aboutUs() {
-     const { t, i18n } = useTranslation('common');  
-     const [isClient, setIsClient] = useState(false);
+    const { t, i18n } = useTranslation('common');
+    const [isClient, setIsClient] = useState(false);
 
     return (
-        
+
         <Client>
-        <LanguageSelector></LanguageSelector>
+            <LanguageSelector></LanguageSelector>
             <div className="backgroundNavbar navbarSpacing">
                 <NavBar />
             </div>
@@ -145,9 +145,9 @@ export default function aboutUs() {
             </div>*/}
 
             {/* Nuestro Equipo */}
-            <div id="ourTeam" className="font fondoGris container-fluid px-3 px-md-5 py-5">
-                <p className="blueText mb-5 fontSection">{t("Nuestro Equipo")}</p>
-                <div className="row g-4 justify-content-center">
+            <div id="ourTeam" className="font fondoGris container-fluid">
+                <p className="blueText mb-5 fontSection padding">{t("Nuestro Equipo")}</p>
+                <div className="row g-4 justify-content-center" style={{ alignItems: 'stretch' }}>
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
                             image="images/Russbel-Hernandez.png"
@@ -187,13 +187,13 @@ export default function aboutUs() {
                                     institucion: t("RHI2")
                                 },
                                 {
-                                    grado:t("RHG3"),
+                                    grado: t("RHG3"),
                                     institucion: "UPNFM"
                                 }
                             ]}
                             experience={[
-                               t("MAE1"),
-                               t("MAE2")
+                                t("MAE1"),
+                                t("MAE2")
                             ]}
                         />
                     </div>
@@ -206,7 +206,7 @@ export default function aboutUs() {
                             email="germanmoncada@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado : t("RHG"),
+                                    grado: t("RHG"),
                                     institucion: t("RHI")
                                 },
                                 {
@@ -214,7 +214,7 @@ export default function aboutUs() {
                                     institucion: t("RHI2")
                                 },
                                 {
-                                     grado:t("RHG3"),
+                                    grado: t("RHG3"),
                                     institucion: "UPNFM"
                                 }
                             ]}
@@ -233,15 +233,15 @@ export default function aboutUs() {
                             email="germanmoncada@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado : t("RHG"),
+                                    grado: t("RHG"),
                                     institucion: t("RHI")
                                 },
-                                {  
+                                {
                                     grado: t("RHG2"),
                                     institucion: t("RHI2")
                                 },
                                 {
-                                    grado:t("RHG3"),
+                                    grado: t("RHG3"),
                                     institucion: "UPNFM"
                                 }
                             ]}

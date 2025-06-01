@@ -15,7 +15,7 @@ export default function NavBar() {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
 
-  
+
   return (
     <div suppressHydrationWarning>
       <div className='d-none d-lg-block'>
@@ -306,4 +306,3 @@ export default function NavBar() {
     </div>
   );
 }
-

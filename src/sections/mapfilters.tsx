@@ -11,8 +11,8 @@ interface params {
 }
 
 export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear, years }: params) {
-   const { t, i18n } = useTranslation('common');  
-   console.log('Current language:', i18n.language);
+  const { t, i18n } = useTranslation('common');
+  console.log('Current language:', i18n.language);
   return (
     <>
       {/* Menú*/}
@@ -31,7 +31,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
               title="Nivel Educativo"
-              options={["Ninguno", "Prebásica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
+              options={["Ninguno", "Pre-básica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
               value={level}
               onChange={setLevel}
             >
