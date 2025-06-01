@@ -63,6 +63,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         axios.get(url2, config),
         axios.get(BACKEND + '/periodosAnuales')
       ]);
+      console.log(response2)
       const tempoDepartments: department[] = response.data.map((item: any) => ({
         name: item.departamento.toLowerCase(),
         legend: item.leyenda,
@@ -126,7 +127,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
 
             {/* Mapa */}
             <div style={{ flex: 1, position: 'relative' }}>
-              <MainMap level={level} map={'/others/hn.json'} title={title} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+              <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
             </div>
           </div>}
         <LanguageSelector></LanguageSelector>

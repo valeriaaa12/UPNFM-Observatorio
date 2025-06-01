@@ -92,5 +92,7 @@
   "CookiePolicy": "Cookie Policy",
   "AcceptCookies": "Accept",
   "Correo": "Email",
-  "Contraseña": "Password"
+  "Contraseña": "Password",
+  "Nivel Educativo": "Education Level",
+  "Año": "Year"
 }
