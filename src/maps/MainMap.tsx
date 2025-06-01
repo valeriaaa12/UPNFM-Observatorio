@@ -44,6 +44,7 @@ interface MapParams {
   setLegends: React.Dispatch<React.SetStateAction<legend[] | null>>;
   map: string;
   level: string;
+  year: string;
 }
 
 const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
@@ -66,13 +67,23 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 };
 
 
-const MainMap = ({ title, departments, setDepartments, legends, setLegends, map, level }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
+  const hasZero = () =>{
+    if(legends?.find((item)=>item.lowerLimit==0) && level != 'Ninguno'){
+      return true;
+    }else if(legends?.find((item)=>item.upperLimit==0) && level != 'Ninguno'){
+      return true;
+    }else{
+      console.log("falsoooo")
+      return false;
+    }
 
+  }
   const fallback: legend = {
     level: "",
     message: "",
@@ -84,25 +95,31 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
+    console.log(departments)
     const value = currentDep?.value || 0;
-
+    console.log(level)
     const darkgreen: legend = legends?.find((item) =>
-      item.message === t("l1") && item.level === level
+      item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-
+    console.log(legends)
     const green: legend = legends?.find((item) =>
-      item.message === t("l2") && item.level === level
+      item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
 
     const orange: legend = legends?.find((item) =>
-      item.message === t("l3") && item.level === level
+      item.message === "Lejos de la meta" && item.level === level
+    ) ?? fallback;
+
+     const red: legend = legends?.find((item) =>
+      item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
 
-    if (value == 0) return '#808080'; //gris
+    if (level == "Ninguno" || year=="Ninguno") return '#808080'; 
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
     if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
+    if (value == 0) return '#808080'; //gris
     return '#e41a1c'; //rojo 
   };
 
@@ -143,21 +160,24 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
 
   //Limites
   const limites = () =>{
+    
       const darkgreen: legend = legends?.find((item) =>
-      item.message === t("l1") && item.level === level
+      item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-
+    console.log(legends)
     const green: legend = legends?.find((item) =>
-      item.message === t("l2") && item.level === level
+      item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
 
     const orange: legend = legends?.find((item) =>
-      item.message === t("l3") && item.level === level
+      item.message === "Lejos de la meta" && item.level === level
     ) ?? fallback;
 
      const red: legend = legends?.find((item) =>
-      item.message === t("l4") && item.level === level
+      item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
+
+
 
     return(<>
               <div style={{
@@ -341,8 +361,29 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
             border: '1px solid #ccc'
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>{t("Valor")}: {departments?.find((item) => item.name == selectedDept.toLowerCase())?.value || 'N/A'}</p>
-            <p>{departments?.find((item) => item.name == selectedDept.toLowerCase())?.legend || ' '}</p>
+            <p>{t("Valor")}: {
+    (() => {
+      const dept = departments?.find(
+        (item) => item.name === selectedDept.toLowerCase()
+      );
+      return dept && (dept.value !== 0 || hasZero()) ? dept.value : 'N/A';
+    })()}</p>
+            
+            {(() => {
+              const dept = departments?.find(
+                (item) => item.name.toLowerCase() === selectedDept.toLowerCase()
+              );
+
+              if (!dept?.legend) return <p> </p>;
+
+              if (dept.legend === 'Mucho mejor que la meta') return <p>{t("l1")}</p>;
+              if (dept.legend === 'Dentro de la meta') return <p>{t("l2")}</p>;
+              if (dept.legend === 'Lejos de la meta') return <p>{t("l3")}</p>;
+              if (dept.legend === 'Muy lejos de la meta') return <p>{t("l4")}</p>;
+              // Fallback
+              return <p>{dept.legend}</p>;
+            })()}
+
             <button
               onClick={() => setSelectedDept(null)}
               style={{
@@ -353,7 +394,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, map,
                 cursor: 'pointer'
               }}
             >
-              Close
+              {t("Cerrar")}
             </button>
           </div>
         )}

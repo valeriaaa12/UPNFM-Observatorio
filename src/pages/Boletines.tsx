@@ -11,7 +11,7 @@ import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
 import InfoModal from '@/modals/modal';
-
+import Client from '@/components/client';
 interface BoletinData {
   id: string;
   nombre: string;
@@ -73,6 +73,7 @@ export default function Boletines() {
   };
 
   return (
+    <Client>
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
         <LanguageSelector />
@@ -158,5 +159,6 @@ export default function Boletines() {
       <Footer />
       {infoModal && <InfoModal title={modalTitle} message={message} />}
     </div>
+    </Client>
   );
 }
