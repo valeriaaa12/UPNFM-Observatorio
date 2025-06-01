@@ -4,7 +4,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/buttons/LanguageSelector";
-
+import Client from '@/components/client';
 const backgroundImages = [
     '/images/bg1.png',
     '/images/bg2.jpg',
@@ -52,6 +52,7 @@ const Demo = () => {
 
     return (
         <>
+        <Client>
             <div style={{ minHeight: '100vh', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
                 {/* Imagen de fondo dinámica */}
                 <img
@@ -245,6 +246,7 @@ const Demo = () => {
                 </style>
             </div>
             <LanguageSelector />
+            </Client>
         </>
     );
 };
