@@ -31,7 +31,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
               title={t("Nivel Educativo")}
-              options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("Media")]}
+              options={["Ninguno", "Pre-básica", "Básica I-II Ciclo", "Básica III Ciclo", "Media"]}
               value={level}
               onChange={setLevel}
             >
