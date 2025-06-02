@@ -117,5 +117,17 @@
   "Correo": "Correo Electrónico",
   "Contraseña": "Contraseña",
   "Nivel Educativo": "Nivel Educativo",
-  "Año": "Año"
+  "Año": "Año",
+  "CompletarTitulo": "Completa el título y selecciona un archivo PDF.",
+  "Nombre": "Nombre",
+  "Etiqueta": "Etiqueta",
+  "BoletinCreado": "Boletín creado ",
+  "ElBoletin": "El Boletín",
+  "fueCreadoConExito": " fue creado con éxito.",
+  "ErrorBoletin": "Error al crear el boletín. Por favor, inténtalo de nuevo.",
+  "ErrorBoletin2":"Error creando boletín",
+  "ErrorBoletin3":"No se pudo crear el boletín. Por favor, inténtalo de nuevo.",
+  "NoBoletines": "No hay boletines disponibles.",
+  "Titulo": "Título",
+  "Logout": "Cerrar Sesión"
 }

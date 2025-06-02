@@ -7,6 +7,8 @@ import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
+import Client from '@/components/client';
+import SmallNavBar from "@/navigation/SmallNavBar";
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -110,12 +112,14 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   }, [selectedYear, level])
   const { t } = useTranslation('common');
   return (
+    <Client>
     <>
       <div className="font">
         <div className="blue blueNavbar">
           <NavBar />
           <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
         </div>
+        <SmallNavBar></SmallNavBar>
         {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -133,5 +137,6 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         <LanguageSelector></LanguageSelector>
       </div >
     </>
+  </Client>
   );
 }

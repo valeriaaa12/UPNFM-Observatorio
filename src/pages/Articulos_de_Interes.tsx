@@ -5,14 +5,13 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/buttons/LanguageSelector";
-
-
+import Client from '@/components/client';
 import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
 import InfoModal from '@/modals/modal';
-
+import { useUser } from '@/context/usertype';
 interface BoletinData {
   id: string;
   nombre: string;
@@ -34,7 +33,7 @@ export default function Articulos_de_interes() {
   const [message, setMessage] = useState('');
   const etiquetaFiltro = 'Articulos de Interes';
   const { t } = useTranslation("common");
-
+  const {user} = useUser();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'application/pdf': [] },
     multiple: false,
@@ -72,8 +71,9 @@ export default function Articulos_de_interes() {
       setBoletinTitle('');
     }
   };
-
+  
   return (
+    <Client>
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
         <LanguageSelector />
@@ -86,9 +86,10 @@ export default function Articulos_de_interes() {
           <SmallNavBar />
           <div className="d-flex justify-content-between align-items-center px-5 py-4">
             <h2>Artículo de Interés</h2>
+            {user?.admin &&
             <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
               Agregar Artículo
-            </Button>
+            </Button>}
           </div>
           <div className="card-gallery pt-0 Documentos">
             {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
@@ -153,5 +154,6 @@ export default function Articulos_de_interes() {
       <Footer />
       {infoModal && <InfoModal title={modalTitle} message={message} show={showModal} onHide={() => setShowModal(false)} />}
     </div>
+    </Client>
   );
 }

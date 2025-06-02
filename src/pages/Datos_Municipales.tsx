@@ -5,12 +5,14 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/buttons/LanguageSelector";
-
+import Client from '@/components/client';
 import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
 import InfoModal from '@/modals/modal';
+import { useUser } from '@/context/usertype';
+
 
 interface BoletinData {
   id: string;
@@ -33,6 +35,7 @@ export default function Datos_Municipales() {
   const [message, setMessage] = useState('');
   const etiquetaFiltro = 'Datos Municipales';
   const { t } = useTranslation("common");
+  const { user } = useUser();
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'application/pdf': [] },
@@ -73,6 +76,7 @@ export default function Datos_Municipales() {
   };
 
   return (
+    <Client>
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
         <LanguageSelector />
@@ -84,9 +88,12 @@ export default function Datos_Municipales() {
           <SmallNavBar />
           <div className="d-flex justify-content-between align-items-center px-5 py-4">
             <h2>Datos Municipales</h2>
-            <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
-              Agregar Dato Municipal
-            </Button>
+            {user?.admin &&(
+                <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
+                  Agregar Dato Municipal
+                </Button>
+            )}
+            
           </div>
           <div className="card-gallery pt-0 Documentos">
             {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
@@ -159,5 +166,6 @@ export default function Datos_Municipales() {
       {infoModal && <InfoModal title={modalTitle} message={message} show={showModal} onHide={() => setShowModal(false)} />}
     */}
     </div>
+    </Client>
   );
 }

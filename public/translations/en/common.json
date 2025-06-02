@@ -84,7 +84,7 @@
   "Investigacion2": "Research",
   "Ver PDF": "View PDF",
   "Descargar PDF": "Download PDF",
-  "Nuevo Boletín": "New Bulletin",
+  "Nuevo Boletin": "New Bulletin",
   "Agregar Boletín": "Add New Bulletin",
   "Titulo del Boletín": "Bulletin Title",
   "Archivo PDF": "PDF File",
@@ -117,5 +117,17 @@
   "Correo": "Email",
   "Contraseña": "Password",
   "Nivel Educativo": "Education Level",
-  "Año": "Year"
+  "Año": "Year",
+  "CompletarTitulo": "Complete the title and select a PDF file.",
+  "Nombre": "Name",
+  "Etiqueta": "Label",
+  "BoletinCreado": "Bulletin created ",
+  "ElBoletin": "The Bulletin",
+  "fueCreadoConExito": " was created successfully.",
+  "ErrorBoletin": "Error creating bulletin. Please try again.",
+  "ErrorBoletin2":"Error creating bulletin.",
+  "ErrorBoletin3":"Could not create the bulletin. Please try again.",
+   "NoBoletines": "No bulletins available.",
+   "Titulo": "Title",
+  "Logout": "Log out"
 }
