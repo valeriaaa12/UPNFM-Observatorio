@@ -153,50 +153,6 @@ export default function Boletines() {
                   </Button>
                 </Modal.Footer>
               </Modal>
-
-              <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-                <Modal.Header closeButton>
-                  <Modal.Title>{t("Agregar Boletín")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form>
-                    <Form.Group controlId="boletinTitle" className="mb-3">
-                      <Form.Label>Título</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={boletinTitle}
-                        onChange={e => setBoletinTitle(e.target.value)}
-                        placeholder="Ej: Boletín #"
-                      />
-                    </Form.Group>
-                    <Form.Group>
-                      <Form.Label>PDF</Form.Label>
-                      <div
-                        {...getRootProps()}
-                        className={`border rounded p-4 text-center ${isDragActive ? 'bg-light' : ''}`}
-                        style={{ cursor: 'pointer', minHeight: '120px' }}
-                      >
-                        <input {...getInputProps()} />
-                        {isDragActive ? (
-                          <p>Suelta aquí...</p>
-                        ) : file ? (
-                          <p>{file.name}</p>
-                        ) : (
-                          <p>Arrastra o haz clic para seleccionar un PDF</p>
-                        )}
-                      </div>
-                    </Form.Group>
-                  </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="btn outline-blue" onClick={() => setShowModal(false)}>
-                    Cerrar
-                  </Button>
-                  <Button variant="btn orange" onClick={handleGuardarBoletin}>
-                    Guardar
-                  </Button>
-                </Modal.Footer>
-              </Modal>
             </Client >
           </div>
           {/* 
