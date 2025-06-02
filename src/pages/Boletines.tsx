@@ -11,6 +11,8 @@ import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
 import InfoModal from '@/modals/modal';
 import Client from '@/components/client';
+import { useUser } from '@/context/usertype';
+
 interface BoletinData {
   id: string;
   nombre: string;
@@ -32,6 +34,8 @@ export default function Boletines() {
   const [message, setMessage] = useState('');
   const etiquetaFiltro = 'Boletín';
   const { t } = useTranslation("common");
+  const { user } = useUser();
+  console.log('🚦 user en Boletines:', user);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'application/pdf': [] },
@@ -86,9 +90,12 @@ export default function Boletines() {
             <SmallNavBar />
             <div className="d-flex justify-content-between align-items-center px-5 py-4">
               <h2>{t("Boletines")}</h2>
-              <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
-                {t("Nuevo Boletin")}
-              </Button>
+              {user?.admin && (
+                <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
+                  {t("Nuevo Boletin")}
+                </Button>
+              )}
+            
             </div>
             <div className="card-gallery pt-0 Documentos">
               {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
@@ -199,9 +206,6 @@ export default function Boletines() {
               </Modal>
             </Client >
           </div>
-          {/* 
-      {infoModal && <InfoModal title={modalTitle} message={message} show={showModal} onHide={() => setShowModal(false)} />}
-    */}
         </div>
         <Footer />
       </div>

@@ -42,7 +42,7 @@ const Demo = () => {
             const user = userCredential.user;
             console.log("✅ Usuario autenticado:", user.email);
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/esAdmin/${user.uid}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/esAdmin/${user.uid}`);
             const data = await response.json();
 
             if (data.admin) {
