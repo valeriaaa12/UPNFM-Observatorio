@@ -51,6 +51,7 @@
     "@types/leaflet": "^1.9.18",
     "@types/node": "^20",
     "@types/react": "^19",
+    "@types/react-bootstrap": "^1.0.1",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
