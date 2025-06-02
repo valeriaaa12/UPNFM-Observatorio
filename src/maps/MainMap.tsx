@@ -191,7 +191,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         zIndex: 1000,
         border: '1px solid #ccc'
       }}>
-        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("Limites")}</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
