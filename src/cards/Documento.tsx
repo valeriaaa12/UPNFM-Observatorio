@@ -1,10 +1,9 @@
-// src/cards/Boletin.tsx
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';       // Usamos Modal directamente
-import MessageModal from '@/modals/modal';       // Solo para el modal de información final
+import Modal from 'react-bootstrap/Modal';
+import MessageModal from '@/modals/modal';
 import { useUser } from '@/context/usertype';
 const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
@@ -27,7 +26,7 @@ export default function Card({
   index,
   etiqueta,
 }: BoletinProps) {
-  const {user} = useUser();
+  const { user } = useUser();
   const [deleting, setDeleting] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -105,19 +104,18 @@ export default function Card({
             >
               Descargar PDF
             </button>
-            {user?.admin && 
-            <Button
-              className="ms-auto btn-rojo btn-small"
-              onClick={handleConfirmDelete}
-              disabled={deleting}
-            >
-              {deleting ? 'Borrando...' : 'Eliminar'}
-            </Button>}
+            {user?.admin &&
+              <Button
+                className="ms-auto btn-rojo btn-small"
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+              >
+                {deleting ? 'Borrando...' : 'Eliminar'}
+              </Button>}
           </div>
         </div>
       </div>
 
-      {/* Confirm Modal: usamos React-Bootstrap directamente */}
       <Modal
         show={showConfirmModal}
         onHide={() => setShowConfirmModal(false)}
@@ -136,7 +134,7 @@ export default function Card({
           >
             {t("Cancelar")}
           </Button>
-          
+
           <Button
             variant="btn btn-rojo"
             onClick={handleDelete}
@@ -147,7 +145,6 @@ export default function Card({
         </Modal.Footer>
       </Modal>
 
-      {/* Info Modal: mantiene MessageModal si quieres estilo personalizado */}
       {showInfoModal && (
         <MessageModal
           title={infoTitle}

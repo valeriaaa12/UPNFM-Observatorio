@@ -9,7 +9,6 @@ import Card from '@/cards/Documento';
 import Footer from '@/sections/footer';
 import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
-import InfoModal from '@/modals/modal';
 import Client from '@/components/client';
 import { useUser } from '@/context/usertype';
 

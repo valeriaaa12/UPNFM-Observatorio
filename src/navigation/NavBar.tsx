@@ -175,11 +175,10 @@ export default function NavBar() {
                       <NavDropdown.Divider />
                       {user?.admin && (
                         <>
-                          <NavDropdown.Divider />
                           <NavDropdown.Item
                             className='admin-option'
                             href="/uploadExcel"
-                           
+
                           >
                             {t("Subir Archivos")}
                           </NavDropdown.Item>
@@ -232,7 +231,7 @@ export default function NavBar() {
                       >
                         {t("DatosMunicipales")}
                       </NavDropdown.Item>
-                      
+
                     </NavDropdown>
 
                     <NavDropdown
@@ -300,35 +299,35 @@ export default function NavBar() {
                         alt="User menu"
                       />
                     </Dropdown.Toggle>
-                    { !user ?
-                    <Dropdown.Menu>
-                      <Dropdown.Item
-                        href="/login"
-                        style={{ whiteSpace: 'normal' }}
-                      >
-                        {t("Login")}
-                      </Dropdown.Item>
-                      <Dropdown.Divider />
-                      <Dropdown.Item
-                        href="/register"
-                        style={{ whiteSpace: 'normal' }}
-                      >
-                        {t("Register")}
-                      </Dropdown.Item>
-                    </Dropdown.Menu> :
-                     <Dropdown.Menu>
-                    <Dropdown.Item
-                        href="/login"
-                        style={{ whiteSpace: 'normal' }}
-                        onClick={(e) => {
-                  e.preventDefault();
-                  window.location.href = "/landingpage";
-                  setTimeout(() => setUser(null), 100); 
-                }}><b>{t("Logout")}</b>
-                      </Dropdown.Item>
-                     
-                      
-                    </Dropdown.Menu>}
+                    {!user ?
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          href="/login"
+                          style={{ whiteSpace: 'normal' }}
+                        >
+                          {t("Login")}
+                        </Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item
+                          href="/register"
+                          style={{ whiteSpace: 'normal' }}
+                        >
+                          {t("Register")}
+                        </Dropdown.Item>
+                      </Dropdown.Menu> :
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          href="/login"
+                          style={{ whiteSpace: 'normal' }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = "/landingpage";
+                            setTimeout(() => setUser(null), 100);
+                          }}><b>{t("Logout")}</b>
+                        </Dropdown.Item>
+
+
+                      </Dropdown.Menu>}
                   </Dropdown>
                 </Navbar.Collapse>
               </div>
