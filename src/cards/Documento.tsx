@@ -109,7 +109,7 @@ export default function Card({
               onClick={handleConfirmDelete}
               disabled={deleting}
             >
-              {deleting ? 'Borrando...' : 'Borrar Boletín'}
+              {deleting ? 'Borrando...' : 'Eliminar'}
             </Button>
           </div>
         </div>
