@@ -43,30 +43,30 @@ export default function Datos_Municipales() {
     onDrop: acceptedFiles => {
       const selected = acceptedFiles[0];
       if (selected && selected.type === 'application/pdf') setFile(selected);
-      else alert('Por favor selecciona un archivo PDF válido.');
+      else alert(t("SeleccionarValido"));
     }
   });
 
   const handleGuardarBoletin = async () => {
     if (!boletinTitle || !file) {
-      alert('Completa título y selecciona un PDF.');
+      alert(t("CompletarBoletin"));
       return;
     }
     const formData = new FormData();
-    formData.append('nombre', boletinTitle);
-    formData.append('etiqueta', etiquetaFiltro);
-    formData.append('pdf', file);
+    formData.append(t("Nombre"), boletinTitle);
+    formData.append(t("Etiqueta"), etiquetaFiltro);
+    formData.append("PDF", file);
 
     try {
       await axios.post(`${API_URL}/subirPDF`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setModalTitle('Boletín creado');
-      setMessage(`Se agrego el Dato Municipal "${boletinTitle}" se creó con éxito.`);
+      setModalTitle(t("BoletinCreado"));
+      setMessage(t("DatoMunicipal") + `${boletinTitle}` + t("fueCreadoConExito"));
       setInfoModal(true);
       mutate();
     } catch (err) {
-      console.error('Error creando el Dato Municipal:', err);
-      setModalTitle('Error al crear el Dato Municipal');
-      setMessage('No se pudo crear el Dato Municipal. Inténtalo de nuevo.');
+      console.error(t("Error1"), err);
+      setModalTitle(t("Error2"));
+      setMessage(t("Error3"));
       setInfoModal(true);
     } finally {
       setShowModal(false);
@@ -87,17 +87,17 @@ export default function Datos_Municipales() {
           </div>
           <SmallNavBar />
           <div className="d-flex justify-content-between align-items-center px-5 py-4">
-            <h2>Datos Municipales</h2>
+            <h2>{t("DatosMunicipales")}</h2>
             {user?.admin &&(
                 <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
-                  Agregar Dato Municipal
+                  {t("AgregarDatoMunicipal")}
                 </Button>
             )}
             
           </div>
           <div className="card-gallery pt-0 Documentos">
             {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
-              <p>No hay datos municipales disponibles.</p>
+              <p>{t("NoDatosMunicipales")}</p>
             ) : (
               boletines
                 .filter(b => b.etiqueta === etiquetaFiltro)
@@ -118,12 +118,12 @@ export default function Datos_Municipales() {
 
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
           <Modal.Header closeButton>
-            <Modal.Title>Agregar Dato Municipal</Modal.Title>
+            <Modal.Title> {t("AgregarDatoMunicipal")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="boletinTitle" className="mb-3">
-                <Form.Label>Título</Form.Label>
+                <Form.Label>{t("Titulo")}</Form.Label>
                 <Form.Control
                   type="text"
                   value={boletinTitle}
@@ -140,11 +140,11 @@ export default function Datos_Municipales() {
                 >
                   <input {...getInputProps()} />
                   {isDragActive ? (
-                    <p>Suelta aquí...</p>
+                    <p>{t("Suelta el archivo aqui")}</p>
                   ) : file ? (
                     <p>{file.name}</p>
                   ) : (
-                    <p>Arrastra o haz clic para seleccionar un PDF</p>
+                    <p>{t("Arrastrar y soltar un archivo PDF aquí o hacer clic para seleccionarlo")}</p>
                   )}
                 </div>
               </Form.Group>
@@ -152,10 +152,10 @@ export default function Datos_Municipales() {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="btn btn-outline-blue" onClick={() => setShowModal(false)}>
-              Cerrar
+              {t("Cerrar")}
             </Button>
             <Button variant="btn btn-orange" onClick={handleGuardarBoletin}>
-              Guardar
+              {t("Guardar")}
             </Button>
           </Modal.Footer>
         </Modal>

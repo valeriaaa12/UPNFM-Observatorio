@@ -1,5 +1,5 @@
 // src/context/usertype.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface User {
   uid: string;
@@ -15,7 +15,31 @@ interface UserContextValue {
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
+
+  // Wrap setUser to also store in localStorage
+  const setUser = (u: User | null) => {
+    setUserState(u);
+    if (u) {
+      localStorage.setItem('user', JSON.stringify(u));
+    } else {
+      localStorage.removeItem('user');
+    }
+  };
+
+  // On mount, restore user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUserState(JSON.parse(storedUser));
+      } catch (err) {
+        console.error("Failed to parse stored user:", err);
+        localStorage.removeItem('user');
+      }
+    }
+  }, []);
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}

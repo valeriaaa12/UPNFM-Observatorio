@@ -71,14 +71,14 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
- 
+
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
-  const hasZero = () =>{
-    if(legends?.find((item)=>item.lowerLimit==0) && level != 'Ninguno'){
+  const hasZero = () => {
+    if (legends?.find((item) => item.lowerLimit == 0) && level != 'Ninguno') {
       return true;
-    }else if(legends?.find((item)=>item.upperLimit==0) && level != 'Ninguno'){
+    } else if (legends?.find((item) => item.upperLimit == 0) && level != 'Ninguno') {
       return true;
-    }else{
+    } else {
       console.log("falsoooo")
       return false;
     }
@@ -110,12 +110,12 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Lejos de la meta" && item.level === level
     ) ?? fallback;
 
-     const red: legend = legends?.find((item) =>
+    const red: legend = legends?.find((item) =>
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
 
-    if (level == "Ninguno" || year=="Ninguno") return '#808080'; 
+    if (level == "Ninguno" || year == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
     if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
@@ -159,9 +159,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   };
 
   //Limites
-  const limites = () =>{
-    
-      const darkgreen: legend = legends?.find((item) =>
+  const limites = () => {
+
+    const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
     console.log(legends)
@@ -173,46 +173,46 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Lejos de la meta" && item.level === level
     ) ?? fallback;
 
-     const red: legend = legends?.find((item) =>
+    const red: legend = legends?.find((item) =>
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
 
 
-    return(<>
-              <div style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '20px',
-          backgroundColor: '#F0F0F0',
-          padding: '10px',
-          borderRadius: '5px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-          zIndex: 1000,
-          border: '1px solid #ccc'
-        }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Limites</div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
-            <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
-            <span>{green.lowerLimit} - {green.upperLimit}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
-            <span>{orange.lowerLimit} - {orange.upperLimit}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-            <span>{red.lowerLimit} - {red.upperLimit}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-            <span>N/A</span>
-          </div>
+    return (<>
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '20px',
+        backgroundColor: '#F0F0F0',
+        padding: '10px',
+        borderRadius: '5px',
+        boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+        zIndex: 1000,
+        border: '1px solid #ccc'
+      }}>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("Limites")}</div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
+          <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+          <span>{green.lowerLimit} - {green.upperLimit}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+          <span>{orange.lowerLimit} - {orange.upperLimit}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
+          <span>{red.lowerLimit} - {red.upperLimit}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+          <span>N/A</span>
+        </div>
+      </div>
     </>);
   }
   // Event handlers
@@ -231,8 +231,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       className: 'dept-tooltip'
     });
   };
-   const { t, i18n } = useTranslation('common');  
-   console.log('Current language:', i18n.language);
+  const { t, i18n } = useTranslation('common');
+  console.log('Current language:', i18n.language);
   return (
     <div style={{
       position: 'relative',
@@ -308,7 +308,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
           <FitBounds geoData={geoData} />
         </MapContainer>
-        
+
         {/* Limites */}
         {limites()}
         {/* Leyendas */}
@@ -362,13 +362,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
             <p>{t("Valor")}: {
-    (() => {
-      const dept = departments?.find(
-        (item) => item.name === selectedDept.toLowerCase()
-      );
-      return dept && (dept.value !== 0 || hasZero()) ? dept.value : 'N/A';
-    })()}</p>
-            
+              (() => {
+                const dept = departments?.find(
+                  (item) => item.name === selectedDept.toLowerCase()
+                );
+                return dept && (dept.value !== 0 || hasZero()) ? dept.value : 'N/A';
+              })()}</p>
+
             {(() => {
               const dept = departments?.find(
                 (item) => item.name.toLowerCase() === selectedDept.toLowerCase()

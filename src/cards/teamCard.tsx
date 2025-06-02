@@ -8,7 +8,9 @@ interface CardParams {
     role: string;
     email: string;
     studies: school[];
-    experience?: string[];
+    experience: string[];
+    interests?: string[];
+    investigations?: string[];
 }
 
 interface school {
@@ -16,16 +18,8 @@ interface school {
     institucion: string;
 }
 
-export default function TeamCard({
-    image,
-    title,
-    role,
-    email,
-    studies = [],
-    experience = [],
-}: CardParams) {
-    const [activeTab, setActiveTab] = useState<'studies' | 'experience'>('studies');
-    const hasExperience = Boolean(experience?.length);
+export default function TeamCard({ image, title, role, email, studies = [], experience = [], interests = [], investigations = [] }: CardParams) {
+    const [activeTab, setActiveTab] = useState<'studies' | 'experience' | 'interests' | 'investigations'>('studies');
     const { t } = useTranslation('common');
 
     return (
@@ -40,26 +34,44 @@ export default function TeamCard({
                 {/* Overlay con información académica/profesional */}
                 <div className="card-overlay position-absolute top-0 start-0 w-100 h-100 p-4">
                     <div className="h-100 d-flex flex-column">
-                        {hasExperience && (
-                            <div className="d-flex mb-3 overlay-tabs">
+                        {(experience.length > 0 || interests.length > 0) && (
+                            <div className="d-flex mb-3 overlay-tabs flex-wrap">
                                 <button
-                                    className={`btn btn-sm btn-outline-light me-2 ${activeTab === 'studies' ? 'active' : ''}`}
+                                    className={`btn btn-sm btn-outline-light me-2 mb-1 ${activeTab === 'studies' ? 'active' : ''}`}
                                     onClick={() => setActiveTab('studies')}
                                 >
                                     {t('Estudios')}
                                 </button>
-                                <button
-                                    className={`btn btn-sm btn-outline-light ${activeTab === 'experience' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('experience')}
-                                >
-                                    {t('Experiencia')}
-                                </button>
+                                {experience.length > 0 && (
+                                    <button
+                                        className={`btn btn-sm btn-outline-light me-2 mb-1 ${activeTab === 'experience' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('experience')}
+                                    >
+                                        {t('Experiencia')}
+                                    </button>
+                                )}
+                                {interests.length > 0 && (
+                                    <button
+                                        className={`btn btn-sm btn-outline-light mb-1 ${activeTab === 'interests' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('interests')}
+                                    >
+                                        {t('Intereses')}
+                                    </button>
+                                )}
+                                {investigations.length > 0 && (
+                                    <button
+                                        className={`btn btn-sm btn-outline-light mb-1 ${activeTab === 'investigations' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('investigations')}
+                                    >
+                                        {t('Investigacion2')}
+                                    </button>
+                                )}
                             </div>
                         )}
 
                         <div className="overflow-auto flex-grow-1">
-                            {(!hasExperience || activeTab === 'studies') ? (
-                                <div className="studies-content text-white">
+                            {activeTab === 'studies' && (
+                                <div className="text-white">
                                     <h6 className="fw-bold mb-3">{t('Formacion')}</h6>
                                     <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
                                         {studies.map((estudio, index) => (
@@ -69,13 +81,41 @@ export default function TeamCard({
                                         ))}
                                     </ul>
                                 </div>
-                            ) : (
-                                <div className="experience-content text-white">
+                            )}
+
+                            {activeTab === 'experience' && experience.length > 0 && (
+                                <div className="text-white">
                                     <h6 className="fw-bold mb-3">{t('Trayectoria')}</h6>
                                     <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
                                         {experience.map((exp, index) => (
                                             <li key={index} className="mb-1">
                                                 {exp}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {activeTab === 'interests' && interests.length > 0 && (
+                                <div className="text-white">
+                                    <h6 className="fw-bold mb-3">{t('Temas')}</h6>
+                                    <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+                                        {interests.map((interest, index) => (
+                                            <li key={index} className="mb-1">
+                                                {interest}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {activeTab === 'investigations' && investigations.length > 0 && (
+                                <div className="text-white">
+                                    <h6 className="fw-bold mb-3">{t('Investigacion')}</h6>
+                                    <ul className="text-start" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+                                        {investigations.map((investigation, index) => (
+                                            <li key={index} className="mb-1">
+                                                {investigation}
                                             </li>
                                         ))}
                                     </ul>

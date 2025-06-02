@@ -1,9 +1,11 @@
 import MapScreen from "@/screens/mapscreen";
 import Client from "@/components/client";
+import { useTranslation } from 'react-i18next';
 export default function CoberturaNetaScreen(){
+    const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/tasaneta" extensionLimits="/limitesTasaNeta" title="Tasa de Cobertura Neta Escolar en Honduras"></MapScreen>
+        <MapScreen extensionData="/tasaneta" extensionLimits="/limitesTasaNeta" title={t('CoberturaNeta')}></MapScreen>
         </Client>
     </>);
 }

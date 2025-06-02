@@ -12,6 +12,7 @@ import { appWithTranslation } from 'next-i18next';
 
 function App({ Component, pageProps }: AppProps) {
   return (
+    <UserProvider>
     <CookiesProvider>
       <I18nextProvider i18n={i18n}>
         <UserProvider>
@@ -19,6 +20,7 @@ function App({ Component, pageProps }: AppProps) {
         </UserProvider>
       </I18nextProvider>
     </CookiesProvider>
+    </UserProvider>
   );
 }
 

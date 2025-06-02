@@ -1,10 +1,11 @@
 import MapScreen from "@/screens/mapscreen";
 import Client from "@/components/client";
-
+import { useTranslation } from 'react-i18next';
 export default function DesercionScreen(){
+    const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/desercion" extensionLimits="/limitesDesercion" title="Tasa de Deserción Escolar en Honduras"></MapScreen>
+        <MapScreen extensionData="/desercion" extensionLimits="/limitesDesercion" title={t('TasaDesercion')}></MapScreen>
         </Client>
     </>);
 }

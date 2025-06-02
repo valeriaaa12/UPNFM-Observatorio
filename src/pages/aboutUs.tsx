@@ -150,45 +150,48 @@ export default function aboutUs() {
                 <div className="row g-4 justify-content-center" style={{ alignItems: 'stretch' }}>
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="images/Russbel-Hernandez.png"
-                            title="Russbel Hernández"
-                            role={t("RH")}
+                            image="images/Dr. Russbel Hernández.jpg"
+                            title="Dr. Russbel Hernández"
+                            role={t("RHRole")}
                             email="russbelh@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado: t("RHG"),
-                                    institucion: t("RHI")
+                                    grado: t("REG1"),
+                                    institucion: t("Flensburg")
                                 },
                                 {
-                                    grado: t("RHG2"),
-                                    institucion: t("RHI2")
+                                    grado: t("REG2"),
+                                    institucion: t("REI2")
                                 },
                                 {
-                                    grado: t("RHG3"),
-                                    institucion: "UPNFM"
+                                    grado: t("REG3"),
+                                    institucion: t("UPNFM")
                                 }
+                            ]}
+                            experience={[
+                                t("RE")
                             ]}
                         />
                     </div>
 
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="images/Mario Alas.png"
-                            title="Mario Alas"
-                            role={t("MA")}
+                            image="images/Dr. Mario Alas_1.0.jpg"
+                            title="Dr. Mario Alas"
+                            role={t("MARole")}
                             email="marioalas@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado: t("RHG"),
-                                    institucion: t("RHI")
+                                    grado: t("Educacion"),
+                                    institucion: t("Flensburg")
                                 },
                                 {
-                                    grado: t("RHG2"),
-                                    institucion: t("RHI2")
+                                    grado: t("MEG2"),
+                                    institucion: t("MEI2")
                                 },
                                 {
-                                    grado: t("RHG3"),
-                                    institucion: "UPNFM"
+                                    grado: t("MEG3"),
+                                    institucion: t("UPNFM")
                                 }
                             ]}
                             experience={[
@@ -200,54 +203,66 @@ export default function aboutUs() {
 
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="images/German Moncada.png"
-                            title="German Moncada"
-                            role={t("GM")}
+                            image="images/Dr. German Moncada_ 1.1 fotografía.jpg"
+                            title="Dr. German Moncada"
+                            role={t("GMRole")}
                             email="germanmoncada@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado: t("RHG"),
-                                    institucion: t("RHI")
+                                    grado: t("GEG1"),
+                                    institucion: t("GEI1")
                                 },
                                 {
-                                    grado: t("RHG2"),
-                                    institucion: t("RHI2")
+                                    grado: t("Educacion"),
+                                    institucion: t("Flensburg")
                                 },
                                 {
-                                    grado: t("RHG3"),
-                                    institucion: "UPNFM"
+                                    grado: t("GEG3"),
+                                    institucion: t("UPNFM")
                                 }
                             ]}
                             experience={[
-                                t("GME1"),
-                                t("GME2")
+                                t("GE1"),
+                                t("GE2")
+                            ]}
+                            interests={[
+                                t("GI1"),
+                                t("GI2"),
+                                t("GI3")
                             ]}
                         />
                     </div>
 
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="https://b2472105.smushcdn.com/2472105/wp-content/uploads/2023/09/Poses-Perfil-Profesional-Mujeres-ago.-10-2023-1-819x1024.jpg?lossy=1&strip=1&webp=1"
-                            title="Claudia ---"
-                            role={t("Claudia")}
-                            email="germanmoncada@upnfm.edu.hn"
+                            image="images/Dra. Claudia Sánchez_ 1.0.png"
+                            title="Dra. Claudia Sánchez"
+                            role={t("ClaudiaRole")}
+                            email="csanchez@upnfm.edu.hn"
                             studies={[
                                 {
-                                    grado: t("RHG"),
-                                    institucion: t("RHI")
+                                    grado: t("CEG1"),
+                                    institucion: t("CEI1")
                                 },
                                 {
-                                    grado: t("RHG2"),
-                                    institucion: t("RHI2")
+                                    grado: t("CEG2"),
+                                    institucion: t("CEI2")
                                 },
                                 {
-                                    grado: t("RHG3"),
-                                    institucion: "UPNFM"
+                                    grado: t("CEG3"),
+                                    institucion: t("CEI3")
+                                },
+                                {
+                                    grado: t("CEG4"),
+                                    institucion: t("CEI1")
                                 }
                             ]}
                             experience={[
-                                t("ClaudiaE1"),
-                                t("ClaudiaE2")
+                                t("CE1")
+                            ]}
+                            investigations={[
+                                t("CI1"),
+                                t("CI2")
                             ]}
                         />
                     </div>
