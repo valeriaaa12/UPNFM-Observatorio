@@ -48,6 +48,10 @@
     color: #19467f;
 }
 
+.yellowText {
+    color: #FEDD00 !important;
+}
+
 .text-bottom-left {
     position: absolute;
     bottom: 1rem;
@@ -584,4 +588,3 @@
         transform: rotate(360deg);
     }
 }
-
