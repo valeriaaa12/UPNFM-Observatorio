@@ -1,13 +1,15 @@
+'use client';
 import { useEffect } from 'react';
-import i18n from '@/i18n-config';
+import { useTranslation } from 'react-i18next';
 
-export default function I18nClient({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Ensure i18n is initialized on client side
-    if (!i18n.isInitialized) {
-      i18n.init();
-    }
-  }, []);
+export default function I18nClient() {
+  const { i18n } = useTranslation();
   
-  return <>{children}</>;
+  useEffect(() => {
+    // Sync with browser language or saved preference
+    const savedLanguage = localStorage.getItem('i18nextLng') || navigator.language.slice(0, 2);
+    i18n.changeLanguage(savedLanguage);
+  }, []);
+
+  return null;
 }
