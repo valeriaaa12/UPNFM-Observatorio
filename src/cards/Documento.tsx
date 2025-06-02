@@ -1,8 +1,10 @@
+// src/cards/Boletin.tsx
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import MessageModal from '@/modals/modal';
+import Modal from 'react-bootstrap/Modal';       // Usamos Modal directamente
+import MessageModal from '@/modals/modal';       // Solo para el modal de información final
 
 const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
@@ -17,13 +19,21 @@ interface BoletinProps {
   index: number;
 }
 
-export default function Card({ id, title, pdf, mutateList, index, etiqueta }: BoletinProps) {
+export default function Card({
+  id,
+  title,
+  pdf,
+  mutateList,
+  index,
+  etiqueta,
+}: BoletinProps) {
   const [deleting, setDeleting] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const [titleM, setTitle] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [infoTitle, setInfoTitle] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const { t } = useTranslation("common");
 
   const handleConfirmDelete = () => {
     setShowConfirmModal(true);
@@ -35,17 +45,16 @@ export default function Card({ id, title, pdf, mutateList, index, etiqueta }: Bo
       await fetch(`${API_URL}/eliminarPDF/${id}`, { method: 'DELETE' });
 
       setShowConfirmModal(false);
-      setTitle('¡Éxito!');
-      setMessage('Se ha eliminado el boletín con éxito.');
-      setShowModal(true);
+      setInfoTitle('¡Éxito!');
+      setInfoMessage(`Se ha eliminado ${etiqueta} con éxito.`);
+      setShowInfoModal(true);
 
       mutateList();
     } catch (error) {
       setShowConfirmModal(false);
-      setTitle('¡Error!');
-      setMessage('Ocurrió un problema al eliminar el boletín.');
-      setShowModal(true);
-      setDeleting(false);
+      setInfoTitle('¡Error!');
+      setInfoMessage(`Ocurrió un problema al eliminar ${etiqueta}.`);
+      setShowInfoModal(true);
     } finally {
       setDeleting(false);
     }
@@ -75,47 +84,75 @@ export default function Card({ id, title, pdf, mutateList, index, etiqueta }: Bo
       <div className="card mb-2 hover-effect" style={{ width: '100%' }}>
         <PdfCanvasPreview pdf={pdf} />
         <div className="card-body">
-          <p className="text-secondary mb-1">{etiqueta} {index}</p>
+          <p className="text-secondary mb-1">
+            {etiqueta} {index}
+          </p>
           <h5 className="card-title">{title}</h5>
           <div className="d-flex gap-2 align-items-center">
-            <a href={pdf} target="_blank" rel="noopener noreferrer" className="btn btn-orange btn-small">
+            <a
+              href={pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-orange btn-small"
+            >
               Ver PDF
             </a>
-            <button type="button" onClick={handleDownload} className="btn btn-outline-blue btn-small">
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="btn btn-outline-blue btn-small"
+            >
               Descargar PDF
             </button>
-            <Button className="ms-auto btn-rojo btn-small" onClick={handleConfirmDelete} disabled={deleting}>
-              {deleting ? 'Borrando...' : 'Borrar Boletín'}
+            <Button
+              className="ms-auto btn-rojo btn-small"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Borrando...' : 'Eliminar'}
             </Button>
           </div>
         </div>
       </div>
 
-      {showConfirmModal && (
+      {/* Confirm Modal: usamos React-Bootstrap directamente */}
+      <Modal
+        show={showConfirmModal}
+        onHide={() => setShowConfirmModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{t("Confirmación de Eliminación")}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {t("¿Está seguro de que desea eliminar este boletín?")}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="btn btn-outline-blue"
+            onClick={() => setShowConfirmModal(false)}
+          >
+            {t("Cancelar")}
+          </Button>
+          <Button
+            variant="btn btn-rojo"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? t("Eliminando…") : t("Confirmar")}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Info Modal: mantiene MessageModal si quieres estilo personalizado */}
+      {showInfoModal && (
         <MessageModal
-          title="Confirmación de Eliminación"
-          message="¿Está seguro de que desea eliminar el boletín?"
-          show={showConfirmModal}
-          onHide={() => setShowConfirmModal(false)}
-          footer={
-            <>
-              <button className="btn btn-outline-blue" onClick={() => setShowConfirmModal(false)}>
-                Cancelar
-              </button>
-              <button
-                className="btn btn-rojo"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? 'Eliminando...' : 'Confirmar'}
-              </button>
-            </>
-          }
+          title={infoTitle}
+          message={infoMessage}
+          show={showInfoModal}
+          onHide={() => setShowInfoModal(false)}
         />
       )}
-
-      {showModal && <MessageModal title={titleM} message={message} show={showModal} onHide={() => setShowModal(false)} />}
     </>
   );
 }
-
