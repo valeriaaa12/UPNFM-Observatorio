@@ -105,5 +105,6 @@
   "ErrorBoletin2":"Error creating bulletin.",
   "ErrorBoletin3":"Could not create the bulletin. Please try again.",
    "NoBoletines": "No bulletins available.",
-   "Titulo": "Title"
+   "Titulo": "Title",
+  "Logout": "Log out"
 }

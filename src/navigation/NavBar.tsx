@@ -17,7 +17,7 @@ export default function NavBar() {
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const router = useRouter();
 
   return (
@@ -172,6 +172,19 @@ export default function NavBar() {
                       >
                         {t("Reprobacion")}
                       </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      {user?.admin && (
+                        <>
+                          <NavDropdown.Divider />
+                          <NavDropdown.Item
+                            className='admin-option'
+                            href="/uploadExcel"
+                           
+                          >
+                            {t("Subir Archivos")}
+                          </NavDropdown.Item>
+                        </>
+                      )}
                     </NavDropdown>
 
                     <NavDropdown
@@ -207,29 +220,19 @@ export default function NavBar() {
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        onClick={() => i18n.changeLanguage('en')}
+                        href="/Articulos_de_Interes"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Artículos")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        onClick={() => i18n.changeLanguage('es')}
+                        href="/Datos_Municipales"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("DatosMunicipales")}
                       </NavDropdown.Item>
-                      {user?.admin && (
-                        <>
-                          <NavDropdown.Divider />
-                          <NavDropdown.Item
-                            href="/uploadExcel"
-                            style={{ whiteSpace: 'normal' }}
-                          >
-                            {t("Subir Archivos")}
-                          </NavDropdown.Item>
-                        </>
-                      )}
+                      
                     </NavDropdown>
 
                     <NavDropdown
@@ -297,7 +300,7 @@ export default function NavBar() {
                         alt="User menu"
                       />
                     </Dropdown.Toggle>
-
+                    { !user ?
                     <Dropdown.Menu>
                       <Dropdown.Item
                         href="/login"
@@ -312,7 +315,20 @@ export default function NavBar() {
                       >
                         {t("Register")}
                       </Dropdown.Item>
-                    </Dropdown.Menu>
+                    </Dropdown.Menu> :
+                     <Dropdown.Menu>
+                    <Dropdown.Item
+                        href="/login"
+                        style={{ whiteSpace: 'normal' }}
+                        onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = "/landingpage";
+                  setTimeout(() => setUser(null), 100); 
+                }}><b>{t("Logout")}</b>
+                      </Dropdown.Item>
+                     
+                      
+                    </Dropdown.Menu>}
                   </Dropdown>
                 </Navbar.Collapse>
               </div>
