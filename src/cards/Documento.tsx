@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';       // Usamos Modal directamente
 import MessageModal from '@/modals/modal';       // Solo para el modal de información final
-
+import { useUser } from '@/context/usertype';
 const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
   ssr: false,
 });
@@ -27,6 +27,7 @@ export default function Card({
   index,
   etiqueta,
 }: BoletinProps) {
+  const {user} = useUser();
   const [deleting, setDeleting] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -104,13 +105,14 @@ export default function Card({
             >
               Descargar PDF
             </button>
+            {user?.admin && 
             <Button
               className="ms-auto btn-rojo btn-small"
               onClick={handleConfirmDelete}
               disabled={deleting}
             >
               {deleting ? 'Borrando...' : 'Eliminar'}
-            </Button>
+            </Button>}
           </div>
         </div>
       </div>
@@ -134,6 +136,7 @@ export default function Card({
           >
             {t("Cancelar")}
           </Button>
+          
           <Button
             variant="btn btn-rojo"
             onClick={handleDelete}

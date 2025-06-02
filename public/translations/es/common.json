@@ -105,5 +105,6 @@
   "ErrorBoletin2":"Error creando boletín",
   "ErrorBoletin3":"No se pudo crear el boletín. Por favor, inténtalo de nuevo.",
   "NoBoletines": "No hay boletines disponibles.",
-  "Titulo": "Título"
+  "Titulo": "Título",
+  "Logout": "Cerrar Sesión"
 }

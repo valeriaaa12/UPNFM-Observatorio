@@ -47,7 +47,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           </div>
 
         </div>
-
+        
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>

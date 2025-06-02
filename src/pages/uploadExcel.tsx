@@ -7,7 +7,7 @@ import Client from '@/components/client';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -16,7 +16,7 @@ export default function SubirExcelPage() {
     const [excelData, setExcelData] = useState<(string | number | boolean | null)[][] | null>(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
-    const supabase = createClientComponentClient();
+  
     const requiredColumns = [
         'PERIODO_ID', 'FECHA_ID', 'Departamento', 'MUNICIPIO', 'ALDEA', 'DIRECCION',
         'DOCENTES_GRADOS', 'CODIGOSEE', 'CODIGO', 'NOMBRE_CENTRO', 'DISTRITO', 'PERIODO_ESCOLAR',

@@ -76,7 +76,9 @@ a {
 .whiteText {
   color: white !important;
 }
-
+.redText{
+  color: red !important;
+}
 .font {
   font-family: 'Montserrat' !important;
 }
@@ -296,3 +298,4 @@ a {
 .leaflet-interactive:focus {
   outline: none !important;
 }
+
