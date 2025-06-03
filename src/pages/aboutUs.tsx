@@ -176,7 +176,7 @@ export default function aboutUs() {
 
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="images/Dr. Mario Alas_1.0.jpg"
+                            image="images/Dr. Mario Alas_1.0.JPG"
                             title="Dr. Mario Alas"
                             role={t("MARole")}
                             email="marioalas@upnfm.edu.hn"
@@ -203,7 +203,7 @@ export default function aboutUs() {
 
                     <div className="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
                         <Card
-                            image="images/Dr. German Moncada_ 1.1 fotografía.jpg"
+                            image="images/Dr. German Moncada_ 1.1 fotografía.JPG"
                             title="Dr. German Moncada"
                             role={t("GMRole")}
                             email="germanmoncada@upnfm.edu.hn"
