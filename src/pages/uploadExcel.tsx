@@ -3,7 +3,7 @@
 import NavBar from '@/navigation/NavBar';
 import Footer from '@/sections/footer';
 import Client from '@/components/client';
-
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
@@ -12,6 +12,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function SubirExcelPage() {
+    const { t } = useTranslation("common");
     const [fileName, setFileName] = useState<string | null>(null);
     const [excelData, setExcelData] = useState<(string | number | boolean | null)[][] | null>(null);
     const [uploading, setUploading] = useState<boolean>(false);
@@ -45,7 +46,7 @@ export default function SubirExcelPage() {
 
             const missingColumns = requiredColumns.filter(col => !headers.includes(col));
             if (missingColumns.length > 0) {
-                toast.error(`❌ El archivo no tiene el formato requerido`);
+                toast.error(t("file_format_error"));
                 setFileName(null);
                 setExcelData(null);
                 return;
@@ -53,13 +54,13 @@ export default function SubirExcelPage() {
 
             const hasContent = firstDataRow?.some(cell => cell !== null && cell !== '');
             if (!hasContent) {
-                toast.error('❌ El archivo no contiene datos que subir');
+                toast.error(t("file_no_data"));
                 setFileName(null);
                 setExcelData(null);
                 return;
             }
 
-            toast.success('✅ El archivo tiene el formato correcto');
+            toast.success(t("file_format_correct"));
             setExcelData(jsonData);
         };
         reader.readAsArrayBuffer(file);
@@ -127,7 +128,7 @@ export default function SubirExcelPage() {
 
     const uploadToDatabase = async () => {
         if (!excelData || excelData.length < 2) {
-            toast.warning('No hay datos válidos para subir');
+            toast.warning(t("no_valid_data"));
             return;
         }
 
@@ -246,12 +247,12 @@ export default function SubirExcelPage() {
             });
 
             if (!response.ok) throw new Error("Error al insertar los datos");
-            toast.success('✅ Datos enviados correctamente al backend');
+            toast.success(t("data_uploaded_successfully"));
             setFileName(null);
             setExcelData(null);
         } catch (error) {
             console.error(error);
-            toast.error('❌ Error al subir los datos');
+            toast.error(t("upload_error"));
         } finally {
             setUploading(false);
         }
@@ -266,7 +267,7 @@ export default function SubirExcelPage() {
                 <div className="upload-excel-container d-flex flex-column align-items-center justify-content-start py-5">
                     <ToastContainer position="bottom-right" autoClose={5000} />
 
-                    <h2 className="mb-4 text-center">Subir archivo Excel</h2>
+                    <h2 className="mb-4 text-center">{t("upload_excel_file")}</h2>
 
                     <div
                         {...getRootProps()}
@@ -294,23 +295,23 @@ export default function SubirExcelPage() {
                                     <button className="btn btn-outline-danger btn-sm" onClick={() => {
                                         setFileName(null);
                                         setExcelData(null);
-                                        toast.info('Archivo eliminado');
+                                        toast.info(t("file_deleted"));
                                     }}>
-                                        🗑 Eliminar
+                                        🗑 {t("delete")}
                                     </button>
                                     <button className="btn btn-success btn-sm" onClick={uploadToDatabase} disabled={uploading}>
-                                        ☁️ Subir
+                                        ☁️ {t("upload")}
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <p className="m-0 px-2 text-center">Arrastra un archivo Excel aquí o haz clic para seleccionarlo</p>
+                            <p className="m-0 px-2 text-center">{t("drag_or_click_to_upload")}</p>
                         )}
                     </div>
 
                     {excelData && (
                         <div className="mt-4 w-100 px-3" style={{ maxWidth: 800 }}>
-                            <h5>Vista previa del Excel:</h5>
+                            <h5>{t("excel_preview")}</h5>
                             <div className="preview-table">
                                 <table className="table table-bordered table-sm mt-2">
                                     <thead className="table-light">
@@ -331,7 +332,7 @@ export default function SubirExcelPage() {
                                         {excelData.length > 6 && (
                                             <tr>
                                                 <td colSpan={excelData[0].length} className="text-center text-muted">
-                                                    ... mostrando 5 de {excelData.length - 1} filas ...
+                                                    {t("showing_rows", { count: excelData.length - 1 })}
                                                 </td>
                                             </tr>
                                         )}
@@ -341,7 +342,7 @@ export default function SubirExcelPage() {
 
                             {uploading && (
                                 <div className="text-center mt-2 text-muted">
-                                    Progreso: {progress}%
+                                    {t("progress", { progress })}
                                 </div>
                             )}
                         </div>

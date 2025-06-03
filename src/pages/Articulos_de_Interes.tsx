@@ -12,6 +12,7 @@ import NavBar from '@/navigation/NavBar';
 import SmallNavBar from '@/navigation/SmallNavBar';
 import InfoModal from '@/modals/modal';
 import { useUser } from '@/context/usertype';
+
 interface BoletinData {
   id: string;
   nombre: string;
@@ -40,30 +41,30 @@ export default function Articulos_de_interes() {
     onDrop: acceptedFiles => {
       const selected = acceptedFiles[0];
       if (selected && selected.type === 'application/pdf') setFile(selected);
-      else alert('Por favor selecciona un archivo PDF válido.');
+      else alert(t("SeleccionarValido"));
     }
   });
 
   const handleGuardarBoletin = async () => {
     if (!boletinTitle || !file) {
-      alert('Completa título y selecciona un PDF.');
+      alert(t("CompletarBoletin"));
       return;
     }
     const formData = new FormData();
-    formData.append('nombre', boletinTitle);
-    formData.append('etiqueta', etiquetaFiltro);
-    formData.append('pdf', file);
+    formData.append(t("nombre"), boletinTitle);
+    formData.append(t("etiqueta"), etiquetaFiltro);
+    formData.append("pdf", file);
 
     try {
       await axios.post(`${API_URL}/subirPDF`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setModalTitle('Artículo de Interés creado');
-      setMessage(`Se agrego el Artículo de Interés "${boletinTitle}" con éxito.`);
+      setModalTitle(t("ArticulosInteresC"));
+      setMessage(`${t("SeAgregoArticuloInteres")} "${boletinTitle}" ${t("ConExito")}`);
       setInfoModal(true);
       mutate();
     } catch (err) {
-      console.error('Error creando el Artículo de Interés:', err);
-      setModalTitle('Error al crear el Artículo de Interés');
-      setMessage('No se pudo crear el Artículo de Interés. Inténtalo de nuevo.');
+      console.error(t("ErrorA1"), err);
+      setModalTitle(t("ErrorA2"));
+      setMessage(t("ErrorA3"));
       setInfoModal(true);
     } finally {
       setShowModal(false);
@@ -85,15 +86,15 @@ export default function Articulos_de_interes() {
 
           <SmallNavBar />
           <div className="d-flex justify-content-between align-items-center px-5 py-4">
-            <h2>Artículo de Interés</h2>
+            <h2>{t("ArticulosInteres")}</h2>
             {user?.admin &&
             <Button variant="btn btn-orange" onClick={() => setShowModal(true)}>
-              Agregar Artículo
+              {t("AgregarArticuloInteres")}
             </Button>}
           </div>
           <div className="card-gallery pt-0 Documentos">
             {boletines.filter(b => b.etiqueta === etiquetaFiltro).length === 0 ? (
-              <p>No hay artículos de interés disponibles.</p>
+              <p>{t("NoArticulosInteres")}</p>
             ) : (
               boletines
                 .filter(b => b.etiqueta === etiquetaFiltro)
@@ -114,12 +115,12 @@ export default function Articulos_de_interes() {
 
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
           <Modal.Header closeButton>
-            <Modal.Title>{t("Agregar Artículo de Interés")}</Modal.Title>
+            <Modal.Title>{t("AgregarArticuloInteres")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="boletinTitle" className="mb-3">
-                <Form.Label>Título</Form.Label>
+                <Form.Label>{t("Titulo")}</Form.Label>
                 <Form.Control
                   type="text"
                   value={boletinTitle}
@@ -135,17 +136,17 @@ export default function Articulos_de_interes() {
                   style={{ cursor: 'pointer', minHeight: '120px' }}
                 >
                   <input {...getInputProps()} />
-                  {isDragActive ? <p>Suelta aquí...</p> : file ? <p>{file.name}</p> : <p>Arrastra o haz clic para seleccionar un PDF</p>}
+                  {isDragActive ? <p>{t("Suelta el archivo aqui")}</p> : file ? <p>{file.name}</p> : <p>{t("Arrastrar y soltar un archivo PDF aquí o hacer clic para seleccionarlo")}</p>}
                 </div>
               </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="btn btn-outline-blue" onClick={() => setShowModal(false)}>
-              Cerrar
+              {t("Cerrar")}
             </Button>
             <Button variant="btn btn-orange" onClick={handleGuardarBoletin}>
-              Guardar
+              {t("Guardar")}
             </Button>
           </Modal.Footer>
         </Modal>
