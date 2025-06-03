@@ -53,9 +53,9 @@ export default function Datos_Municipales() {
       return;
     }
     const formData = new FormData();
-    formData.append(t("Nombre"), boletinTitle);
-    formData.append(t("Etiqueta"), etiquetaFiltro);
-    formData.append("PDF", file);
+    formData.append(t("nombre"), boletinTitle);
+    formData.append(t("etiqueta"), etiquetaFiltro);
+    formData.append("pdf", file);
 
     try {
       await axios.post(`${API_URL}/subirPDF`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
