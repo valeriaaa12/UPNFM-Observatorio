@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import i18n from '@/i18n-config';
+import i18n from '@/translations/i18n';
 
 export default function I18nClient({ children }: { children: React.ReactNode }) {
   useEffect(() => {
