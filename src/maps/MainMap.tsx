@@ -117,8 +117,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
     if (level == "Ninguno" || year == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
-    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
+    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
+    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#FFC300'; //amarillo
     if (value == -1) return '#808080'; //gris
     return '#e41a1c'; //rojo 
   };
@@ -197,11 +197,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
           <span>{green.lowerLimit} - {green.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
           <span>{orange.lowerLimit} - {orange.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
@@ -329,11 +329,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <span>{t("l1")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
             <span>{t("l2")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
             <span>{t("l3")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
