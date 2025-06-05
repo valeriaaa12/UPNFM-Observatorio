@@ -44,6 +44,7 @@
     "react-leaflet": "^5.0.0",
     "react-login-page": "^1.0.5",
     "react-toastify": "^11.0.5",
+    "recharts": "^2.15.3",
     "swr": "^2.3.3",
     "xlsx": "^0.18.5"
   },

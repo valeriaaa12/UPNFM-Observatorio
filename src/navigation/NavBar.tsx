@@ -172,9 +172,18 @@ export default function NavBar() {
                       >
                         {t("Reprobacion")}
                       </NavDropdown.Item>
+
                       <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/Mapa/graphscreen"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Gráficos Estadísticos"}
+                      </NavDropdown.Item>
+
                       {user?.admin && (
                         <>
+                          <NavDropdown.Divider />
                           <NavDropdown.Item
                             className='admin-option'
                             href="/uploadExcel"
@@ -212,21 +221,21 @@ export default function NavBar() {
                       }}
                     >
                       <NavDropdown.Item
-                        href="/Boletines"
+                        href="/Documentos/Boletines"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Boletines")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Articulos_de_Interes"
+                        href="/Documentos/Articulos_de_Interes"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Artículos")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Datos_Municipales"
+                        href="/Documentos/Datos_Municipales"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("DatosMunicipales")}

@@ -1,7 +1,5 @@
-
 import NavBar from "@/navigation/NavBar";
 import dynamic from 'next/dynamic';
-import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
@@ -28,13 +26,13 @@ interface params {
   extensionLimits: string;
 }
 
-
 interface legend {
   level: string;
   message: string;
   lowerLimit: number;
   upperLimit: number;
 }
+
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
   const [selectedYear, setSelectedYear] = useState("Ninguno");
   const [level, setLevel] = useState("Ninguno")
@@ -113,30 +111,30 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const { t } = useTranslation('common');
   return (
     <Client>
-    <>
-      <div className="font">
-        <div className="blue blueNavbar">
-          <NavBar />
-          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-        </div>
-        <SmallNavBar></SmallNavBar>
-        {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+      <>
+        <div className="font">
+          <div className="blue blueNavbar">
+            <NavBar />
+            <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
           </div>
-        </div> :
-          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-            {/* Menu */}
-            <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} />
-
-            {/* Mapa */}
-            <div style={{ flex: 1, position: 'relative' }}>
-              <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+          <SmallNavBar></SmallNavBar>
+          {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
-          </div>}
-        <LanguageSelector></LanguageSelector>
-      </div >
-    </>
-  </Client>
+          </div> :
+            <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+              {/* Menu */}
+              <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} />
+
+              {/* Mapa */}
+              <div style={{ flex: 1, position: 'relative' }}>
+                <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+              </div>
+            </div>}
+          <LanguageSelector></LanguageSelector>
+        </div >
+      </>
+    </Client>
   );
 }
