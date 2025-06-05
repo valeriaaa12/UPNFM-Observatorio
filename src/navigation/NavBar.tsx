@@ -180,6 +180,13 @@ export default function NavBar() {
                       >
                         {"Gráficos Estadísticos"}
                       </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/Mapa/linegraphscree"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Line Graph"}
+                      </NavDropdown.Item>
 
                       {user?.admin && (
                         <>
