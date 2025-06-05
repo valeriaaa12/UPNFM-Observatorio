@@ -175,7 +175,7 @@ export default function NavBar() {
 
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Mapa/graphscreen"
+                        href="/Graficas/barGraphScreen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {"Gráficos Estadísticos"}

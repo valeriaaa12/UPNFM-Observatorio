@@ -135,7 +135,6 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   }
 
   //useStated necesarios
-
   useEffect(() => {
     mapData()
   }, [mapaElegido])
@@ -144,6 +143,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
     filterData()
   }, [selectedYear, level])
   const { t } = useTranslation('common');
+
   return (
     <Client>
       <>
