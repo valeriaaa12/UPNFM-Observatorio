@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 import { useTranslation } from 'react-i18next';
-
+import axios from 'axios';
 //mapeo de datos
 interface department {
   name: string;
@@ -66,6 +66,7 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 
 const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef<L.Map | null>(null); 
@@ -76,7 +77,40 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const bounds = L.geoJSON(geoData).getBounds();
   const center = bounds.getCenter();
   return [center.lat, center.lng]; // Convert LatLng to [number, number]
-};
+  };
+  //Inicio de pruebas de mapa cargado a backend dinamico
+
+  /*const generateData = async () =>{
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/repitenciaFiltro'
+    
+    const config = {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              params:{
+                anio: year == "Ninguno" ? "2020" : year,
+                nivel: level == "Ninguno" ? "Básica III Ciclo" : level
+            }
+    } 
+    //petición a backend
+    const response = await axios.get(url, config)
+
+    //mapeo a lista temporal
+     let tempoDepartments: department[] | null = null;
+    tempoDepartments = response.data.map((item: any) => ({
+          name: item.departamento.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+    setDepartments(tempoDepartments)
+  }
+  useEffect(()=>{
+
+    generateData();
+  },[year, level])*/
+  //fin de pruebas
   const hasZero = () => {
     if (legends?.find((item) => item.lowerLimit == 0) && level != 'Ninguno') {
       return true;
