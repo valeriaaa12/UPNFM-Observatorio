@@ -43,18 +43,37 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const [legends, setLegends] = useState<legend[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<string[]>([]);
+  const [mapaElegido,setMapaElegido] = useState("Honduras"); 
 
+  const [mapa, setMapa] = useState("/others/hn.json"); 
+  
   {/*mapeo*/ }
   //metodo de mapeo
   const mapData = async () => {
     setLoading(true);
     try {
-      const config = {
+     let config = null;
+      let url = process.env.NEXT_PUBLIC_BACKEND_URL + extensionData
+      if(mapaElegido != "Honduras"){
+            url += "Municipal"
+            config = {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              params:{
+                departamento: mapaElegido.toUpperCase()
+              
+            
+            }
+          }
+      }else{
+        config = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
       }
-      const url = process.env.NEXT_PUBLIC_BACKEND_URL + extensionData
+      }
+      console.log(url)
       //segundo query para los limites
       const url2 = process.env.NEXT_PUBLIC_BACKEND_URL + extensionLimits
       //años
@@ -65,16 +84,31 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         axios.get(url2, config),
         axios.get(BACKEND + '/periodosAnuales')
       ]);
-      console.log(response2)
-      const tempoDepartments: department[] = response.data.map((item: any) => ({
-        name: item.departamento.toLowerCase(),
-        legend: item.leyenda,
-        value: parseFloat(item.tasa),
-        year: item.periodo_anual,
-        level: item.nivel
-      }))
+   
+      let tempoDepartments: department[] | null = null;
 
-      console.log("Datos de prebásica:", tempoDepartments);
+      if (mapaElegido === "Honduras") {
+        //mapa base de honduras
+        tempoDepartments = response.data.map((item: any) => ({
+          name: item.departamento.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+      } else {
+        console.log(response)
+        //mapa municipal
+        tempoDepartments = response.data.map((item: any) => ({
+          name: item.municipio.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+        console.log(tempoDepartments)
+      }
+
 
       const tempoLegends: legend[] = response2.data.map((item: any) => ({
         level: item.nivel,
@@ -103,9 +137,10 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   }
 
   //useStated necesarios
+ 
   useEffect(() => {
     mapData()
-  }, [])
+  }, [mapaElegido])
 
   useEffect(() => {
     filterData()
@@ -127,11 +162,11 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         </div> :
           <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
             {/* Menu */}
-            <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} />
+            <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} mapa = {mapa} setMapa={setMapa}/>
 
             {/* Mapa */}
             <div style={{ flex: 1, position: 'relative' }}>
-              <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+              <MainMap level={level} map={mapa} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
             </div>
           </div>}
         <LanguageSelector></LanguageSelector>
