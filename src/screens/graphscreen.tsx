@@ -30,6 +30,7 @@ interface Legend {
     message: string;
     lowerLimit: number;
     upperLimit: number;
+    color: string;
 }
 
 export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
@@ -43,7 +44,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const { t } = useTranslation('common');
     const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
 
-    // Obtener datos iniciales
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -74,10 +74,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 upperLimit: parseFloat(item.max)
             }));
 
+            const legendsWithColors = assignColorsToLegends(legendsData);
+
             setDepartments(departmentsData);
-            setLegends(legendsData);
+            setLegends(legendsWithColors);
             setYears(years.data);
-            applyFilters(departmentsData);
+            setFilteredData([]);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -85,9 +87,28 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-    const applyFilters = (data?: Department[]) => {
-        const sourceData = data || departments;
-        let result = [...sourceData];
+    const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
+        const colorMap: Record<string, string> = {
+            "Mucho mejor que la meta": "#008000",  // Verde oscuro
+            "Dentro de la meta": "#27ae60",        // Verde
+            "Lejos de la meta": "#FFC300",        // Amarillo
+            "Muy lejos de la meta": "#e41a1c", // Rojo
+            "N/A": "#808080"       // Gris
+        };
+
+        return legendsData.map(legend => ({
+            ...legend,
+            color: colorMap[legend.message] || "#808080" // sin datos (gris)
+        }));
+    };
+
+    const applyFilters = () => {
+        if (selectedYear === "Ninguno" && selectedLevel === "Ninguno") {
+            setFilteredData([]);
+            return;
+        }
+
+        let result = [...departments];
 
         if (selectedYear !== "Ninguno") {
             result = result.filter(d => d.year === selectedYear);
@@ -99,14 +120,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
 
         result.sort((a, b) => a.name.localeCompare(b.name));
         setFilteredData(result);
-    };
-
-    const handleYearChange = (year: string) => {
-        setSelectedYear(year);
-    };
-
-    const handleLevelChange = (level: string) => {
-        setSelectedLevel(level);
     };
 
     useEffect(() => {
@@ -145,10 +158,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                 </label>
                                 <select
                                     value={selectedLevel}
-                                    onChange={(e) => handleLevelChange(e.target.value)}
+                                    onChange={(e) => setSelectedLevel(e.target.value)}
                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
-                                    <option value="Ninguno">Todos los niveles</option>
                                     {levels.map(level => (
                                         <option key={level} value={level}>
                                             {level}
@@ -162,10 +174,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                 </label>
                                 <select
                                     value={selectedYear}
-                                    onChange={(e) => handleYearChange(e.target.value)}
+                                    onChange={(e) => setSelectedYear(e.target.value)}
                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
-                                    <option value="Ninguno">Todos los niveles</option>
+                                    <option value="Ninguno">{t("Ninguno")}</option>
                                     {years.map(year => (
                                         <option key={year} value={year}>
                                             {year}
@@ -176,25 +188,36 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         </div>
 
                         <div style={{ height: '500px', border: '1px solid #eee', borderRadius: '8px', padding: '20px' }}>
-                            <BarGraph
-                                data={filteredData.map(d => ({
-                                    name: d.name,
-                                    value: d.value,
-                                    legend: d.legend,
-                                    year: d.year,
-                                    level: selectedLevel
-                                }))}
-                                xAxisKey="name"
-                                yAxisKey="value"
-                                barColor="#4285F4"
-                                legendKey="legend"
-                            />
+                            {filteredData.length > 0 ? (
+                                <BarGraph
+                                    data={filteredData.map(d => ({
+                                        name: d.name,
+                                        value: d.value,
+                                        legend: d.legend,
+                                        year: d.year,
+                                        level: d.level
+                                    }))}
+                                    xAxisKey="name"
+                                    yAxisKey="value"
+                                    legendKey="legend"
+                                />
+                            ) : (
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                    color: '#666'
+                                }}>
+                                    No hay datos disponibles para los filtros seleccionados
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
 
                 <LanguageSelector />
             </div>
-        </Client>
+        </Client >
     );
 }

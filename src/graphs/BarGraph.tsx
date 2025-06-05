@@ -1,35 +1,37 @@
 import React from 'react';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+// Definición de tipos mejorada
+interface LegendItem {
+    message: string;
+    color: string;
+    level?: string;
+    lowerLimit?: number;
+    upperLimit?: number;
+}
+
+interface DataItem {
+    name: string;
+    value: number;
+    legend?: string;
+    year?: string;
+    level?: string;
+}
 
 interface BarGraphProps {
-    data: Array<{
-        name: string;
-        value: number;
-        legend?: string;
-        year?: string;
-        level?: string;
-    }>;
+    data: DataItem[];
     xAxisKey: string;
     yAxisKey: string;
-    barColor?: string;
     legendKey?: string;
+    legends?: LegendItem[]; // Hacer opcional y definir tipo correctamente
 }
 
 const BarGraph: React.FC<BarGraphProps> = ({
     data,
     xAxisKey,
     yAxisKey,
-    barColor = '#4285F4',
-    legendKey
+    legendKey = 'legend', // Valor por defecto
+    legends = [] // Valor por defecto
 }) => {
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -44,22 +46,26 @@ const BarGraph: React.FC<BarGraphProps> = ({
                     dataKey={xAxisKey}
                     type="category"
                     width={150}
-                    tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                    tickFormatter={(value) => typeof value === 'string' ?
+                        value.charAt(0).toUpperCase() + value.slice(1) :
+                        String(value)}
                 />
-                <Tooltip
-                    formatter={(value, name, props) => [
-                        value,
-                        `Valor: ${value}\n` +
-                        (props.payload.level ? `Nivel: ${props.payload.level}\n` : '') +
-                        (props.payload.year ? `Año: ${props.payload.year}` : '')
-                    ]}
-                />
-                {legendKey && <Legend />}
-                <Bar
-                    dataKey={yAxisKey}
-                    fill={barColor}
-                    name={legendKey}
-                />
+                <Tooltip />
+                <Legend />
+                {data.map((item, index) => {
+                    const legendItem = legends.find(l => l.message === item.legend);
+                    const fillColor = legendItem?.color || '#4285F4';
+                    const barName = legendKey ? item[legendKey as keyof DataItem] : undefined;
+
+                    return (
+                        <Bar
+                            key={`${index}-${item.name}`}
+                            dataKey={yAxisKey}
+                            fill={fillColor}
+                            name={typeof barName === 'string' ? barName : undefined}
+                        />
+                    );
+                })}
             </BarChart>
         </ResponsiveContainer>
     );
