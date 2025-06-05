@@ -1,7 +1,5 @@
-
 import NavBar from "@/navigation/NavBar";
 import dynamic from 'next/dynamic';
-import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
@@ -28,13 +26,13 @@ interface params {
   extensionLimits: string;
 }
 
-
 interface legend {
   level: string;
   message: string;
   lowerLimit: number;
   upperLimit: number;
 }
+
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
   const [selectedYear, setSelectedYear] = useState("Ninguno");
   const [level, setLevel] = useState("Ninguno")
@@ -43,35 +41,35 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const [legends, setLegends] = useState<legend[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<string[]>([]);
-  const [mapaElegido,setMapaElegido] = useState("Honduras"); 
+  const [mapaElegido, setMapaElegido] = useState("Honduras");
 
-  const [mapa, setMapa] = useState("/others/hn.json"); 
-  
+  const [mapa, setMapa] = useState("/others/hn.json");
+
   {/*mapeo*/ }
   //metodo de mapeo
   const mapData = async () => {
     setLoading(true);
     try {
-     let config = null;
+      let config = null;
       let url = process.env.NEXT_PUBLIC_BACKEND_URL + extensionData
-      if(mapaElegido != "Honduras"){
-            url += "Municipal"
-            config = {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              params:{
-                departamento: mapaElegido.toUpperCase()
-              
-            
-            }
-          }
-      }else{
+      if (mapaElegido != "Honduras") {
+        url += "Municipal"
         config = {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          params: {
+            departamento: mapaElegido.toUpperCase()
+
+
+          }
         }
-      }
+      } else {
+        config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }
+        }
       }
       console.log(url)
       //segundo query para los limites
@@ -84,7 +82,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
         axios.get(url2, config),
         axios.get(BACKEND + '/periodosAnuales')
       ]);
-   
+
       let tempoDepartments: department[] | null = null;
 
       if (mapaElegido === "Honduras") {
@@ -137,7 +135,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   }
 
   //useStated necesarios
- 
+
   useEffect(() => {
     mapData()
   }, [mapaElegido])
@@ -148,30 +146,30 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const { t } = useTranslation('common');
   return (
     <Client>
-    <>
-      <div className="font">
-        <div className="blue blueNavbar">
-          <NavBar />
-          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-        </div>
-        <SmallNavBar></SmallNavBar>
-        {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+      <>
+        <div className="font">
+          <div className="blue blueNavbar">
+            <NavBar />
+            <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
           </div>
-        </div> :
-          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-            {/* Menu */}
-            <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} mapa = {mapa} setMapa={setMapa}/>
-
-            {/* Mapa */}
-            <div style={{ flex: 1, position: 'relative' }}>
-              <MainMap level={level} map={mapa} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+          <SmallNavBar></SmallNavBar>
+          {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
-          </div>}
-        <LanguageSelector></LanguageSelector>
-      </div >
-    </>
-  </Client>
+          </div> :
+            <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+              {/* Menu */}
+              <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} mapa={mapa} setMapa={setMapa} />
+
+              {/* Mapa */}
+              <div style={{ flex: 1, position: 'relative' }}>
+                <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+              </div>
+            </div>}
+          <LanguageSelector></LanguageSelector>
+        </div >
+      </>
+    </Client>
   );
 }
