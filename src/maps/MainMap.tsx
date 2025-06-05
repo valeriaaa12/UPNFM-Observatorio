@@ -144,7 +144,6 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     return {
       fillColor: deptName ? getDeptColor(deptName) : '#cccccc',
       weight: 1,
-
       color: 'black',
       fillOpacity: 0.85,
       ...(deptName === hoveredDept && {
@@ -157,6 +156,21 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       })
     };
   };
+
+  useEffect(() => {
+    const styleId = 'dept-tooltip-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.innerHTML = `
+        .dept-tooltip {
+          font-size: 1rem !important;
+          font-weight: 600;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   //Limites
   const limites = () => {
@@ -191,7 +205,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         zIndex: 1000,
         border: '1px solid #ccc'
       }}>
-        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("Limites")}</div>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Limites</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
@@ -278,9 +292,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         </h2>
       </div>
       <div style={{
-        height: 'calc(100vh - 60px)',
-        width: '100%',
-        position: 'relative'
+         height: '100vh',
+         width: '100%',
+         position: 'relative'
       }}>
 
         <MapContainer
@@ -361,13 +375,16 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             border: '1px solid #ccc'
           }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>{t("Valor")}: {
+            <p>
+              {t("Valor")}: {
               (() => {
                 const dept = departments?.find(
-                  (item) => item.name === selectedDept.toLowerCase()
+                (item) => item.name === selectedDept.toLowerCase()
                 );
-                return dept && (dept.value !== 0 || hasZero()) ? dept.value : 'N/A';
-              })()}</p>
+                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/A';
+              })()
+              }
+            </p>
 
             {(() => {
               const dept = departments?.find(
