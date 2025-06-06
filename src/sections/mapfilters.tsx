@@ -79,7 +79,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
               title={t("Nivel Educativo")}
-              options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("Media")]}
+              options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")]}
               value={level}
               onChange={setLevel}
             >
@@ -105,7 +105,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
             </ComboBox>
           </div>
         </div>
-        
+
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>

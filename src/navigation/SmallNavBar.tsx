@@ -50,40 +50,39 @@ export default function SmallNavBar() {
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/cobertura_neta_screen"
+                      href="/Mapa/cobertura_neta_screen"
                       style={{ whiteSpace: 'normal' }}
                     >
                       {t("Cobertura neta")}
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/aprobacion_screen"
+                      href="/Mapa/aprobacion_screen"
                       style={{ whiteSpace: 'normal' }}
                     >
                       {t("Aprobacion")}
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/desercion_screen"
+                      href="/Mapa/desercion_screen"
                       style={{ whiteSpace: 'normal' }}
                     >
                       {t("Desercion")}
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/repitencia_screen"
+                      href="/Mapa/repitencia_screen"
                       style={{ whiteSpace: 'normal' }}
                     >
                       {t("Repitencia")}
                     </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
-                      href="/reprobacion_screen"
+                      href="/Mapa/reprobacion_screen"
                       style={{ whiteSpace: 'normal' }}
                     >
                       {t("Reprobacion")}
                     </NavDropdown.Item>
-                    <NavDropdown.Divider />
                     {user?.admin && (
                       <>
                         <NavDropdown.Divider />
@@ -99,9 +98,9 @@ export default function SmallNavBar() {
                   </NavDropdown>
 
                   <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">{t("DocumentosPublicaciones")}</span>} id="basic-nav-dropdown">
-                    <NavDropdown.Item className='whiteText' href="/Boletines">{t("Boletines")}</NavDropdown.Item>
-                    <NavDropdown.Item className='whiteText' href="/Articulos_de_Interes">{t("Artículos")}</NavDropdown.Item>
-                    <NavDropdown.Item className='whiteText' href="/Datos_Municipales">{t("DatosMunicipales")}</NavDropdown.Item>
+                    <NavDropdown.Item className='whiteText' href="/Documentos/Boletines">{t("Boletines")}</NavDropdown.Item>
+                    <NavDropdown.Item className='whiteText' href="/Documentos/Articulos_de_Interes">{t("Artículos")}</NavDropdown.Item>
+                    <NavDropdown.Item className='whiteText' href="/Documentos/Datos_Municipales">{t("DatosMunicipales")}</NavDropdown.Item>
                   </NavDropdown>
 
                   <NavDropdown className='whiteText' menuVariant='dark' title={<span className="whiteText fw-bold">{t("Comunidad")}</span>} id="basic-nav-dropdown">
