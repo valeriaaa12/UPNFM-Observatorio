@@ -182,7 +182,7 @@ export default function NavBar() {
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Mapa/linegraphscree"
+                        href="/Graficas/lineGraphScreen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {"Line Graph"}
