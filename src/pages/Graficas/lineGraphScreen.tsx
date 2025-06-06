@@ -1,5 +1,5 @@
 import Client from "@/components/client";
-import LineGraphScreen from "../../screens/LineGraphScreen";
+import LineGraphScreen from "../../screens/linegraphscreen2";
 
 import { useTranslation } from 'react-i18next';
 export default function ReprobacionScreen() {

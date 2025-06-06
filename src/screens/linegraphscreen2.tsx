@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import Client from '@/components/client';
 import SmallNavBar from "@/navigation/SmallNavBar";
 
-const LineGraph = dynamic(() => import("@/graphs/LineGraph"), {
+const LineGraph2 = dynamic(() => import("@/graphs/LineGraph2"), {
     ssr: false
 });
 
@@ -42,6 +42,7 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<string[]>([]);
   const { t } = useTranslation('common');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
   const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
 
   const fetchData = async () => {
@@ -96,42 +97,50 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
       color: colorMap[legend.message] ?? "#808080"
     }));
   };
+const applyFilters = () => {
+  let result = [...departments];
 
-  const applyFilters = () => {
-    if (selectedYear === "Ninguno" && selectedLevel === "Ninguno") {
-      setFilteredData([]);
-      return;
-    }
+  const noFilters = selectedDepartment === "Ninguno" && selectedYear === "Ninguno" && selectedLevel === "Ninguno";
 
-    let result = [...departments];
+  if (noFilters) {
+    setFilteredData([]); // o setFilteredData(result) si quieres mostrar todo como fallback
+    return;
+  }
 
-    if (selectedYear !== "Ninguno") {
-      result = result.filter(d => d.year === selectedYear);
-    }
+  if (selectedDepartment !== "Ninguno") {
+    result = result.filter(d => d.name === selectedDepartment.toLowerCase());
+  }
 
-    if (selectedLevel !== "Ninguno") {
-      result = result.filter(d => d.level === selectedLevel);
-    }
+  if (selectedYear !== "Ninguno") {
+    result = result.filter(d => d.year === selectedYear);
+  }
 
-    result.sort((a, b) => a.name.localeCompare(b.name));
-    setFilteredData(result);
-  };
+  if (selectedLevel !== "Ninguno") {
+    result = result.filter(d => d.level === selectedLevel);
+  }
 
-  const formatDataForLineGraph = (data: department[]) => {
-  const grouped: Record<string, any> = {};
-
-  data.forEach(({ name, year, value }) => {
-    if (!grouped[name]) {
-      grouped[name] = { name };
-    }
-    grouped[name][year] = value;
-  });
-
-  return Object.values(grouped);
+  result.sort((a, b) => a.name.localeCompare(b.name));
+  setFilteredData(result);
 };
 
+const formatDataForLineGraph = (data: department[]) => {
+  return data
+    .sort((a, b) => parseInt(a.year) - parseInt(b.year))
+    .map(({ year, value, name, legend }) => ({
+      departamento: name,
+      year,
+      value,
+      legend,
+    }));
+};
+
+
+
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { applyFilters(); }, [selectedYear, selectedLevel, departments]);
+    useEffect(() => {
+    applyFilters();
+    }, [selectedYear, selectedLevel, selectedDepartment, departments]);
+
 
   return (
     <Client>
@@ -168,27 +177,24 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
                 </select>
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{t("Año")}:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{t("Departamento")}:</label>
                 <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    value={selectedDepartment}
+                    onChange={(e) => setSelectedDepartment(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                 >
-                  <option value="Ninguno">{t("Ninguno")}</option>
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
+                    <option value="Ninguno">{t("Ninguno")}</option>
+                    {[...new Set(departments.map(d => d.name))].sort().map(dep => (
+                    <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
+                    ))}
                 </select>
-              </div>
+                </div>
             </div>
-
+            
             <div style={{ height: '500px', border: '1px solid #eee', borderRadius: '8px', padding: '20px' }}>
               {filteredData.length > 0 ? (
-               <LineGraph
-                    data={filteredData.map(({ name, ...rest }) => ({
-                      departamento: name,
-                      ...rest
-                    }))}
+               <LineGraph2
+                    data={formatDataForLineGraph(filteredData)}
                     xAxisKey="year"
                     yAxisKey="value"
                     legendKey="legend"

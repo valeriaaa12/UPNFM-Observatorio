@@ -30,7 +30,7 @@ interface LineGraphProps {
     legends?: LegendItem[];
 }
 
-const LineGraph: React.FC<LineGraphProps> = ({
+const LineGraph2: React.FC<LineGraphProps> = ({
     data,
     xAxisKey,
     yAxisKey,
@@ -38,30 +38,33 @@ const LineGraph: React.FC<LineGraphProps> = ({
     legends = []
 }) => {
 
-    // Agrupar datos por departamento
-    const departments = Array.from(new Set(data.map(d => d.departamento)));
 
     // Años fijos en el eje X
-    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+const normalize = (str: string | undefined | null) =>
+    typeof str === "string"
+        ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        : "";
 
-    // Reorganizar los datos por año
-    const transformedData = years.map(year => {
-        const yearData: any = { year };
-        data.forEach(item => {
-            if (item.year === year) {
-                yearData[item.departamento] = item.value;
-            }
-        });
-        return yearData;
+
+const departments = Array.from(new Set(data.map(d => normalize(d.departamento))));
+
+const transformedData = years.map(year => {
+    const yearData: any = { year };
+    data.forEach(item => {
+        if (item.year === year) {
+            yearData[normalize(item.departamento)] = parseFloat(item.value as any) || 0;
+        }
     });
+    return yearData;
+});
 
-    // Obtener color por departamento
-    const getColor = (department: string) => {
-        const deptLegend = data.find(d => d.departamento === department)?.legend;
-        return legends.find(l => l.message === deptLegend)?.color || '#808080';
-    };
+const getColor = (department: string) => {
+    const deptLegend = data.find(d => normalize(d.departamento) === department)?.legend;
+    return legends.find(l => l.message === deptLegend)?.color || '#808080';
+};
 
-      const renderLegend = (props: any) => {
+  const renderLegend = (props: any) => {
         const { payload } = props;
 
         const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
@@ -139,4 +142,4 @@ const LineGraph: React.FC<LineGraphProps> = ({
     );
 };
 
-export default LineGraph;
+export default LineGraph2;
