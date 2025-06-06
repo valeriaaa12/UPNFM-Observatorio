@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+
 //mapeo de datos
 interface department {
   name: string;
@@ -53,9 +53,9 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 
   useEffect(() => {
     if (geoData) {
-      
+
       const bounds = L.geoJSON(geoData).getBounds();
-      map.fitBounds(bounds, { padding: [50, 50],animate: true });
+      map.fitBounds(bounds, { padding: [50, 50], animate: true });
       fittedRef.current = true;
     }
   }, [geoData, map]);
@@ -66,17 +66,17 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 
 const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
-  
+
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<L.Map | null>(null); 
+  const mapRef = useRef<L.Map | null>(null);
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([14.8, -86.8]);
-  
+
   const getCenterFromGeoJSON = (geoData: FeatureCollection): [number, number] => {
-  const bounds = L.geoJSON(geoData).getBounds();
-  const center = bounds.getCenter();
-  return [center.lat, center.lng]; // Convert LatLng to [number, number]
+    const bounds = L.geoJSON(geoData).getBounds();
+    const center = bounds.getCenter();
+    return [center.lat, center.lng]; // Convert LatLng to [number, number]
   };
   //Inicio de pruebas de mapa cargado a backend dinamico
 
@@ -117,7 +117,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     } else if (legends?.find((item) => item.upperLimit == 0) && level != 'Ninguno') {
       return true;
     } else {
-      
+
       return false;
     }
 
@@ -133,13 +133,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
-  
-    const value = currentDep? currentDep.value : -1;
-    
+
+    const value = currentDep ? currentDep.value : -1;
+
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-    
+
     const green: legend = legends?.find((item) =>
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
@@ -155,8 +155,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
     if (level == "Ninguno" || year == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#2ecc71 '; //verde
-    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#ff7f00'; //naranja
+    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
+    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#FFC300'; //amarillo
     if (value == -1) return '#808080'; //gris
     return '#e41a1c'; //rojo 
   };
@@ -180,9 +180,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           // Recenter the map after new data loads
           if (mapRef.current && data) {
             const bounds = L.geoJSON(data).getBounds();
-              const paddedBounds = bounds.pad(10);
-          mapRef.current.setMaxBounds(paddedBounds);
-            mapRef.current.fitBounds(bounds, { padding: [50, 50] }, );
+            const paddedBounds = bounds.pad(10);
+            mapRef.current.setMaxBounds(paddedBounds);
+            mapRef.current.fitBounds(bounds, { padding: [50, 50] },);
           }
         }, 3000);
       })
@@ -229,7 +229,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-    
+
     const green: legend = legends?.find((item) =>
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
@@ -262,11 +262,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
           <span>{green.lowerLimit} - {green.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-          <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
           <span>{orange.lowerLimit} - {orange.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
@@ -297,7 +297,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     });
   };
   const { t, i18n } = useTranslation('common');
-  
+
   return (
     <div style={{
       position: 'relative',
@@ -343,9 +343,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         </h2>
       </div>
       <div style={{
-         height: '100vh',
-         width: '100%',
-         position: 'relative'
+        height: '100vh',
+        width: '100%',
+        position: 'relative'
       }}>
 
         <MapContainer
@@ -358,7 +358,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           }}
           minZoom={6}
           maxBounds={L.geoJSON(geoData).getBounds()}
-           
+
         >
           {geoData && (
             <GeoJSON
@@ -366,7 +366,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
               style={deptStyle}
               onEachFeature={onEachDepartment}
               ref={geoJsonLayerRef}
-              key={JSON.stringify(geoData)} 
+              key={JSON.stringify(geoData)}
             />
           )}
 
@@ -393,11 +393,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <span>{t("l1")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#2ecc71', marginRight: '5px' }}></div>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
             <span>{t("l2")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#ff7f00', marginRight: '5px' }}></div>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
             <span>{t("l3")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
@@ -427,12 +427,12 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
             <p>
               {t("Valor")}: {
-              (() => {
-                const dept = departments?.find(
-                (item) => item.name === selectedDept.toLowerCase()
-                );
-                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/A';
-              })()
+                (() => {
+                  const dept = departments?.find(
+                    (item) => item.name === selectedDept.toLowerCase()
+                  );
+                  return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/A';
+                })()
               }
             </p>
 
