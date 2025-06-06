@@ -36,6 +36,7 @@ interface Legend {
 export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
+    const [showGraph, setShowGraph] = useState<boolean>(false);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [filteredData, setFilteredData] = useState<Department[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
@@ -43,6 +44,39 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [years, setYears] = useState<string[]>([]);
     const { t } = useTranslation('common');
     const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
+
+    useEffect(() => {
+        const handleGraph = () => {
+            if (selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") {
+                setShowGraph(true);
+            } else {
+                setShowGraph(false);
+            }
+        };
+
+        handleGraph();
+    }, [selectedYear, selectedLevel]);
+
+    const capitalizeWords = (str: string) => {
+        return str.toLowerCase().split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
+    const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
+        const colorMap: Record<string, string> = {
+            "Mucho mejor que la meta": "#008000",  // Verde oscuro
+            "Dentro de la meta": "#27ae60",        // Verde
+            "Lejos de la meta": "#FFC300",        // Amarillo
+            "Muy lejos de la meta": "#e41a1c", // Rojo
+            "N/A": "#808080"       // Gris
+        };
+
+        return legendsData.map(legend => ({
+            ...legend,
+            color: colorMap[legend.message] || "#808080" // sin datos (gris)
+        }));
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -59,8 +93,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
             ]);
 
+            console.log(data)
+
             const departmentsData: Department[] = data.data.map((item: any) => ({
-                name: item.departamento.toLowerCase(),
+                name: capitalizeWords(item.departamento.toLowerCase()),
                 legend: item.leyenda,
                 value: parseFloat(item.tasa),
                 year: item.periodo_anual,
@@ -85,21 +121,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         } finally {
             setLoading(false);
         }
-    };
-
-    const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
-        const colorMap: Record<string, string> = {
-            "Mucho mejor que la meta": "#008000",  // Verde oscuro
-            "Dentro de la meta": "#27ae60",        // Verde
-            "Lejos de la meta": "#FFC300",        // Amarillo
-            "Muy lejos de la meta": "#e41a1c", // Rojo
-            "N/A": "#808080"       // Gris
-        };
-
-        return legendsData.map(legend => ({
-            ...legend,
-            color: colorMap[legend.message] || "#808080" // sin datos (gris)
-        }));
     };
 
     const applyFilters = () => {
@@ -188,18 +209,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         </div>
 
                         <div style={{ height: '500px', border: '1px solid #eee', borderRadius: '8px', padding: '20px' }}>
-                            {filteredData.length > 0 ? (
+                            {showGraph ? (
                                 <BarGraph
                                     data={filteredData.map(d => ({
                                         name: d.name,
                                         value: d.value,
                                         legend: d.legend,
                                         year: d.year,
-                                        level: d.level
+                                        level: d.level,
                                     }))}
                                     xAxisKey="name"
                                     yAxisKey="value"
                                     legendKey="legend"
+                                    legends={legends}
                                 />
                             ) : (
                                 <div style={{
