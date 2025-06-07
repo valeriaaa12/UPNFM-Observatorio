@@ -588,3 +588,8 @@
         transform: rotate(360deg);
     }
 }
+
+/* Dashboard */
+#dashboard {
+    background-color: #f9fafa;
+}

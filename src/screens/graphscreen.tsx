@@ -83,7 +83,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         try {
             const config = {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             };
 
@@ -93,8 +94,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
             ]);
 
-            console.log(data)
+            console.log("URLs de solicitud:", { data, legends, years });
 
+            console.log("años" + years)
             const departmentsData: Department[] = data.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento.toLowerCase()),
                 legend: item.leyenda,
@@ -153,13 +155,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
 
     return (
         <Client>
-            <div className="font">
-                <div className="blue blueNavbar">
-                    <NavBar />
-                    <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-                </div>
-                <SmallNavBar />
-
+            <div className="font" >
                 {loading ? (
                     <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
                         <div className="spinner-border text-primary" role="status">

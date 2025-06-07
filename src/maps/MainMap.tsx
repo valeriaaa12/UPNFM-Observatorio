@@ -144,7 +144,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
 
-    const orange: legend = legends?.find((item) =>
+    const yellow: legend = legends?.find((item) =>
       item.message === "Lejos de la meta" && item.level === level
     ) ?? fallback;
 
@@ -156,7 +156,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     if (level == "Ninguno" || year == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-    if (value >= orange!.lowerLimit && value <= orange!.upperLimit) return '#FFC300'; //amarillo
+    if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
     if (value == -1) return '#808080'; //gris
     return '#e41a1c'; //rojo 
   };
@@ -234,7 +234,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
 
-    const orange: legend = legends?.find((item) =>
+    const yellow: legend = legends?.find((item) =>
       item.message === "Lejos de la meta" && item.level === level
     ) ?? fallback;
 
@@ -267,7 +267,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
-          <span>{orange.lowerLimit} - {orange.upperLimit}</span>
+          <span>{yellow.lowerLimit} - {yellow.upperLimit}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
