@@ -187,6 +187,12 @@ export default function NavBar() {
                       >
                         {"Line Graph"}
                       </NavDropdown.Item>
+                       <NavDropdown.Item
+                        href="/Graficas/pieGraphScreen"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Pie Graph"}
+                      </NavDropdown.Item>
 
                       {user?.admin && (
                         <>
