@@ -31,7 +31,6 @@ interface PieGraphProps {
 const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     const { t } = useTranslation('common');
 
-    // Asignar un color único por nombre (departamento)
     const departmentColors: Record<string, string> = {};
     data.forEach((item, index) => {
         if (!departmentColors[item.name]) {
@@ -47,7 +46,6 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     
     return (
         <div style={{ display: 'flex', width: '100%', height: '500px' }}>
-            {/* Leyenda en columna a la izquierda */}
             <div style={{
                 width: '250px',
                 padding: '20px',

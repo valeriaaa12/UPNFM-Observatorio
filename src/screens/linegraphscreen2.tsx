@@ -64,6 +64,7 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
         level: item.nivel
       }));
 
+
       const legendsData: Legend[] = legends.data.map((item: any) => ({
         level: item.nivel,
         message: item.leyenda,
@@ -76,6 +77,11 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
       setDepartments(departmentsData);
       setLegends(legendsWithColors);
       setYears(years.data);
+      console.log("Valores mínimos por categoría:");
+      legends.data.forEach((l: any) => {
+        console.log(`${l.leyenda}: ${l.min}`);
+      });
+
       setFilteredData([]);
     } catch (error) {
       console.error("Error fetching data:", error);
