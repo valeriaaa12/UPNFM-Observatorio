@@ -23,6 +23,7 @@ interface Params {
     title: string;
     extensionData: string;
     extensionLimits: string;
+    key?: number;
 }
 
 interface Legend {
@@ -33,7 +34,7 @@ interface Legend {
     color: string;
 }
 
-export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
+export default function GraphScreen({ title, extensionData, extensionLimits, key }: Params) {
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
@@ -94,9 +95,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
             ]);
 
-            console.log("URLs de solicitud:", { data, legends, years });
-
-            console.log("años" + years)
             const departmentsData: Department[] = data.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento.toLowerCase()),
                 legend: item.leyenda,
@@ -117,7 +115,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             setDepartments(departmentsData);
             setLegends(legendsWithColors);
             setYears(years.data);
-            setFilteredData([]);
+            applyFilters(departmentsData, selectedYear, selectedLevel);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -125,20 +123,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-    const applyFilters = () => {
-        if (selectedYear === "Ninguno" && selectedLevel === "Ninguno") {
+    const applyFilters = (data: Department[], year: string, level: string) => {
+        if (year === "Ninguno" && level === "Ninguno") {
             setFilteredData([]);
+            setShowGraph(false);
             return;
         }
 
-        let result = [...departments];
+        let result = [...data];
 
-        if (selectedYear !== "Ninguno") {
-            result = result.filter(d => d.year === selectedYear);
+        if (year !== "Ninguno") {
+            result = result.filter(d => d.year === year);
         }
 
-        if (selectedLevel !== "Ninguno") {
-            result = result.filter(d => d.level === selectedLevel);
+        if (level !== "Ninguno") {
+            result = result.filter(d => d.level === level);
         }
 
         result.sort((a, b) => a.name.localeCompare(b.name));
@@ -150,7 +149,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     }, []);
 
     useEffect(() => {
-        applyFilters();
+        if (departments.length > 0) {
+            applyFilters(departments, selectedYear, selectedLevel);
+        }
     }, [selectedYear, selectedLevel, departments]);
 
     return (

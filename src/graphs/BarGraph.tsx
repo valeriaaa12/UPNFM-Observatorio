@@ -1,6 +1,5 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
 
 interface LegendItem {
@@ -23,11 +22,11 @@ interface BarGraphProps {
     data: DataItem[];
     xAxisKey: string;
     yAxisKey: string;
-    legendKey?: string;
+    legendKey: string;
     legends: LegendItem[];
 }
 
-const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey = 'legend', legends = [] }) => {
+const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey, legends = [] }) => {
     const { t } = useTranslation('common');
 
     const processedData = data.map(item => {
@@ -40,6 +39,8 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
             color: legendColor
         };
     });
+
+    console.log("data" + data)
 
     const renderLegend = (props: any) => {
         const { payload } = props;
@@ -71,8 +72,6 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
             </div>
         );
     };
-
-    console.log(processedData)
 
     return (
         <ResponsiveContainer width="100%" height="100%">

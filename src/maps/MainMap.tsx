@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 import { useTranslation } from 'react-i18next';
-
+import LanguageSelector from "@/buttons/LanguageSelector";
 
 //mapeo de datos
 interface department {
@@ -72,6 +72,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation('common');
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   const hasZero = () => {
@@ -175,7 +176,6 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
   //Limites
   const limites = () => {
-
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
@@ -192,12 +192,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
-
-
     return (<>
       <div style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: '80px',
         left: '20px',
         backgroundColor: '#F0F0F0',
         padding: '10px',
@@ -206,7 +204,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         zIndex: 1000,
         border: '1px solid #ccc'
       }}>
-        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Limites</div>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
@@ -246,14 +244,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       className: 'dept-tooltip'
     });
   };
-  const { t, i18n } = useTranslation('common');
-  console.log('Current language:', i18n.language);
+
   return (
     <div style={{
+      flex: 1,
       position: 'relative',
-      height: '100vh',
       width: '100%',
-      backgroundColor: 'white'
+      height: '100%'
     }}>
       {/* Spinner de carga */}
       {isLoading && (
@@ -293,18 +290,18 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         </h2>
       </div>
       <div style={{
-        height: '100vh',
+        height: 'calc(100% - 60px)',
         width: '100%',
         position: 'relative'
       }}>
 
         <MapContainer
-          center={[14.8, -86.8]}
+          center={[14.2, -86.8]}
           zoom={7}
           style={{
             height: '100%',
             width: '100%',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
           }}
           minZoom={6}
           maxBounds={L.latLngBounds(
@@ -329,7 +326,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         {/* Leyendas */}
         <div style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: '80px',
           right: '20px',
           backgroundColor: 'white',
           padding: '10px',
@@ -359,6 +356,22 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
             <span>N/A</span>
           </div>
+        </div>
+
+        <div style={{
+          position: 'absolute',
+          bottom: '5px',
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontSize: '0.8rem',
+          color: '#666',
+          zIndex: 1000,
+          padding: '2px 0'
+        }}>
+          Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
+          <br></br>
+          Elaborado por: Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) - Instituto de Investigación y Evaluación Educativas y Sociales (INIEES). UPNFM. {new Date().getFullYear()}
         </div>
 
         {/* Department Info */}
@@ -417,7 +430,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

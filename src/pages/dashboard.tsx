@@ -9,9 +9,10 @@ import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
 import GraphScreen from "../screens/graphscreen";
 
-export default function AboutUs() {
+export default function Dashboard() {
     const { t } = useTranslation('common');
     const [activeTab, setActiveTab] = useState("coberturaBruta");
+    const [key, setKey] = useState(0);
 
     const tabsConfig = [
         {
@@ -60,7 +61,13 @@ export default function AboutUs() {
 
     const activeTabConfig = tabsConfig.find(tab => tab.id === activeTab) || tabsConfig[0];
 
-    console.log(activeTabConfig)
+    // Maneja el cambio de tab
+    const handleTabChange = (selectedKey: string | null) => {
+        if (selectedKey) {
+            setActiveTab(selectedKey);
+            setKey(prevKey => prevKey + 1);
+        }
+    };
 
     return (
         <Client>
@@ -70,12 +77,12 @@ export default function AboutUs() {
             </div>
             <SmallNavBar />
             <ImgOverlay image="images/estadisticas4.jpg" text="Gráficos Estadísticos" bottom={true} />
-            <div className="font fondoGris container-fluid pt-4 ps-4">
+            <div className="font fondoGris container-fluid p-4">
                 <div style={{ backgroundColor: "white" }}>
                     <Nav
                         variant="tabs"
                         activeKey={activeTab}
-                        onSelect={(selectedKey) => setActiveTab(selectedKey || "coberturaBruta")}
+                        onSelect={handleTabChange}
                     >
                         {tabsConfig.map((tab) => (
                             <Nav.Item key={tab.id}>
@@ -95,6 +102,7 @@ export default function AboutUs() {
 
                     <div className="mt-3">
                         <GraphScreen
+                            key={key}
                             title={t(activeTabConfig.label)}
                             extensionData={activeTabConfig.dataEndpoint}
                             extensionLimits={activeTabConfig.limitsEndpoint}
