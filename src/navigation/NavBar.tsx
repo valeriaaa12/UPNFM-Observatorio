@@ -175,7 +175,7 @@ export default function NavBar() {
 
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Graficas/barGraphScreen"
+                        href="/dashboard"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {"Gráficos Estadísticos"}
@@ -187,12 +187,6 @@ export default function NavBar() {
                       >
                         {"Line Graph"}
                       </NavDropdown.Item>
-                       <NavDropdown.Item
-                        href="/Graficas/pieGraphScreen"
-                        style={{ whiteSpace: 'normal' }}
-                      >
-                        {"Pie Graph"}
-                      </NavDropdown.Item>
 
                       {user?.admin && (
                         <>
@@ -200,7 +194,6 @@ export default function NavBar() {
                           <NavDropdown.Item
                             className='admin-option'
                             href="/uploadExcel"
-
                           >
                             {t("Subir Archivos")}
                           </NavDropdown.Item>
