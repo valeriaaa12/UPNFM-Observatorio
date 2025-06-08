@@ -45,7 +45,7 @@
 }
 
 .blueText {
-    color: #19467f;
+    color: #19467f !important;
 }
 
 .yellowText {
@@ -592,4 +592,27 @@
 /* Dashboard */
 #dashboard {
     background-color: #f9fafa;
+}
+
+.graphsMenu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1,
+}
+
+.graphsMenu:hover {
+    background-color: #19467f !important;
+    color: white !important;
+    transform: scale(1.02);
+}
+
+.tooltip-inner {
+    background-color: #19467f !important;
+    /* Azul de Bootstrap (puedes cambiarlo) */
+}
+
+.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before,
+.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #19467f !important;
 }

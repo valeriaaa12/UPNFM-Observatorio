@@ -33,17 +33,17 @@ interface LineGraphProps {
     legends?: LegendItem[];
 }
 const ALL_LEVELS = [
-  "Muy lejos de la meta",
-  "Lejos de la meta",
-  "Dentro de la meta",
-  "Mucho mejor que la meta"
+    "Muy lejos de la meta",
+    "Lejos de la meta",
+    "Dentro de la meta",
+    "Mucho mejor que la meta"
 ];
 
 const colorMap: Record<string, string> = {
-  "Mucho mejor que la meta": "#008000",
-  "Dentro de la meta": "#27ae60",
-  "Lejos de la meta": "#FFC300",
-  "Muy lejos de la meta": "#e41a1c"
+    "Mucho mejor que la meta": "#008000",
+    "Dentro de la meta": "#27ae60",
+    "Lejos de la meta": "#FFC300",
+    "Muy lejos de la meta": "#e41a1c"
 };
 
 
@@ -56,24 +56,24 @@ const LineGraph2: React.FC<LineGraphProps> = ({
 }) => {
     const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
     const uniqueLegends = legends.filter(
-  (legend, index, self) =>
-    index === self.findIndex((l) => l.message === legend.message)
-);
+        (legend, index, self) =>
+            index === self.findIndex((l) => l.message === legend.message)
+    );
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
             ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             : "";
 
     const departments = Array.from(new Set(data.map(d => normalize(d.departamento))));
-    
+
     const allLegends: LegendItem[] = ALL_LEVELS.map(level => {
-    const match = legends.find(l => l.message === level);
-    return {
-        message: level,
-        color: colorMap[level],
-        lowerLimit: match?.lowerLimit ?? 0,
-        upperLimit: match?.upperLimit ?? 0
-    };
+        const match = legends.find(l => l.message === level);
+        return {
+            message: level,
+            color: colorMap[level],
+            lowerLimit: match?.lowerLimit ?? 0,
+            upperLimit: match?.upperLimit ?? 0
+        };
     });
     const transformedData = years.map(year => {
         const yearData: any = { year };
@@ -124,12 +124,11 @@ const LineGraph2: React.FC<LineGraphProps> = ({
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <h2>Indicadores por Departamento (2018–2023)</h2>
             <ResponsiveContainer width="100%" height={500}>
                 <LineChart
                     data={transformedData}
-                    margin={{ top: 20, right: 180, left: 10, bottom: 40 }} 
-                    >
+                    margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
+                >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="year" />
                     <YAxis />
@@ -150,13 +149,13 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                             return null;
                         }}
                     />
-                    
+
                     {departments.map((dep, index) => (
                         <Line
                             key={index}
                             type="monotone"
                             dataKey={dep}
-                            stroke={index === 0 ? "#001f3f" : getColor(dep)} 
+                            stroke={index === 0 ? "#001f3f" : getColor(dep)}
                             dot={{ r: 2 }}
                             strokeWidth={2}
                         />
@@ -168,13 +167,13 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                             stroke={legend.color}
                             strokeDasharray="3 3"
                             label={{
-                            value: legend.message,
-                            position: 'right',
-                            fill: legend.color,
-                            fontSize: 12,
+                                value: legend.message,
+                                position: 'right',
+                                fill: legend.color,
+                                fontSize: 12,
                             }}
                         />
-                        ))}
+                    ))}
 
 
 

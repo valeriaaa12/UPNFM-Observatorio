@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/buttons/LanguageSelector";
+'@/components/FuenteDeDatos';
 
 //mapeo de datos
 interface department {
@@ -286,11 +287,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           fontSize: '1.4rem',
           fontWeight: '500'
         }}>
-          {title}
+          {title} {level !== "Ninguno" ? `- ${level}` : ""} {year !== "Ninguno" ? `(${year})` : ""}
         </h2>
       </div>
       <div style={{
-        height: 'calc(100% - 60px)',
+        height: 'calc(100% - 51px)',
         width: '100%',
         position: 'relative'
       }}>

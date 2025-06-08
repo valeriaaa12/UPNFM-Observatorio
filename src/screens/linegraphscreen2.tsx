@@ -8,7 +8,7 @@ import Client from '@/components/client';
 import SmallNavBar from "@/navigation/SmallNavBar";
 
 const LineGraph2 = dynamic(() => import("@/graphs/LineGraph2"), {
-    ssr: false
+  ssr: false
 });
 
 interface department {
@@ -64,7 +64,6 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
         level: item.nivel
       }));
 
-
       const legendsData: Legend[] = legends.data.map((item: any) => ({
         level: item.nivel,
         message: item.leyenda,
@@ -91,71 +90,64 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
   };
 
   const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
-        const colorMap: Record<string, string> = {
-            "Mucho mejor que la meta": "#008000",  // Verde oscuro
-            "Dentro de la meta": "#27ae60",        // Verde
-            "Lejos de la meta": "#FFC300",        // Amarillo
-            "Muy lejos de la meta": "#e41a1c", // Rojo
-            "N/A": "#808080"       // Gris
-        };
+    const colorMap: Record<string, string> = {
+      "Mucho mejor que la meta": "#008000",  // Verde oscuro
+      "Dentro de la meta": "#27ae60",        // Verde
+      "Lejos de la meta": "#FFC300",        // Amarillo
+      "Muy lejos de la meta": "#e41a1c", // Rojo
+      "N/A": "#808080"       // Gris
+    };
     return legendsData.map(legend => ({
       ...legend,
       color: colorMap[legend.message] ?? "#808080"
     }));
   };
-const applyFilters = () => {
-  let result = [...departments];
+  const applyFilters = () => {
+    let result = [...departments];
 
-  const noFilters = selectedDepartment === "Ninguno" && selectedYear === "Ninguno" && selectedLevel === "Ninguno";
+    const noFilters = selectedDepartment === "Ninguno" && selectedYear === "Ninguno" && selectedLevel === "Ninguno";
 
-  if (noFilters) {
-    setFilteredData([]); // o setFilteredData(result) si quieres mostrar todo como fallback
-    return;
-  }
+    if (noFilters) {
+      setFilteredData([]); // o setFilteredData(result) si quieres mostrar todo como fallback
+      return;
+    }
 
-  if (selectedDepartment !== "Ninguno") {
-    result = result.filter(d => d.name === selectedDepartment.toLowerCase());
-  }
+    if (selectedDepartment !== "Ninguno") {
+      result = result.filter(d => d.name === selectedDepartment.toLowerCase());
+    }
 
-  if (selectedYear !== "Ninguno") {
-    result = result.filter(d => d.year === selectedYear);
-  }
+    if (selectedYear !== "Ninguno") {
+      result = result.filter(d => d.year === selectedYear);
+    }
 
-  if (selectedLevel !== "Ninguno") {
-    result = result.filter(d => d.level === selectedLevel);
-  }
+    if (selectedLevel !== "Ninguno") {
+      result = result.filter(d => d.level === selectedLevel);
+    }
 
-  result.sort((a, b) => a.name.localeCompare(b.name));
-  setFilteredData(result);
-};
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    setFilteredData(result);
+  };
 
-const formatDataForLineGraph = (data: department[]) => {
-  return data
-    .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-    .map(({ year, value, name, legend }) => ({
-      departamento: name,
-      year,
-      value,
-      legend,
-    }));
-};
-
-
-
+  const formatDataForLineGraph = (data: department[]) => {
+    return data
+      .sort((a, b) => parseInt(a.year) - parseInt(b.year))
+      .map(({ year, value, name, legend }) => ({
+        departamento: name,
+        year,
+        value,
+        legend,
+      }));
+  };
   useEffect(() => { fetchData(); }, []);
-    useEffect(() => {
+  useEffect(() => {
     applyFilters();
-    }, [selectedYear, selectedLevel, selectedDepartment, departments]);
+  }, [selectedYear, selectedLevel, selectedDepartment, departments]);
 
 
+  console.log(filteredData)
   return (
     <Client>
       <div className="font">
-        <div className="blue blueNavbar">
-          <NavBar />
-          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-        </div>
-        <SmallNavBar />
 
         {loading ? (
           <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
@@ -165,9 +157,6 @@ const formatDataForLineGraph = (data: department[]) => {
           </div>
         ) : (
           <div style={{ width: '100%', height: '100%', padding: '20px' }}>
-            <h2 style={{ marginBottom: '20px' }}>
-              {title} - {selectedLevel !== "Ninguno" ? selectedLevel : "Todos los niveles"} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
-            </h2>
 
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '200px' }}>
@@ -185,26 +174,26 @@ const formatDataForLineGraph = (data: department[]) => {
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{t("Departamento")}:</label>
                 <select
-                    value={selectedDepartment}
-                    onChange={(e) => setSelectedDepartment(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                  value={selectedDepartment}
+                  onChange={(e) => setSelectedDepartment(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                 >
-                    <option value="Ninguno">{t("Ninguno")}</option>
-                    {[...new Set(departments.map(d => d.name))].sort().map(dep => (
+                  <option value="Ninguno">{t("Ninguno")}</option>
+                  {[...new Set(departments.map(d => d.name))].sort().map(dep => (
                     <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
-                    ))}
+                  ))}
                 </select>
-                </div>
+              </div>
             </div>
-            
+
             <div style={{ height: '500px', border: '1px solid #eee', borderRadius: '8px', padding: '20px' }}>
               {filteredData.length > 0 ? (
-               <LineGraph2
-                    data={formatDataForLineGraph(filteredData)}
-                    xAxisKey="year"
-                    yAxisKey="value"
-                    legendKey="legend"
-                    legends={legends}
+                <LineGraph2
+                  data={formatDataForLineGraph(filteredData)}
+                  xAxisKey="year"
+                  yAxisKey="value"
+                  legendKey="legend"
+                  legends={legends}
                 />
               ) : (
                 <div style={{
@@ -220,8 +209,6 @@ const formatDataForLineGraph = (data: department[]) => {
             </div>
           </div>
         )}
-
-        <LanguageSelector />
       </div>
     </Client>
   );

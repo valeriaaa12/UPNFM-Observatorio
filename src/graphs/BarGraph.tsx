@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { useTranslation } from "react-i18next";
+import FuenteDeDatos from '@/components/FuenteDeDatos';
 
 interface LegendItem {
     message: string;
@@ -39,8 +40,6 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
             color: legendColor
         };
     });
-
-    console.log("data" + data)
 
     const renderLegend = (props: any) => {
         const { payload } = props;

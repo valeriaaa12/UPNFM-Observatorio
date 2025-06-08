@@ -154,12 +154,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     return (
         <Client>
             <div className="font">
-                <div className="blue blueNavbar">
-                    <NavBar />
-                    <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-                </div>
-                <SmallNavBar />
-
                 {loading ? (
                     <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
                         <div className="spinner-border text-primary" role="status">
@@ -168,10 +162,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     </div>
                 ) : (
                     <div style={{ width: '100%', height: '100%', padding: '20px' }}>
-                        <h2 style={{ marginBottom: '20px' }}>
-                            {title} - {selectedLevel !== "Ninguno" ? selectedLevel : "Todos los niveles"} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
-                        </h2>
-
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
                             <div style={{ flex: 1, minWidth: '200px' }}>
                                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
