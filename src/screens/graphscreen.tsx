@@ -8,13 +8,16 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
 import LineGraphScreen from "../screens/linegraphscreen2";
-import PieGraphScreen from "../screens/piegraphscreen";
 
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
 });
 
 const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
+    ssr: false
+});
+
+const PieGraph = dynamic(() => import("@/graphs/PieGraph"), {
     ssr: false
 });
 
@@ -54,6 +57,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
+    const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
         const handleGraph = () => {
@@ -218,9 +222,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
         if (activeGraph === 'pie') {
             return (
-                <PieGraphScreen title={t('TasaDesercion')}
-                    extensionData="/desercion"
-                    extensionLimits="/limitesDesercion"
+                <PieGraph
+                    data={filteredData.map(d => ({
+                        name: d.name,
+                        value: d.value,
+                        legend: d.legend,
+                        year: d.year,
+                        level: d.level,
+                    }))}
                 />
             );
         }
@@ -329,7 +338,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                             flex: 1,
                                             minWidth: '300px',
                                             position: 'relative',
-                                            overflow: 'hidden'
+                                            overflow: 'hidden',
+                                            height: '100%'
                                         }}>
                                             {renderGraph()}
                                         </div>
@@ -396,6 +406,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             setActiveFilter('year');
                                                         }}
                                                     >
+
                                                         <i className="bi bi-pie-chart"></i>
                                                     </ListGroup.Item>
                                                 </OverlayTrigger>
@@ -414,6 +425,32 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         active={false}
                                                     >
                                                         <i className="bi bi-download"></i>
+                                                    </ListGroup.Item>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger
+                                                    placement="left"
+                                                    overlay={
+                                                        <Tooltip id="tooltip-graph">
+                                                            Exportar a Excel
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    <ListGroup.Item
+                                                        action
+                                                        href="#link3"
+                                                        className='graphsMenu d-flex align-items-center justify-content-center'
+                                                        style={{ height: "40px" }}
+                                                        active={false}
+                                                        onMouseEnter={() => setIsHovered(true)}
+                                                        onMouseLeave={() => setIsHovered(false)}
+                                                    >
+                                                        <img
+                                                            src={isHovered ? "images/excel1.png" : "images/excel2.png"}
+                                                            alt="Excel"
+                                                            width={30}
+                                                            height={30}
+                                                            style={{ display: "block" }}
+                                                        />
                                                     </ListGroup.Item>
                                                 </OverlayTrigger>
                                                 <OverlayTrigger

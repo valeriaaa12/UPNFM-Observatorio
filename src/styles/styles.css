@@ -608,11 +608,10 @@
 }
 
 .tooltip-inner {
-    background-color: #19467f !important;
-    /* Azul de Bootstrap (puedes cambiarlo) */
+    background-color: #fe5000 !important;
 }
 
 .bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before,
 .bs-tooltip-start .tooltip-arrow::before {
-    border-left-color: #19467f !important;
+    border-left-color: #fe5000 !important;
 }
