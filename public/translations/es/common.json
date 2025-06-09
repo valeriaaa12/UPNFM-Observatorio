@@ -174,5 +174,6 @@
   "no_valid_data": "No hay datos válidos para subir",
   "data_uploaded_successfully": "✅ Datos enviados correctamente al backend",
   "file_deleted": "Archivo eliminado",
-  "upload_error": "❌ Error al subir los datos"
+  "upload_error": "❌ Error al subir los datos",
+  "exportExcel": "Exportar Excel"
 }
