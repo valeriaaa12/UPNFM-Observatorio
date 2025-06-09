@@ -5,6 +5,9 @@ import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject } from 'geojson';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import LanguageSelector from "@/buttons/LanguageSelector";
+'@/components/FuenteDeDatos';
+
 //mapeo de datos
 interface department {
   name: string;
@@ -70,6 +73,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef<L.Map | null>(null); 
+
+
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([14.8, -86.8]);
   
@@ -225,7 +230,6 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
   //Limites
   const limites = () => {
-
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
@@ -242,14 +246,12 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
-
-
     return (<>
       <div
       id="limits-container" 
       style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: '80px',
         left: '20px',
         backgroundColor: '#F0F0F0',
         padding: '10px',
@@ -258,7 +260,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         zIndex: 1000,
         border: '1px solid #ccc'
       }}>
-        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Limites</div>
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
           <span>{darkgreen.lowerLimit} - {darkgreen.upperLimit}</span>
@@ -302,10 +304,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   
   return (
     <div style={{
+      flex: 1,
       position: 'relative',
-      height: '100vh',
       width: '100%',
-      backgroundColor: 'white'
+      height: '100%'
     }}>
       {/* Spinner de carga */}
       {isLoading && (
@@ -340,24 +342,24 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           margin: 0,
           fontSize: '1.4rem',
           fontWeight: '500'
-        }}> 
-          {title}
+        }}>
+          {title} {level !== "Ninguno" ? `- ${level}` : ""} {year !== "Ninguno" ? `(${year})` : ""}
         </h2>
       </div>
       <div style={{
-         height: '100vh',
-         width: '100%',
-         position: 'relative'
+        height: 'calc(100% - 51px)',
+        width: '100%',
+        position: 'relative'
       }}>
 
         <MapContainer
-        className='map-container'
+          className='map-container'
           center={mapCenter}
           zoom={7}
           style={{
             height: '100%',
             width: '100%',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
           }}
           minZoom={6}
           maxBounds={L.geoJSON(geoData).getBounds()}
@@ -384,7 +386,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         style={{
           
           position: 'absolute',
-          bottom: '20px',
+          bottom: '80px',
           right: '20px',
           backgroundColor: 'white',
           padding: '10px',
@@ -414,6 +416,22 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
             <span>N/A</span>
           </div>
+        </div>
+
+        <div style={{
+          position: 'absolute',
+          bottom: '5px',
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontSize: '0.8rem',
+          color: '#666',
+          zIndex: 1000,
+          padding: '2px 0'
+        }}>
+          Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
+          <br></br>
+          Elaborado por: Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) - Instituto de Investigación y Evaluación Educativas y Sociales (INIEES). UPNFM. {new Date().getFullYear()}
         </div>
 
         {/* Department Info */}
@@ -474,7 +492,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
