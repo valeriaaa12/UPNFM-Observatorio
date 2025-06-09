@@ -167,7 +167,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
                 <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
               </div>
             </div>}
-          <LanguageSelector></LanguageSelector>
+          <LanguageSelector />
         </div >
       </>
     </Client>

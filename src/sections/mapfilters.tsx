@@ -15,41 +15,41 @@ interface params {
 }
 
 interface deptMaps {
-  deptName : string,
-  geojson : string
+  deptName: string,
+  geojson: string
 }
 
-export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa}: params) {
+export default function MapFilters({ mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa }: params) {
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const deptList: deptMaps[] = [
-  { deptName: "Honduras", geojson: "/others/hn.json" },
-  { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
-  { deptName: "Colón", geojson: "/others/hn-municipios-02-colon.geo.json" },
-  { deptName: "Comayagua", geojson: "/others/hn-municipios-03-comayagua.geo.json" },
-  { deptName: "Copán", geojson: "/others/hn-municipios-04-copan.geo.json" },
-  { deptName: "Cortés", geojson: "/others/hn-municipios-05-cortes.geo.json" },
-  { deptName: "Choluteca", geojson: "/others/hn-municipios-06-choluteca.geo.json" },
-  { deptName: "El Paraíso", geojson: "/others/hn-municipios-07-elparaiso.geo.json" },
-  { deptName: "Francisco Morazán", geojson: "/others/hn-municipios-08-franciscomorazan.geo.json" },
-  { deptName: "Gracias a Dios", geojson: "/others/hn-municipios-09-graciasadios.geo.json" },
-  { deptName: "Intibucá", geojson: "/others/hn-municipios-10-intibuca.geo.json" },
-  { deptName: "Islas de la Bahía", geojson: "/others/hn-municipios-11-islasdelabahia.geo.json" },
-  { deptName: "La Paz", geojson: "/others/hn-municipios-12-lapaz.geo.json" },
-  { deptName: "Lempira", geojson: "/others/hn-municipios-13-lempira.geo.json" },
-  { deptName: "Ocotepeque", geojson: "/others/hn-municipios-14-ocotepeque.geo.json" },
-  { deptName: "Olancho", geojson: "/others/hn-municipios-15-olancho.geo.json" },
-  { deptName: "Santa Bárbara", geojson: "/others/hn-municipios-16-santabarbara.geo.json" },
-  { deptName: "Valle", geojson: "/others/hn-municipios-17-valle.geo.json" },
-  { deptName: "Yoro", geojson: "/others/hn-municipios-18-yoro.geo.json" }
+    { deptName: "Honduras", geojson: "/others/hn.json" },
+    { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
+    { deptName: "Colón", geojson: "/others/hn-municipios-02-colon.geo.json" },
+    { deptName: "Comayagua", geojson: "/others/hn-municipios-03-comayagua.geo.json" },
+    { deptName: "Copán", geojson: "/others/hn-municipios-04-copan.geo.json" },
+    { deptName: "Cortés", geojson: "/others/hn-municipios-05-cortes.geo.json" },
+    { deptName: "Choluteca", geojson: "/others/hn-municipios-06-choluteca.geo.json" },
+    { deptName: "El Paraíso", geojson: "/others/hn-municipios-07-elparaiso.geo.json" },
+    { deptName: "Francisco Morazán", geojson: "/others/hn-municipios-08-franciscomorazan.geo.json" },
+    { deptName: "Gracias a Dios", geojson: "/others/hn-municipios-09-graciasadios.geo.json" },
+    { deptName: "Intibucá", geojson: "/others/hn-municipios-10-intibuca.geo.json" },
+    { deptName: "Islas de la Bahía", geojson: "/others/hn-municipios-11-islasdelabahia.geo.json" },
+    { deptName: "La Paz", geojson: "/others/hn-municipios-12-lapaz.geo.json" },
+    { deptName: "Lempira", geojson: "/others/hn-municipios-13-lempira.geo.json" },
+    { deptName: "Ocotepeque", geojson: "/others/hn-municipios-14-ocotepeque.geo.json" },
+    { deptName: "Olancho", geojson: "/others/hn-municipios-15-olancho.geo.json" },
+    { deptName: "Santa Bárbara", geojson: "/others/hn-municipios-16-santabarbara.geo.json" },
+    { deptName: "Valle", geojson: "/others/hn-municipios-17-valle.geo.json" },
+    { deptName: "Yoro", geojson: "/others/hn-municipios-18-yoro.geo.json" }
   ];
   const deptNames: string[] = [
-  "Honduras", "Atlántida","Choluteca","Colón", "Comayagua","Copán","Cortés","El Paraíso","Francisco Morazán","Gracias a Dios","Intibucá","Islas de la Bahía","La Paz","Lempira", "Ocotepeque","Olancho","Santa Bárbara","Valle","Yoro"
-];
+    "Honduras", "Atlántida", "Choluteca", "Colón", "Comayagua", "Copán", "Cortés", "El Paraíso", "Francisco Morazán", "Gracias a Dios", "Intibucá", "Islas de la Bahía", "La Paz", "Lempira", "Ocotepeque", "Olancho", "Santa Bárbara", "Valle", "Yoro"
+  ];
 
-  const changeValue = (value:string) => {
+  const changeValue = (value: string) => {
     setSelect(value)
-    const dept = deptList.find((item)=>item.deptName==value)
+    const dept = deptList.find((item) => item.deptName == value)
     setMapa(dept ? dept.geojson : "/others/hn.json")
     setMapaElegido(dept ? value : "Honduras")
     setSelectedYear("Ninguno")
@@ -57,7 +57,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
     console.log("mapa: " + mapa)
   }
   const setValue = () => {
-    const dept = deptList.find((item)=>item.geojson==mapa)
+    const dept = deptList.find((item) => item.geojson == mapa)
     return dept ? dept.deptName : "Honduras"
   }
   console.log('Current language:', i18n.language);
@@ -85,7 +85,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
             >
             </ComboBox>
           </div>
-          
+
 
           <div style={{ marginBottom: '10px' }}>
             <ComboBox
@@ -109,17 +109,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            marginBottom: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
-            {t("ReiniciarVista")}
-          </button>
+
           <button style={{
             width: '100%',
             padding: '8px',
