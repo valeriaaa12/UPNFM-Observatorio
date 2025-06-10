@@ -13,7 +13,7 @@ const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
 });
 
-const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
+const LineGraph2 = dynamic(() => import("@/graphs/LineGraph2"), {
     ssr: false
 });
 
@@ -150,8 +150,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             }
         } else if (activeGraph === 'line') {
             if (department !== "Ninguno") {
-                result = result.filter(d => d.name === department.toLowerCase());
-            }
+            result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
+        }
         }
 
         if (level !== "Ninguno") {
@@ -211,7 +211,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraph(filteredData);
             return (
-                <LineGraph
+                <LineGraph2
                     data={lineData}
                     xAxisKey="year"
                     yAxisKey="value"
