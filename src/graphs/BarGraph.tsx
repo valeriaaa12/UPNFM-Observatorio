@@ -41,6 +41,8 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
         };
     });
 
+    console.log(processedData)
+
     const renderLegend = (props: any) => {
         const { payload } = props;
 

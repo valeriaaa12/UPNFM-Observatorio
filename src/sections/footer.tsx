@@ -87,7 +87,7 @@ const Footer: React.FC = () => {
         className="border-t border-[#FE5000] text-center text-xs sm:text-sm text-white font"
         style={{ backgroundColor: "rgba(254,80,0,0.95)", width: "100%" }}
       >
-        © 2025 UPNFM - {t("OUDENI")}
+        © {new Date().getFullYear()} UPNFM - {t("OUDENI")}
       </div>
     </div>
   );
