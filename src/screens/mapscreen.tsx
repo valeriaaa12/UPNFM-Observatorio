@@ -1,14 +1,16 @@
-
 import NavBar from "@/navigation/NavBar";
 import dynamic from 'next/dynamic';
 import ComboBox from "@/components/combobox";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import Client from '@/components/client';
 import SmallNavBar from "@/navigation/SmallNavBar";
+import html2canvas from 'html2canvas';
+
+
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -44,7 +46,24 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<string[]>([]);
 
-  {/*mapeo*/ }
+  const mapRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  const exportMapAsImage = async () => {
+    if (!exportRef.current) return;
+
+    const canvas = await html2canvas(exportRef.current, {
+      useCORS: true,
+      scale: 2,
+      backgroundColor: "white"
+    });
+
+    const link = document.createElement("a");
+    link.download = `${title.replace(/\s+/g, "_")}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
   //metodo de mapeo
   const mapData = async () => {
     setLoading(true);
@@ -113,30 +132,48 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const { t } = useTranslation('common');
   return (
     <Client>
-    <>
-      <div className="font">
-        <div className="blue blueNavbar">
-          <NavBar />
-          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-        </div>
-        <SmallNavBar></SmallNavBar>
-        {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+      <>
+        <div className="font">
+          <div className="blue blueNavbar">
+            <NavBar />
+            <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
           </div>
-        </div> :
-          <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-            {/* Menu */}
-            <MapFilters selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} />
-
-            {/* Mapa */}
-            <div style={{ flex: 1, position: 'relative' }}>
-              <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+          <SmallNavBar></SmallNavBar>
+          {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
-          </div>}
-        <LanguageSelector></LanguageSelector>
-      </div >
-    </>
-  </Client>
+          </div> :
+            <div className="d-flex flex-column flex-md-row w-100 vh-100">
+              {/* Menu */}
+              <MapFilters
+                level={level}
+                setLevel={setLevel}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                years={years}
+                onPrint={exportMapAsImage}
+              />
+
+
+              {/* Mapa */}
+              <div className="flex-grow-1 position-relative">
+                <MainMap
+                  level={level}
+                  map={'/others/hn.json'}
+                  title={title}
+                  year={selectedYear}
+                  departments={filteredDepartments}
+                  setDepartments={setFilteredDepartments}
+                  legends={legends}
+                  setLegends={setLegends}
+                  mapRef={exportRef}
+                />
+              </div>
+            </div>}
+          <LanguageSelector></LanguageSelector>
+        </div >
+      </>
+    </Client>
   );
 }

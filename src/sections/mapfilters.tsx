@@ -8,9 +8,10 @@ interface params {
   selectedYear: string;
   setSelectedYear: React.Dispatch<React.SetStateAction<string>>;
   years: string[];
+  onPrint: () => void;
 }
 
-export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear, years }: params) {
+export default function MapFilters({ level, setLevel, selectedYear, setSelectedYear, years, onPrint }: params) {
   const { t, i18n } = useTranslation('common');
   console.log('Current language:', i18n.language);
   return (
@@ -47,7 +48,7 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           </div>
 
         </div>
-        
+
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
@@ -62,14 +63,17 @@ export default function MapFilters({ level, setLevel, selectedYear, setSelectedY
           }}>
             {t("ReiniciarVista")}
           </button>
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
+          <button
+            onClick={onPrint}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
             {t("Imprimir")}
           </button>
         </div>
