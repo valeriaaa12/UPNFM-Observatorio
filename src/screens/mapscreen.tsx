@@ -122,7 +122,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
       filterData();
       setLoading(false);
     } catch (error: unknown) {
-
+        mapData();
     }
   }
 
@@ -142,6 +142,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   useEffect(() => {
     filterData()
   }, [selectedYear, level])
+
   const { t } = useTranslation('common');
 
   return (
@@ -160,11 +161,13 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
           </div> :
             <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
               {/* Menu */}
-              <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} setLevel={setLevel} years={years} mapa={mapa} setMapa={setMapa} />
+              <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} 
+              setLevel={setLevel} years={years} mapa={mapa} setMapa={setMapa} 
+              departments={filteredDepartments}  legends={legends}/>
 
               {/* Mapa */}
               <div style={{ flex: 1, position: 'relative' }}>
-                <MainMap level={level} map={'/others/hn.json'} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
+                <MainMap level={level} map={mapa} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} />
               </div>
             </div>}
           <LanguageSelector />
