@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import Client from '@/components/client';
 import SmallNavBar from "@/navigation/SmallNavBar";
 
-const LineGraph2 = dynamic(() => import("@/graphs/LineGraph2"), {
+const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
   ssr: false
 });
 
@@ -188,7 +188,7 @@ export default function LineGraphScreen({ title, extensionData, extensionLimits 
 
             <div style={{ height: '500px', border: '1px solid #eee', borderRadius: '8px', padding: '20px' }}>
               {filteredData.length > 0 ? (
-                <LineGraph2
+                <LineGraph
                   data={formatDataForLineGraph(filteredData)}
                   xAxisKey="year"
                   yAxisKey="value"

@@ -13,7 +13,7 @@ const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
 });
 
-const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
+const LineGraph2 = dynamic(() => import("@/graphs/LineGraph2"), {
     ssr: false
 });
 
@@ -124,7 +124,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
-            console.log(departmentsData)
             setDepartments(departmentsData);
             setLegends(legendsWithColors);
             setYears(years.data);
@@ -150,8 +149,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             }
         } else if (activeGraph === 'line') {
             if (department !== "Ninguno") {
-                result = result.filter(d => d.name === department.toLowerCase());
-            }
+            result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
+        }
         }
 
         if (level !== "Ninguno") {
@@ -211,7 +210,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraph(filteredData);
             return (
-                <LineGraph
+                <LineGraph2
                     data={lineData}
                     xAxisKey="year"
                     yAxisKey="value"
@@ -289,7 +288,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 ) : (
                     <div style={{ width: '100%', height: '100%', padding: '20px' }}>
 
-
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
                             {/* Nivel */}
                             <div style={{ flex: 1, minWidth: '200px' }}>
@@ -339,7 +337,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                             minWidth: '300px',
                                             position: 'relative',
                                             overflow: 'hidden',
-                                            height: '100%'
+                                            height: '100%',
                                         }}>
                                             {renderGraph()}
                                         </div>
@@ -431,6 +429,23 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                     placement="left"
                                                     overlay={
                                                         <Tooltip id="tooltip-graph">
+                                                            Imprimir
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    <ListGroup.Item
+                                                        action
+                                                        href="#link3"
+                                                        className='graphsMenu'
+                                                        active={false}
+                                                    >
+                                                        <i className="bi bi-printer"></i>
+                                                    </ListGroup.Item>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger
+                                                    placement="left"
+                                                    overlay={
+                                                        <Tooltip id="tooltip-graph">
                                                             Exportar a Excel
                                                         </Tooltip>
                                                     }
@@ -474,6 +489,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                         </div>
                                     </div>
                                     <FuenteDeDatos />
+
                                 </>
 
                             ) : (
