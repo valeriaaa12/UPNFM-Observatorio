@@ -77,22 +77,32 @@ export default function Dashboard() {
             </div>
             <SmallNavBar />
             <ImgOverlay image="images/estadisticas4.jpg" text="Gráficos Estadísticos" bottom={true} />
-            <div className="font fondoGris container-fluid p-4">
-                <div style={{ backgroundColor: "white" }}>
+            {/* Indicadores Educativos - Departamentos */}
+            <div className="font container-fluid fondoGris" style={{ padding: "3%" }}>
+                <div style={{
+                    backgroundColor: "white",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                    borderRadius: "8px",
+                    overflow: "hidden"
+                }}>
+                    <p className="p-3 form-text pb-0">
+                        Indicadores Educativos por Departamento
+                    </p>
                     <Nav
                         variant="tabs"
                         activeKey={activeTab}
                         onSelect={handleTabChange}
+
                     >
                         {tabsConfig.map((tab) => (
-                            <Nav.Item key={tab.id}>
+                            <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
-                                    className="blueText"
                                     style={{
                                         backgroundColor: activeTab === tab.id ? "#f8f9fa" : "white",
                                         fontWeight: activeTab === tab.id ? "bold" : "normal"
                                     }}
+                                    className="orangeText border-bottom"
                                 >
                                     {tab.label}
                                 </Nav.Link>
@@ -108,6 +118,62 @@ export default function Dashboard() {
                             extensionLimits={activeTabConfig.limitsEndpoint}
                         />
                     </div>
+                </div>
+            </div>
+
+            {/* Indicadores Educativos - Municipios */}
+            <div className="font container-fluid fondoGris" style={{ padding: "3%", paddingTop: "0" }}>
+                <div style={{
+                    backgroundColor: "white",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                    borderRadius: "8px",
+                    overflow: "hidden"
+                }}>
+                    <p className="p-3 form-text pb-0">
+                        Indicadores Educativos por Municipio
+                    </p>
+                    <Nav
+                        variant="tabs"
+                        activeKey={activeTab}
+                        onSelect={handleTabChange}
+
+                    >
+                        {tabsConfig.map((tab) => (
+                            <Nav.Item key={tab.id} >
+                                <Nav.Link
+                                    eventKey={tab.id}
+                                    style={{
+                                        backgroundColor: activeTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeTab === tab.id ? "bold" : "normal"
+                                    }}
+                                    className="orangeText border-bottom"
+                                >
+                                    {tab.label}
+                                </Nav.Link>
+                            </Nav.Item>
+                        ))}
+                    </Nav>
+
+                    <div className="mt-3">
+                        <GraphScreen
+                            key={key}
+                            title={t(activeTabConfig.label)}
+                            extensionData={activeTabConfig.dataEndpoint}
+                            extensionLimits={activeTabConfig.limitsEndpoint}
+                        />
+                    </div>
+                </div>
+                <div style={{
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                    color: '#666',
+                    padding: '10px 0',
+                    paddingTop: "3%",
+                    paddingBottom: "0"
+                }}>
+                    © {new Date().getFullYear()} observatorio.upnfm.edu.hn Todos los derechos reservados
+                    <br></br><br></br>
+                    La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.
                 </div>
             </div>
             <Footer />
