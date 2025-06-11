@@ -5,7 +5,7 @@ export default function AprobacionScreen(){
     const { t, i18n } = useTranslation('common');   
     return(<>
         <Client>
-            <MapScreen extensionData="/aprobacion" extensionLimits="/limitesAprobacion" title={t('TasaAprobacion')}></MapScreen>
+            <MapScreen extensionData="/aprobacionFiltro" extensionLimits="/limitesAprobacion" title={t('TasaAprobacion')}></MapScreen>
         </Client>
     </>);
 }

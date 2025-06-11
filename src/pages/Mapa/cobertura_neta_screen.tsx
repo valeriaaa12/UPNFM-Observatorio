@@ -5,7 +5,7 @@ export default function CoberturaNetaScreen(){
     const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/tasaneta" extensionLimits="/limitesTasaNeta" title={t('CoberturaNeta')}></MapScreen>
+        <MapScreen extensionData="/tasanetaFiltro" extensionLimits="/limitesTasaNeta" title={t('CoberturaNeta')}></MapScreen>
         </Client>
     </>);
 }

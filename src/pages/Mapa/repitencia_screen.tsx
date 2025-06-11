@@ -5,7 +5,7 @@ export default function RepitenciaScreen(){
     const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/repitencia" extensionLimits="/limitesRepitencia" title={t('TasaRepitencia')}></MapScreen>
+        <MapScreen extensionData="/repitenciaFiltro" extensionLimits="/limitesRepitencia" title={t('TasaRepitencia')}></MapScreen>
         </Client>
     </>);
 }
