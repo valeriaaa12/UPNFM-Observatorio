@@ -277,10 +277,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
           <span>{red.lowerLimit} - {red.upperLimit}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+        {map != '/others/hn.json' &&<div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-          <span>N/A</span>
-        </div>
+          <span>N/D</span>
+        </div>}
       </div>
     </>);
   }
@@ -412,10 +412,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
             <span>{t("l4")}</span>
           </div>
+          { map != '/others/hn.json' &&
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-            <span>N/A</span>
-          </div>
+            <span>N/D</span>
+          </div>}
         </div>
 
         <div style={{
@@ -457,7 +458,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
                 const dept = departments?.find(
                 (item) => item.name === selectedDept.toLowerCase()
                 );
-                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/A';
+                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
               })()
               }
             </p>
