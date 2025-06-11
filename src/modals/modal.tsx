@@ -13,11 +13,12 @@ function MessageModal({ title, message, footer, show, onHide }: ModalParams) {
   return (
     <div
       className="modal show modal-dialog-cented"
-      style={{ display: 'block', position: 'initial' }}
+      style={{ display: 'block', position: 'initial', zIndex: 1050 }}
     >
       <Modal
         show={show}
         onHide={onHide}
+        style={{ zIndex: 1050 }}
         centered
       >
         <Modal.Header closeButton>

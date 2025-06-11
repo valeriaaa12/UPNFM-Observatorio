@@ -8,7 +8,8 @@ import * as XLSX from 'xlsx';
 
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-
+import MapModal from "@/modals/mapModal";
+import MessageModal from "@/modals/modal";
 //imports needed for map pdf export
 
 
@@ -58,6 +59,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
+  const [show, setShow] = useState(false);
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
     { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
@@ -100,7 +102,6 @@ const exportPDF = async () => {
 
     const legendContainer = document.getElementById('legends-container') as HTMLElement;
     const limitsContainer = document.getElementById('limits-container') as HTMLElement;
-    const infoContainer = document.getElementById('info-container') as HTMLElement;
 
     // hide controls
     const controls = document.querySelectorAll('.leaflet-control-container');
@@ -294,12 +295,7 @@ if (mapa) {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
 
-    if (infoContainer) {
-      const infoClone = infoContainer.cloneNode(true) as HTMLElement;
-      infoClone.style.margin = '10px 0';
-      pdfContainer.appendChild(infoClone);
-    }
-    
+
     // Generate PDF
     const canvas = await html2canvas(pdfContainer, {
   allowTaint: true,
@@ -324,7 +320,7 @@ if (mapa) {
       pdf.addPage()
       pdf.addImage(imgData2, 'PNG', 10, 10, imgWidth2, imgHeight2)
     }
-    const exportName = document.getElementById("Titulo")?.textContent + "_" + level + "_" + selectedYear +".pdf"
+    const exportName = document.getElementById("Titulo")?.textContent +".pdf";
     pdf.save(exportName);
 
  
@@ -344,7 +340,8 @@ const exportExcel = async () =>{
   
   const nombre = (mapaElegido == "Honduras") ? "Departamento" : "Municipio"
 
-  if(!departments){
+  if(!departments || selectedYear == "Ninguno" || level == "Ninguno"){
+    setShow(true);
     return
   }
   
@@ -354,6 +351,7 @@ const exportExcel = async () =>{
     { header: nombre, key: 'name', width: 30 },
     { header: 'Tasa', key : 'value', width: 15 },
     { header: 'Leyenda', key: 'legend', width: 50 },
+    { header: 'Color', key: 'color', width: 30 },
   ]
 
   excelSheet.getRow(1).eachCell((cell) => {
@@ -371,34 +369,35 @@ const exportExcel = async () =>{
       right: {style:'thin'}
     }
   })
-
+  let number = 1;
   departments.forEach((dept) => {
-    excelSheet.addRow({
+    const tempRow = excelSheet.addRow({
       name: capitalizeWords(dept.name),
       value: dept.value + "%",
-      legend: dept.legend
-    });
-  });
+      legend: dept.legend,
+      Color: ""
+    })
 
-  excelSheet.addRow({
-    name : "",
-    value: "",
-    legend: ""
+    const tempCell = tempRow.getCell('color')
+    
+    tempCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: getDeptColor(dept.name).substring(1) },
+    }
+    number++;
   })
+  number+=2;
+  excelSheet.mergeCells(`A${number}:D${number}`);
 
-  excelSheet.addRow({
-    name : "",
-    value: "",
-    legend: ""
-  })
 
-  excelSheet.addRow({
-    name : "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.",
-    value: "",
-    legend: ""
-  })
+  const cell = excelSheet.getCell(`A${number}`);
+  excelSheet.getRow(number).alignment = {wrapText: true, horizontal:'center'}
+  excelSheet.getRow(number).height=100;
+  cell.value= "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
+
   const buffer = await excelFile.xlsx.writeBuffer();
-  const fileName = document.getElementById("Titulo")?.textContent+"_"+level+"_"+selectedYear+".xlsx";
+  const fileName = document.getElementById("Titulo")?.textContent+".xlsx";
   saveAs(new Blob([buffer]), fileName);
 }
 //inicio pruebas exportar pdf
@@ -432,7 +431,7 @@ const getDeptColor = (deptName: string): string => {
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
-
+    
     if (level == "Ninguno" || selectedYear == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
@@ -557,6 +556,7 @@ const getDeptColor = (deptName: string): string => {
           
         </div>
       </div>
+      <MapModal showModal={show} setShowModal={setShow}></MapModal>
     </>
   )
 
