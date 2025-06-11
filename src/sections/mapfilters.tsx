@@ -431,7 +431,7 @@ const getDeptColor = (deptName: string): string => {
       item.message === "Muy lejos de la meta" && item.level === level
     ) ?? fallback;
 
-
+    
     if (level == "Ninguno" || selectedYear == "Ninguno") return '#808080';
     if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
     if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
