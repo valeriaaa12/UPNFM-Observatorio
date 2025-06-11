@@ -136,7 +136,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+     const applyFilters = (data: Department[], year: string, level: string, department: string) => {
         if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
             setFilteredData([]);
             return;
@@ -167,7 +167,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             setShowGraph(department !== "Ninguno" && level !== "Ninguno");
         }
     };
-
     const formatDataForLineGraph = (data: Department[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
@@ -364,6 +363,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         onClick={() => {
                                                             setActiveGraph('bar');
                                                             setActiveFilter('year');
+                                                            setSelectedDepartment("Ninguno"); 
                                                         }}
                                                     >
                                                         <i className="bi bi-bar-chart-line"></i>
@@ -384,6 +384,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         onClick={() => {
                                                             setActiveGraph('line');
                                                             setActiveFilter('department');
+                                                            setSelectedDepartment("Ninguno");
                                                         }}
                                                     >
                                                         <i className="bi bi-graph-up"></i>
@@ -404,6 +405,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         onClick={() => {
                                                             setActiveGraph('pie');
                                                             setActiveFilter('year');
+                                                            setSelectedDepartment("Ninguno");
                                                         }}
                                                     >
 
