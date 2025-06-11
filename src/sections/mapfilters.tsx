@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import MapModal from "@/modals/mapModal";
+import MapModal from "@/modals/mapmodal";
 import MessageModal from "@/modals/modal";
 //imports needed for map pdf export
 

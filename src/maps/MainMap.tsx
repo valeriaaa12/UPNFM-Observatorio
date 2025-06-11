@@ -48,6 +48,8 @@ interface MapParams {
   map: string;
   level: string;
   year: string;
+  filter: string;
+  municipio: string
 }
 
 const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
@@ -67,9 +69,8 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 };
 
 
-const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, filter, municipio }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
-  
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef<L.Map | null>(null); 
@@ -85,36 +86,59 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   };
   //Inicio de pruebas de mapa cargado a backend dinamico
 
-  /*const generateData = async () =>{
-    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/repitenciaFiltro'
+  const generateData = async () =>{
+    if(year == "Ninguno" || level == "Ninguno"){
+      setDepartments([])
+      return
+    }
+    setIsLoading(true);
     
+    let url = process.env.NEXT_PUBLIC_BACKEND_URL + filter
+    
+    if(municipio != "Honduras"){
+      url += "Municipal";
+    }
+    console.log(url);
     const config = {
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
               params:{
+                departamento: municipio.toUpperCase(),
                 anio: year == "Ninguno" ? "2020" : year,
                 nivel: level == "Ninguno" ? "Básica III Ciclo" : level
             }
-    } 
+    }
     //petición a backend
     const response = await axios.get(url, config)
 
     //mapeo a lista temporal
      let tempoDepartments: department[] | null = null;
-    tempoDepartments = response.data.map((item: any) => ({
-          name: item.departamento.toLowerCase(),
-          legend: item.leyenda,
-          value: parseFloat(item.tasa),
-          year: item.periodo_anual,
-          level: item.nivel
-        }));
+    if(municipio === "Honduras"){
+      tempoDepartments = response.data.map((item: any) => ({
+            name: item.departamento.toLowerCase(),
+            legend: item.leyenda,
+            value: parseFloat(item.tasa),
+            year: item.periodo_anual,
+            level: item.nivel
+          }));
+     }else{
+      tempoDepartments = response.data.map((item: any) => ({
+            name: item.municipio.toLowerCase(),
+            legend: item.leyenda,
+            value: parseFloat(item.tasa),
+            year: item.periodo_anual,
+            level: item.nivel
+          }));
+     }
+
     setDepartments(tempoDepartments)
+    setIsLoading(false);
   }
   useEffect(()=>{
 
     generateData();
-  },[year, level])*/
+  },[year, level])
   //fin de pruebas
   const hasZero = () => {
     if (legends?.find((item) => item.lowerLimit == 0) && level != 'Ninguno') {
