@@ -5,14 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { Form } from "react-bootstrap";
 import * as XLSX from 'xlsx';
 
-
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import MapModal from "@/modals/mapModal";
+import MapModal from "@/modals/mapmodal";
 import MessageModal from "@/modals/modal";
 //imports needed for map pdf export
-
-
 
 //pruebas para exportar pdf
 
@@ -125,32 +122,6 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
 
 
 
-      const legendContainer = document.getElementById('legends-container') as HTMLElement;
-      const limitsContainer = document.getElementById('limits-container') as HTMLElement;
-      const infoContainer = document.getElementById('info-container') as HTMLElement;
-
-      // hide controls
-      const controls = document.querySelectorAll('.leaflet-control-container');
-      controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
-
-      // pdf container creation
-      const pdfContainer = document.createElement('div');
-
-      pdfContainer.style.position = 'fixed';
-      pdfContainer.style.left = '-9999px';
-      pdfContainer.style.width = '800px';
-      pdfContainer.style.height = '1100px';
-
-      document.body.appendChild(pdfContainer);
-      const pdfContainer2 = document.createElement('div');
-
-      pdfContainer2.style.position = 'fixed';
-      pdfContainer2.style.right = '-9999px';
-      pdfContainer2.style.width = '800px';
-      pdfContainer2.style.height = '1100px';
-
-
-
       //copying elements to be appended
       const mapClone = mapContainer.cloneNode(true) as HTMLElement;
       const legendClone = legendContainer.cloneNode(true) as HTMLElement;
@@ -179,7 +150,7 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       footer.style.backgroundColor = "#e0e0e0"
       footer.style.borderRadius = '20px'
       footer.style.height = '180px';
-      footer.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
+      footer.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
       footer.style.marginBottom = '100px'
       footer.style.padding = '10px'
       footer.style.borderBottomRightRadius = '20px'
@@ -320,6 +291,8 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       //end map clone
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+
+
       // Generate PDF
       const canvas = await html2canvas(pdfContainer, {
         allowTaint: true,
@@ -347,33 +320,6 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       const exportName = document.getElementById("Titulo")?.textContent + ".pdf";
       pdf.save(exportName);
 
-      // Generate PDF
-      const canvas = await html2canvas(pdfContainer, {
-        allowTaint: true,
-        useCORS: true,
-        scale: 2
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      if (include) {
-        const canvas2 = await html2canvas(pdfContainer2, {
-          allowTaint: true,
-          useCORS: true,
-          scale: 2 // Better quality
-        })
-        const imgData2 = canvas2.toDataURL('image/png');
-        const imgWidth2 = 190;
-        const imgHeight2 = (canvas.height * imgWidth) / canvas.width;
-        pdf.addPage()
-        pdf.addImage(imgData2, 'PNG', 10, 10, imgWidth2, imgHeight2)
-      }
-      const exportName = document.getElementById("Titulo")?.textContent + "_" + level + "_" + selectedYear + ".pdf"
-      pdf.save(exportName);
-
 
       document.body.removeChild(pdfContainer);
       if (include) {
@@ -390,6 +336,7 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const exportExcel = async () => {
 
     const nombre = (mapaElegido == "Honduras") ? "Departamento" : "Municipio"
+
     if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
       setShow(true);
       return
@@ -404,204 +351,211 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       { header: 'Color', key: 'color', width: 30 },
     ]
 
-    if (!departments) {
-      return
-    }
+    excelSheet.getRow(1).eachCell((cell) => {
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.font = { bold: true, size: 12 };
 
-    cell.border = {
-      left: { style: 'thin' },
-      right: { style: 'thin' }
-    }
-  })
-    let number = 1;
-  departments.forEach((dept) => {
-    const tempRow = excelSheet.addRow({
-      name: capitalizeWords(dept.name),
-      value: dept.value + "%",
-      legend: dept.legend,
-      Color: ""
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4472C4' }
+      }
+
+      cell.border = {
+        left: { style: 'thin' },
+        right: { style: 'thin' }
+      }
     })
+    let number = 1;
+    departments.forEach((dept) => {
+      const tempRow = excelSheet.addRow({
+        name: capitalizeWords(dept.name),
+        value: dept.value + "%",
+        legend: dept.legend,
+        Color: ""
+      })
 
-    const tempCell = tempRow.getCell('color')
+      const tempCell = tempRow.getCell('color')
 
-    tempCell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: getDeptColor(dept.name).substring(1) },
-    }
-    number++;
-  })
-  number += 2;
-  excelSheet.mergeCells(`A${number}:D${number}`);
-
-
-  const cell = excelSheet.getCell(`A${number}`);
-  excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
-  excelSheet.getRow(number).height = 100;
-  cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
-
-  const buffer = await excelFile.xlsx.writeBuffer();
-  const fileName = document.getElementById("Titulo")?.textContent + ".xlsx";
-  saveAs(new Blob([buffer]), fileName);
-}
-//inicio pruebas exportar pdf
-const fallback: legend = {
-  level: "",
-  message: "",
-  lowerLimit: 0,
-  upperLimit: 0
-}
-
-const getDeptColor = (deptName: string): string => {
-  const currentDep = departments?.find((item) =>
-    item.name == deptName.toLowerCase()
-  )
-
-  const value = currentDep ? currentDep.value : -1;
-
-  const darkgreen: legend = legends?.find((item) =>
-    item.message === "Mucho mejor que la meta" && item.level === level
-  ) ?? fallback;
-
-  const green: legend = legends?.find((item) =>
-    item.message === "Dentro de la meta" && item.level === level
-  ) ?? fallback;
-
-  const yellow: legend = legends?.find((item) =>
-    item.message === "Lejos de la meta" && item.level === level
-  ) ?? fallback;
-
-  const red: legend = legends?.find((item) =>
-    item.message === "Muy lejos de la meta" && item.level === level
-  ) ?? fallback;
+      tempCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: getDeptColor(dept.name).substring(1) },
+      }
+      number++;
+    })
+    number += 2;
+    excelSheet.mergeCells(`A${number}: D${number}`);
 
 
-  if (level == "Ninguno" || selectedYear == "Ninguno") return '#808080';
-  if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-  if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-  if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
-  if (value == -1) return '#808080'; //gris
-  return '#e41a1c'; //rojo 
-};
+    const cell = excelSheet.getCell(`A${number}`);
+    excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
+    excelSheet.getRow(number).height = 100;
+    cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
 
-//fin pruebas exportar pdf
-const changeValue = (value: string) => {
-  console.clear();
-  setSelect(value)
-  const dept = deptList.find((item) => item.deptName == value)
+    const buffer = await excelFile.xlsx.writeBuffer();
+    const fileName = document.getElementById("Titulo")?.textContent + ".xlsx";
+    saveAs(new Blob([buffer]), fileName);
+  }
 
-  setMapa(dept ? dept.geojson : "/others/hn.json")
-  setMapaElegido(dept ? value : "Honduras")
-  setSelectedYear("Ninguno")
-  setLevel("Ninguno")
-  console.log("value: " + value)
-  console.log("mapa: " + mapa)
-}
-const setValue = () => {
-  const dept = deptList.find((item) => item.geojson == mapa)
-  return dept ? dept.deptName : "Honduras"
-}
-console.log('Current language:', i18n.language);
-return (
-  <>
-    {/* Menú*/}
-    <div style={{
-      width: '250px',
-      backgroundColor: '#f8f9fa',
-      padding: '20px',
-      borderRight: '1px solid #dee2e6',
-      boxShadow: '2px 0 5px rgba(0,0,0,0.1)'
-    }}>
-      <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>{t("OpcionesMapa")}</h2>
+  //inicio pruebas exportar pdf
+  const fallback: legend = {
+    level: "",
+    message: "",
+    lowerLimit: 0,
+    upperLimit: 0
+  }
 
-      {/* Filtros */}
-      <div style={{ marginBottom: '20px' }}>
-        <h4 style={{ marginBottom: '10px' }}>{t("Filtro")}</h4>
-        <div style={{ marginBottom: '10px' }}>
-          <ComboBox
-            title={t("Nivel Educativo")}
-            options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")]}
-            value={level}
-            onChange={setLevel}
-          >
-          </ComboBox>
-        </div>
+  const getDeptColor = (deptName: string): string => {
+    const currentDep = departments?.find((item) =>
+      item.name == deptName.toLowerCase()
+    )
+
+    const value = currentDep ? currentDep.value : -1;
+
+    const darkgreen: legend = legends?.find((item) =>
+      item.message === "Mucho mejor que la meta" && item.level === level
+    ) ?? fallback;
+
+    const green: legend = legends?.find((item) =>
+      item.message === "Dentro de la meta" && item.level === level
+    ) ?? fallback;
+
+    const yellow: legend = legends?.find((item) =>
+      item.message === "Lejos de la meta" && item.level === level
+    ) ?? fallback;
+
+    const red: legend = legends?.find((item) =>
+      item.message === "Muy lejos de la meta" && item.level === level
+    ) ?? fallback;
 
 
-        <div style={{ marginBottom: '10px' }}>
-          <ComboBox
-            title={t("Año")}
-            options={[t("Ninguno"), ...years]}
-            value={selectedYear}
-            onChange={setSelectedYear}>
-          </ComboBox>
-        </div>
+    if (level == "Ninguno" || selectedYear == "Ninguno") return '#808080';
+    if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
+    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
+    if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
+    if (value == -1) return '#808080'; //gris
+    return '#e41a1c'; //rojo 
+  };
 
-        <div style={{ marginBottom: '10px' }}>
-          <ComboBox
-            title={"Mapa Seleccionado"}
-            options={deptNames}
-            value={setValue()}
-            onChange={changeValue}>
-          </ComboBox>
-        </div>
-      </div>
+  //fin pruebas exportar pdf
+  const changeValue = (value: string) => {
+    console.clear();
+    setSelect(value)
+    const dept = deptList.find((item) => item.deptName == value)
 
-      {/* Visualización */}
-      <div style={{ marginBottom: '20px' }}>
-        <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
-        <button style={{
-          width: '100%',
-          padding: '8px',
-          marginBottom: '8px',
-          backgroundColor: '#e9ecef',
-          border: '1px solid #ced4da',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}>
-          {t("ReiniciarVista")}
-        </button>
+    setMapa(dept ? dept.geojson : "/others/hn.json")
+    setMapaElegido(dept ? value : "Honduras")
+    setSelectedYear("Ninguno")
+    setLevel("Ninguno")
+    console.log("value: " + value)
+    console.log("mapa: " + mapa)
+  }
+  const setValue = () => {
+    const dept = deptList.find((item) => item.geojson == mapa)
+    return dept ? dept.deptName : "Honduras"
+  }
+  console.log('Current language:', i18n.language);
+  return (
+    <>
+      {/* Menú*/}
+      <div style={{
+        width: '250px',
+        backgroundColor: '#f8f9fa',
+        padding: '20px',
+        borderRight: '1px solid #dee2e6',
+        boxShadow: '2px 0 5px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>{t("OpcionesMapa")}</h2>
 
-        <button style={{
-          width: '100%',
-          padding: '8px',
-          backgroundColor: '#e9ecef',
-          border: '1px solid #ced4da',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-
-          onClick={() => exportPDF()}>
-          {t("Descargar")}
-        </button>
-
-        <Form>
-          <div key="default-checkbox" style={{ marginTop: '10px' }}>
-            <Form.Check
-              type={"checkbox"}
-              onClick={() => setInclude(!include)}
-              label={`Incluir porcentajes`}
-            />
+        {/* Filtros */}
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ marginBottom: '10px' }}>{t("Filtro")}</h4>
+          <div style={{ marginBottom: '10px' }}>
+            <ComboBox
+              title={t("Nivel Educativo")}
+              options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")]}
+              value={level}
+              onChange={setLevel}
+            >
+            </ComboBox>
           </div>
-        </Form>
 
-        <button style={{
-          width: '100%',
-          padding: '8px',
-          backgroundColor: '#e9ecef',
-          border: '1px solid #ced4da',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
 
-          onClick={() => exportExcel()}>
-          {t("exportExcel")}
-        </button>
+          <div style={{ marginBottom: '10px' }}>
+            <ComboBox
+              title={t("Año")}
+              options={[t("Ninguno"), ...years]}
+              value={selectedYear}
+              onChange={setSelectedYear}>
+            </ComboBox>
+          </div>
 
+          <div style={{ marginBottom: '10px' }}>
+            <ComboBox
+              title={"Mapa Seleccionado"}
+              options={deptNames}
+              value={setValue()}
+              onChange={changeValue}>
+            </ComboBox>
+          </div>
+        </div>
+
+        {/* Visualización */}
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
+          <button style={{
+            width: '100%',
+            padding: '8px',
+            marginBottom: '8px',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            {t("ReiniciarVista")}
+          </button>
+
+          <button style={{
+            width: '100%',
+            padding: '8px',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+
+            onClick={() => exportPDF()}>
+            {t("Descargar")}
+          </button>
+
+          <Form>
+            <div key="default-checkbox" style={{ marginTop: '10px' }}>
+              <Form.Check
+                type={"checkbox"}
+                onClick={() => setInclude(!include)}
+                label={`Incluir porcentajes`}
+              />
+            </div>
+          </Form>
+
+          <button style={{
+            width: '100%',
+            padding: '8px',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+
+            onClick={() => exportExcel()}>
+            {t("exportExcel")}
+          </button>
+
+        </div>
       </div>
-    </div>
-    <MapModal showModal={show} setShowModal={setShow}></MapModal>
-  </>
-)
+      <MapModal showModal={show} setShowModal={setShow}></MapModal>
+    </>
+  )
 
 }
