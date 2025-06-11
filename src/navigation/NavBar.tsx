@@ -132,53 +132,68 @@ export default function NavBar() {
                       }}
                     >
                       <NavDropdown.Item
-                        href="/cobertura_bruta_screen"
+                        href="/Mapa/cobertura_bruta_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Cobertura bruta")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/cobertura_neta_screen"
+                        href="/Mapa/cobertura_neta_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Cobertura neta")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/aprobacion_screen"
+                        href="/Mapa/aprobacion_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Aprobacion")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/desercion_screen"
+                        href="/Mapa/desercion_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Desercion")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/repitencia_screen"
+                        href="/Mapa/repitencia_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Repitencia")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/reprobacion_screen"
+                        href="/Mapa/reprobacion_screen"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Reprobacion")}
                       </NavDropdown.Item>
+
                       <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/dashboard"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Gráficos Estadísticos"}
+                      </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/Graficas/lineGraphScreen"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Line Graph"}
+                      </NavDropdown.Item>
+
                       {user?.admin && (
                         <>
+                          <NavDropdown.Divider />
                           <NavDropdown.Item
                             className='admin-option'
                             href="/uploadExcel"
-
                           >
                             {t("Subir Archivos")}
                           </NavDropdown.Item>
@@ -212,21 +227,21 @@ export default function NavBar() {
                       }}
                     >
                       <NavDropdown.Item
-                        href="/Boletines"
+                        href="/Documentos/Boletines"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Boletines")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Articulos_de_Interes"
+                        href="/Documentos/Articulos_de_Interes"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("Artículos")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
-                        href="/Datos_Municipales"
+                        href="/Documentos/Datos_Municipales"
                         style={{ whiteSpace: 'normal' }}
                       >
                         {t("DatosMunicipales")}
