@@ -47,24 +47,8 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const [years, setYears] = useState<string[]>([]);
   const [mapaElegido, setMapaElegido] = useState("Honduras");
   const [mapa, setMapa] = useState("/others/hn.json");
-
-  const mapRef = useRef<HTMLDivElement>(null);
-  const exportRef = useRef<HTMLDivElement>(null);
-
-  const exportMapAsImage = async () => {
-    if (!exportRef.current) return;
-
-    const canvas = await html2canvas(exportRef.current, {
-      useCORS: true,
-      scale: 2,
-      backgroundColor: "white"
-    });
-
-    const link = document.createElement("a");
-    link.download = `${title.replace(/\s+/g, "_")}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
+  const leafletMapRef = useRef<L.Map | null>(null); // para Leaflet
+  const exportRef = useRef<HTMLDivElement | null>(null); // para html2canvas  
 
   //metodo de mapeo
   const mapData = async () => {
@@ -166,55 +150,57 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const { t } = useTranslation('common');
 
   return (
-    <Client>
-      <div className="font">
-        <div className="blue blueNavbar">
-          <NavBar />
-          <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
-        </div>
-        <SmallNavBar />
-        {loading ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+    <div className="d-flex flex-column flex-md-row w-100" style={{ minHeight: '100vh' }}>
+      <Client>
+        <div className="font">
+          <div className="blue blueNavbar">
+            <NavBar />
+            <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
           </div>
-        ) : (
-          <div className="d-flex flex-column flex-md-row w-100 vh-100">
-            {/* Menu */}
-            <MapFilters
-              mapaElegido={mapaElegido}
-              setMapaElegido={setMapaElegido}
-              selectedYear={selectedYear}
-              setSelectedYear={setSelectedYear}
-              level={level}
-              setLevel={setLevel}
-              years={years}
-              mapa={mapa}
-              setMapa={setMapa}
-              departments={filteredDepartments}
-              legends={legends}
-              onPrint={exportMapAsImage}
-            />
-
-            {/* Mapa */}
-            <div className="flex-grow-1 position-relative">
-              <MainMap
+          <SmallNavBar />
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="d-flex flex-column flex-md-row w-100 vh-100">
+              {/* Menu */}
+              <MapFilters
+                mapaElegido={mapaElegido}
+                setMapaElegido={setMapaElegido}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
                 level={level}
-                map={mapa}
-                title={title}
-                year={selectedYear}
+                setLevel={setLevel}
+                years={years}
+                mapa={mapa}
+                setMapa={setMapa}
                 departments={filteredDepartments}
-                setDepartments={setFilteredDepartments}
                 legends={legends}
-                setLegends={setLegends}
-                mapRef={exportRef}
               />
+
+              {/* Mapa */}
+              <div className="flex-grow-1 position-relative">
+                <MainMap
+                  level={level}
+                  map={mapa}
+                  title={title}
+                  year={selectedYear}
+                  departments={filteredDepartments}
+                  setDepartments={setFilteredDepartments}
+                  legends={legends}
+                  setLegends={setLegends}
+                  mapRef={leafletMapRef}
+                  exportContainerRef={exportRef}
+                />
+              </div>
             </div>
-          </div>
-        )}
-        <LanguageSelector />
-      </div>
-    </Client>
+          )}
+          <LanguageSelector />
+        </div>
+      </Client>
+    </div>
   );
 }

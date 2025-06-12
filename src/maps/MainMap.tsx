@@ -4,10 +4,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject, Geometry } from 'geojson';
 import { useTranslation } from 'react-i18next';
-import html2canvas from 'html2canvas';
-import axios from 'axios';
-import LanguageSelector from "@/buttons/LanguageSelector";
-'@/components/FuenteDeDatos';
 
 //mapeo de datos
 interface department {
@@ -49,7 +45,8 @@ interface MapParams {
   map: string;
   level: string;
   year: string;
-  mapRef: React.RefObject<HTMLDivElement | null>;
+  mapRef: React.RefObject<L.Map | null>; // ref para controlar el mapa Leaflet
+  exportContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
@@ -62,37 +59,25 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
   };
 
   useEffect(() => {
-    if (!geoData || fittedRef.current || !Array.isArray(geoData.features)) return;
-
-    const validFeatures = geoData.features.filter((f) => isValidLatLng(f.geometry));
-    if (validFeatures.length === 0) return;
-
-    try {
-      const layer = L.geoJSON({
-        type: 'FeatureCollection',
-        features: validFeatures
-      } as FeatureCollection);
-
-      const bounds = layer.getBounds();
-
-      if (!bounds.isValid() || [bounds.getNorth(), bounds.getSouth(), bounds.getEast(), bounds.getWest()].some(isNaN)) return;
-
+    if (geoData && !fittedRef.current) {
+      const bounds = L.geoJSON(geoData).getBounds();
       map.fitBounds(bounds, { padding: [50, 50] });
       fittedRef.current = true;
-    } catch (err) {
-      console.error("Error en fitBounds:", err);
+
+      return () => {
+        fittedRef.current = true;
+      };
     }
   }, [geoData, map]);
 
   return null;
 };
 
-const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, mapRef }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, mapRef, exportContainerRef }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<L.Map | null>(null);
 
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
@@ -324,13 +309,14 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
   return (
     <div
+      ref={exportContainerRef} // ✅ este es el div que se exportará como PNG
+      id="map-export-container"
       style={{
         position: 'relative',
+        height: '100vh',
         width: '100%',
-        height: '100%',
-        backgroundColor: 'white',
-      }}
-    >
+        backgroundColor: 'white'
+      }}>
       {/* Spinner de carga */}
       {isLoading && (
         <div style={{
@@ -353,41 +339,53 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       )}
 
       {/* Título*/}
-      <div ref={mapRef}>
-        <div style={{ padding: '12px 20px', backgroundColor: '#2c3e50', color: 'white', textAlign: 'center' }}>
-          <h2 style={{ margin: 0 }}>{title}</h2>
-          <p style={{ margin: 0 }}>{t("Nivel Educativo")}: {level}</p>
-          <p style={{ margin: 0 }}>{t("Año")}: {year}</p>
-        </div>
-        <div id="map-container" style={{ width: '100%', height: '100%' }}>
-          <MapContainer //cambie algo aqui
-            center={[14.8, -86.8]}
-            zoom={7}
-            style={{
-              height: '100%',
-              width: '100%',
-              backgroundColor: 'white'
-            }}
-            minZoom={6}
-            maxBounds={L.latLngBounds(
-              L.latLng(12.98, -89.36),
-              L.latLng(16.51, -83.12)
-            )} //aqui termino
-          >
-            {geoData && (
-              <GeoJSON
-                data={geoData}
-                style={deptStyle}
-                onEachFeature={onEachDepartment}
-                ref={geoJsonLayerRef}
-              />
-            )}
-            {geoData && geoData.features?.length > 0 && (
-              <FitBounds geoData={geoData} />
-            )}
+      <div style={{
+        padding: '12px 20px',
+        backgroundColor: '#2c3e50',
+        color: 'white',
+        textAlign: 'center',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{
+          margin: 0,
+          fontSize: '1.4rem',
+          fontWeight: '500'
+        }}>
+          {title}
+        </h2>
+      </div>
+      <div style={{
+        height: 'calc(100vh - 120px)',
+        width: '100%',
+        position: 'relative'
+      }}>
 
-          </MapContainer>
-        </div>
+        <MapContainer
+          center={[14.8, -86.8]}
+          zoom={7}
+          ref={mapRef}
+          style={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: 'white'
+          }}
+          minZoom={6}
+          maxBounds={L.latLngBounds(
+            L.latLng(12.98, -89.36),
+            L.latLng(16.51, -83.12)
+          )}
+        >
+          {geoData && (
+            <GeoJSON
+              data={geoData}
+              style={deptStyle}
+              onEachFeature={onEachDepartment}
+              ref={geoJsonLayerRef}
+            />
+          )}
+
+          <FitBounds geoData={geoData} />
+        </MapContainer>
 
         {/* Limites */}
         {limites()}
@@ -430,15 +428,14 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         </div>
 
         <div style={{
-          position: 'absolute',
-          bottom: '5px',
-          left: 0,
-          right: 0,
+          position: 'relative', // ya no fixed
+          marginTop: '20px',
+          padding: '12px',
           textAlign: 'center',
           fontSize: '0.8rem',
           color: '#666',
-          zIndex: 1000,
-          padding: '2px 0'
+          backgroundColor: 'white',
+          borderTop: '1px solid #ccc'
         }}>
           Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
           <br></br>
