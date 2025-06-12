@@ -60,6 +60,7 @@ export default function MapFilters({mapaElegido, setMapaElegido, level, setLevel
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
   const [show, setShow] = useState(false);
+
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
     { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
@@ -93,6 +94,11 @@ const capitalizeWords = (str: string) => {
 const exportPDF = async () => {
   try{
     if (typeof window === 'undefined' || !document) return;
+    if(!departments || selectedYear == "Ninguno" || level == "Ninguno"){
+    setShow(true);
+    return
+  }
+  
     const mapContainer = document.createElement("div");
     mapContainer.id = "map-container";
     const L = (await import('leaflet')).default;
@@ -556,6 +562,7 @@ const getDeptColor = (deptName: string): string => {
           
         </div>
       </div>
+      
       <MapModal showModal={show} setShowModal={setShow}></MapModal>
     </>
   )
