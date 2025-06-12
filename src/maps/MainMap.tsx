@@ -61,10 +61,11 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
       
       const bounds = L.geoJSON(geoData).getBounds();
       map.fitBounds(bounds, { padding: [50, 50],animate: true });
-      if(map.getZoom()< 7.5){
-        map.setZoom(7.5);
-      }
-
+      setTimeout(() => {
+        if (map.getZoom() < 7) { 
+          map.setZoom(7);
+        }
+      }, 500);
       fittedRef.current = true;
     }
   }, [geoData, map]);
@@ -383,15 +384,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         <MapContainer
           className='map-container'
           center={mapCenter}
-          
-          minZoom ={6}
           zoom={7}
           style={{
             height: '100%',
             width: '100%',
             backgroundColor: 'white',
           }}
-          
+          minZoom={6}
           maxBounds={L.geoJSON(geoData).getBounds()}
            
         >
@@ -405,7 +404,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             />
           )}
 
-          <FitBounds geoData={geoData} /> 
+          <FitBounds geoData={geoData} />
         </MapContainer>
 
         {/* Limites */}
