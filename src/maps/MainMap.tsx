@@ -45,6 +45,8 @@ interface MapParams {
   map: string;
   level: string;
   year: string;
+  filter: string;
+  municipio: string
   mapRef: React.RefObject<L.Map | null>; // ref para controlar el mapa Leaflet
   exportContainerRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -61,7 +63,12 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
   useEffect(() => {
     if (geoData && !fittedRef.current) {
       const bounds = L.geoJSON(geoData).getBounds();
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [50, 50], animate: true });
+      setTimeout(() => {
+        if (map.getZoom() < 7) {
+          map.setZoom(7);
+        }
+      }, 500);
       fittedRef.current = true;
 
       return () => {
@@ -73,9 +80,8 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
   return null;
 };
 
-const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, mapRef, exportContainerRef }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, filter, municipio, mapRef, exportContainerRef }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
-
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -90,36 +96,66 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   };
   //Inicio de pruebas de mapa cargado a backend dinamico
 
-  /*const generateData = async () =>{
-    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/repitenciaFiltro'
-    
-    const config = {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              params:{
-                anio: year == "Ninguno" ? "2020" : year,
-                nivel: level == "Ninguno" ? "Básica III Ciclo" : level
-            }
-    } 
-    //petición a backend
-    const response = await axios.get(url, config)
+  const generateData = async () => {
+    if (year == "Ninguno" || level == "Ninguno") {
+      setDepartments([])
+      return
+    }
+    setIsLoading(true);
+    try {
+      let url = process.env.NEXT_PUBLIC_BACKEND_URL + filter
 
-    //mapeo a lista temporal
-     let tempoDepartments: department[] | null = null;
-    tempoDepartments = response.data.map((item: any) => ({
+      if (municipio != "Honduras") {
+        url += "Municipal";
+      }
+      console.log(url);
+      const config = {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        params: {
+          departamento: municipio.toUpperCase(),
+          anio: year == "Ninguno" ? "2020" : year,
+          nivel: level == "Ninguno" ? "Básica III Ciclo" : level
+        }
+      }
+      //petición a backend
+      const response = await axios.get(url, config)
+
+      //mapeo a lista temporal
+      let tempoDepartments: department[] | null = null;
+      if (municipio === "Honduras") {
+        tempoDepartments = response.data.map((item: any) => ({
           name: item.departamento.toLowerCase(),
           legend: item.leyenda,
           value: parseFloat(item.tasa),
           year: item.periodo_anual,
           level: item.nivel
         }));
-    setDepartments(tempoDepartments)
+      } else {
+        tempoDepartments = response.data.map((item: any) => ({
+          name: item.municipio.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+      }
+
+      setDepartments(tempoDepartments)
+
+      setIsLoading(false);
+    } catch (error) {
+      setTimeout(() => {
+        generateData();
+      }, 3000);
+    }
+
   }
-  useEffect(()=>{
+  useEffect(() => {
 
     generateData();
-  },[year, level])*/
+  }, [year, level])
   //fin de pruebas
   const hasZero = () => {
     if (legends?.find((item) => item.lowerLimit == 0) && level != 'Ninguno') {
@@ -282,10 +318,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
           <span>{red.lowerLimit} - {red.upperLimit}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+        {map != '/others/hn.json' && <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-          <span>N/A</span>
-        </div>
+          <span>N/D</span>
+        </div>}
       </div>
     </>);
   }
@@ -421,10 +457,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
             <span>{t("l4")}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-            <span>N/A</span>
-          </div>
+          {map != '/others/hn.json' &&
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+              <span>N/D</span>
+            </div>}
         </div>
 
         <div style={{
@@ -465,7 +502,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
                   const dept = departments?.find(
                     (item) => item.name === selectedDept.toLowerCase()
                   );
-                  return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/A';
+                  return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
                 })()
               }
             </p>

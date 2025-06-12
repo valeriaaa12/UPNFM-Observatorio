@@ -40,7 +40,7 @@ interface legend {
 export default function MapScreen({ title, extensionData, extensionLimits }: params) {
   const [selectedYear, setSelectedYear] = useState("Ninguno");
   const [level, setLevel] = useState("Ninguno")
-  const [departments, setDepartments] = useState<department[] | null>(null);
+
   const [filteredDepartments, setFilteredDepartments] = useState<department[] | null>(null);
   const [legends, setLegends] = useState<legend[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -81,35 +81,18 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
       //años
       const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
 
-      const [response, response2, response3] = await Promise.all([
+      /*const [response, response2, response3] = await Promise.all([
         axios.get(url, config),
         axios.get(url2, config),
         axios.get(BACKEND + '/periodosAnuales')
+      ]);*/
+      const [response2, response3] = await Promise.all([
+        axios.get(url2, config),
+        axios.get(BACKEND + '/periodosAnuales')
       ]);
-
       let tempoDepartments: department[] | null = null;
 
-      if (mapaElegido === "Honduras") {
-        //mapa base de honduras
-        tempoDepartments = response.data.map((item: any) => ({
-          name: item.departamento.toLowerCase(),
-          legend: item.leyenda,
-          value: parseFloat(item.tasa),
-          year: item.periodo_anual,
-          level: item.nivel
-        }));
-      } else {
-        console.log(response)
-        //mapa municipal
-        tempoDepartments = response.data.map((item: any) => ({
-          name: item.municipio.toLowerCase(),
-          legend: item.leyenda,
-          value: parseFloat(item.tasa),
-          year: item.periodo_anual,
-          level: item.nivel
-        }));
-        console.log(tempoDepartments)
-      }
+
 
 
       const tempoLegends: legend[] = response2.data.map((item: any) => ({
@@ -122,30 +105,33 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
 
       setYears(response3.data);
       setLegends(tempoLegends)
-      setDepartments(tempoDepartments)
-      filterData();
+      /*setDepartments(tempoDepartments)
+      filterData()*/;
       setLoading(false);
-    } catch (error: unknown) {
-      mapData();
+    } catch (error) {
+      setTimeout(() => {
+        mapData();
+      }, 3000);
+
     }
   }
 
-  const filterData = async () => {
+  /*const filterData = async () => {
     const filtered = departments?.filter(
       (item) => item.year == selectedYear && item.level == level
     ) ?? null;
     await setFilteredDepartments(filtered)
 
-  }
+  }*/
 
   //useStated necesarios
   useEffect(() => {
     mapData()
   }, [mapaElegido])
 
-  useEffect(() => {
+  /*useEffect(() => {
     filterData()
-  }, [selectedYear, level])
+  }, [selectedYear, level])*/
 
   const { t } = useTranslation('common');
 
@@ -192,6 +178,8 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
                   setDepartments={setFilteredDepartments}
                   legends={legends}
                   setLegends={setLegends}
+                  filter={extensionData}
+                  municipio={mapaElegido}
                   mapRef={leafletMapRef}
                   exportContainerRef={exportRef}
                 />
