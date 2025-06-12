@@ -7,7 +7,6 @@ import Client from '@/components/client';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
-import LineGraphScreen from "../screens/linegraphscreen2";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
@@ -60,152 +59,143 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
-    const exportExcel = async () =>{
-      
-      const nombre = "Departamentos"
-    
-      if(!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno"){
 
-        return
-      }
-      
-      const excelFile = new ExcelJS.Workbook();
-      const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
-      if(activeGraph !== 'line') {
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Color', key: 'color', width: 30 },
-                  
-        ]
-    }else{
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Año', key: 'año', width: 15 },
-            { header: 'Color', key: 'color', width: 30 },
-            
-                  
-        ]
-    }
-      excelSheet.getRow(1).eachCell((cell) => {
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.font = {bold: true, size: 12};
-      
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid', 
-          fgColor: { argb: '4472C4' } 
+    const exportExcel = async () => {
+        const nombre = "Departamentos"
+
+        if (!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
+            return
         }
-        
-        cell.border = {
-          left: {style:'thin'},
-          right: {style:'thin'}
+
+        const excelFile = new ExcelJS.Workbook();
+        const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
+        if (activeGraph !== 'line') {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Color', key: 'color', width: 30 },
+
+            ]
+        } else {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Año', key: 'año', width: 15 },
+                { header: 'Color', key: 'color', width: 30 },
+            ]
         }
-      })
-      let number = 1;
-      filteredData.forEach((dept) => {
-        if(activeGraph !== 'line') {
-            const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value + "%",
-            legend: dept.legend,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getDeptColor(dept.name).substring(1) },
+        excelSheet.getRow(1).eachCell((cell) => {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.font = { bold: true, size: 12 };
+
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '4472C4' }
             }
-        }else{
-             const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value + "%",
-            legend: dept.legend,
-            año: dept.year,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getDeptColor(dept.name, dept.year).substring(1) },
+
+            cell.border = {
+                left: { style: 'thin' },
+                right: { style: 'thin' }
             }
+        })
+        let number = 1;
+        filteredData.forEach((dept) => {
+            if (activeGraph !== 'line') {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getDeptColor(dept.name).substring(1) },
+                }
+            } else {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    año: dept.year,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getDeptColor(dept.name, dept.year).substring(1) },
+                }
+            }
+            number++;
+        })
+        number += 2;
+        excelSheet.mergeCells(`A${number}:D${number}`);
+
+        const cell = excelSheet.getCell(`A${number}`);
+        excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
+        excelSheet.getRow(number).height = 100;
+        cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
+
+        const buffer = await excelFile.xlsx.writeBuffer();
+        let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
+        if (activeGraph === 'line') {
+            fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
         }
-        number++;
-      })
-      number+=2;
-      excelSheet.mergeCells(`A${number}:D${number}`);
-    
-    
-      const cell = excelSheet.getCell(`A${number}`);
-      excelSheet.getRow(number).alignment = {wrapText: true, horizontal:'center'}
-      excelSheet.getRow(number).height=100;
-      cell.value= "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
-    
-      const buffer = await excelFile.xlsx.writeBuffer();
-      let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      if(activeGraph === 'line') {
-        fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      }
-      saveAs(new Blob([buffer]), fileName);
+        saveAs(new Blob([buffer]), fileName);
     }
     const fallback: Legend = {
-    level: "",
-    message: "",
-    lowerLimit: 0,
-    upperLimit: 0,
-    color: "#FFFFFF"
-  }
-    const getDeptColor = (deptName: string, year?: string): string => {
-    
-    let currentDep = filteredData?.find((item) =>
-      item.name.toLowerCase() == deptName.toLowerCase()
-    )
-    if(activeGraph === 'line') {
-        currentDep = filteredData?.find((item) =>
-            item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
-        );
+        level: "",
+        message: "",
+        lowerLimit: 0,
+        upperLimit: 0,
+        color: "#FFFFFF"
     }
-   
-   
-    const value = currentDep? currentDep.value : -1;
-    
-    const darkgreen: Legend = legends?.find((item) =>
-      item.message === "Mucho mejor que la meta" && item.level === selectedLevel
-    ) ?? fallback;
-    
-    const green: Legend = legends?.find((item) =>
-      item.message === "Dentro de la meta" && item.level === selectedLevel
-    ) ?? fallback;
 
-    const yellow: Legend = legends?.find((item) =>
-      item.message === "Lejos de la meta" && item.level === selectedLevel
-    ) ?? fallback;
+    const getDeptColor = (deptName: string, year?: string): string => {
+        let currentDep = filteredData?.find((item) =>
+            item.name.toLowerCase() == deptName.toLowerCase()
+        )
+        if (activeGraph === 'line') {
+            currentDep = filteredData?.find((item) =>
+                item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
+            );
+        }
 
-    const red: Legend = legends?.find((item) =>
-      item.message === "Muy lejos de la meta" && item.level === selectedLevel
-    ) ?? fallback;
+        const value = currentDep ? currentDep.value : -1;
 
-    console.log("yellow: "+ yellow.lowerLimit + " " + yellow.upperLimit)
+        const darkgreen: Legend = legends?.find((item) =>
+            item.message === "Mucho mejor que la meta" && item.level === selectedLevel
+        ) ?? fallback;
 
-    console.log("green: "+ green.lowerLimit + " " + green.upperLimit)
-    console.log("value: " +value)
-    if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
-    if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-    if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
-    if (value == -1) return '#808080'; //gris
-    return '#e41a1c'; //rojo 
-};
-    
+        const green: Legend = legends?.find((item) =>
+            item.message === "Dentro de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        const yellow: Legend = legends?.find((item) =>
+            item.message === "Lejos de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        const red: Legend = legends?.find((item) =>
+            item.message === "Muy lejos de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
+        if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
+        if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
+        if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
+        if (value == -1) return '#808080'; //gris
+        return '#e41a1c'; //rojo 
+    };
+
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
@@ -282,7 +272,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-     const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
         if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
             setFilteredData([]);
             return;
@@ -313,6 +303,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             setShowGraph(department !== "Ninguno" && level !== "Ninguno");
         }
     };
+
     const formatDataForLineGraph = (data: Department[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
@@ -508,7 +499,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         onClick={() => {
                                                             setActiveGraph('bar');
                                                             setActiveFilter('year');
-                                                            setSelectedDepartment("Ninguno"); 
+                                                            setSelectedDepartment("Ninguno");
                                                         }}
                                                     >
                                                         <i className="bi bi-bar-chart-line"></i>
@@ -598,7 +589,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             Exportar a Excel
                                                         </Tooltip>
                                                     }
-                                                    
+
                                                 >
                                                     <ListGroup.Item
                                                         action
@@ -608,8 +599,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         active={false}
                                                         onMouseEnter={() => setIsHovered(true)}
                                                         onMouseLeave={() => setIsHovered(false)}
-                                                        onClick={()=>exportExcel()}
-                                                    >   
+                                                        onClick={() => exportExcel()}
+                                                    >
                                                         <img
                                                             src={isHovered ? "images/excel1.png" : "images/excel2.png"}
                                                             alt="Excel"
