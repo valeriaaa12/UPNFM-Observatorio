@@ -6,7 +6,7 @@ export default function ReprobacionScreen(){
     const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-            <MapScreen extensionData="/reprobacion" extensionLimits="/limitesReprobacion" title={t('TasaReprobacion')}></MapScreen>
+            <MapScreen extensionData="/reprobacionFiltro" extensionLimits="/limitesReprobacion" title={t('TasaReprobacion')}></MapScreen>
         </Client>
     </>);
 }

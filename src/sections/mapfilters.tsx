@@ -57,6 +57,7 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
   const [show, setShow] = useState(false);
+
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
     { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
@@ -90,6 +91,11 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const exportPDF = async () => {
     try {
       if (typeof window === 'undefined' || !document) return;
+      if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
+        setShow(true);
+        return
+      }
+
       const mapContainer = document.createElement("div");
       mapContainer.id = "map-container";
       const L = (await import('leaflet')).default;
@@ -119,8 +125,6 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       pdfContainer2.style.right = '-9999px';
       pdfContainer2.style.width = '800px';
       pdfContainer2.style.height = '1100px';
-
-
 
       //copying elements to be appended
       const mapClone = mapContainer.cloneNode(true) as HTMLElement;
@@ -554,6 +558,7 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
 
         </div>
       </div>
+
       <MapModal showModal={show} setShowModal={setShow}></MapModal>
     </>
   )
