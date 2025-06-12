@@ -97,7 +97,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       return
     }
     setIsLoading(true);
-    
+    try{
     let url = process.env.NEXT_PUBLIC_BACKEND_URL + filter
     
     if(municipio != "Honduras"){
@@ -138,7 +138,14 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
      }
 
     setDepartments(tempoDepartments)
+     
     setIsLoading(false);
+    }catch (error){
+        setTimeout(() => {
+          generateData();
+        }, 3000);
+    }
+
   }
   useEffect(()=>{
 
