@@ -12,7 +12,7 @@ export default function CoberturaBrutaScreen(){
    const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/tasabruta" extensionLimits="/limitesTasaBruta" title={t('CoberturaBruta')}></MapScreen>
+        <MapScreen extensionData="/tasabrutaFiltro" extensionLimits="/limitesTasaBruta" title={t('CoberturaBruta')}></MapScreen>
         </Client>
     </>);
 }

@@ -5,7 +5,7 @@ export default function DesercionScreen(){
     const { t, i18n } = useTranslation('common');
     return(<>
         <Client>
-        <MapScreen extensionData="/desercion" extensionLimits="/limitesDesercion" title={t('TasaDesercion')}></MapScreen>
+        <MapScreen extensionData="/desercionFiltro" extensionLimits="/limitesDesercion" title={t('TasaDesercion')}></MapScreen>
         </Client>
     </>);
 }
