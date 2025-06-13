@@ -9,6 +9,8 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import Form from 'react-bootstrap/Form';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
@@ -34,6 +36,7 @@ interface Params {
     title: string;
     extensionData: string;
     extensionLimits: string;
+    comparison: boolean;
 }
 
 interface Legend {
@@ -44,26 +47,30 @@ interface Legend {
     color: string;
 }
 
-export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
+export default function GraphScreen({ title, extensionData, extensionLimits, comparison }: Params) {
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
-    const [departments, setDepartments] = useState<Department[]>([]);
+    const [departmentsData, setDepartmentsData] = useState<Department[]>([]);
     const [filteredData, setFilteredData] = useState<Department[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState<string[]>([]);
     const { t } = useTranslation('common');
     const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
+    const departments = ["Atlántida", "Choluteca", "Colón", "Comayagua", "Copán", "Cortés", "El Paraíso",
+        "Francisco Morazán", "Gracias a Dios", "Intibucá", "Islas de la Bahía", "La Paz", "Lempira",
+        "Ocotepeque", "Olancho", "Santa Bárbara", "Valle", "Yoro"];
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
+    const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
 
     const exportExcel = async () => {
         const nombre = "Departamentos"
 
-        if (!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
+        if (!departmentsData || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
             return
         }
 
@@ -233,18 +240,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         try {
             const config = {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                     'Accept': 'application/json'
                 }
             };
 
-            const [data, legends, years] = await Promise.all([
+            const [data, legends] = await Promise.all([
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
-                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config),
-                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
+                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
 
-            const departmentsData: Department[] = data.data.map((item: any) => ({
+            const departmentsData2: Department[] = data.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento.toLowerCase()),
                 legend: item.leyenda,
                 value: parseFloat(item.tasa) || 0,
@@ -261,12 +267,50 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
-            setDepartments(departmentsData);
+            setDepartmentsData(departmentsData2);
             setLegends(legendsWithColors);
-            setYears(years.data);
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const postComparison = async () => {
+        setLoading(true);
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+
+            if (departments.length > 0) {
+                const departmentsUpper = departments.map(dep => dep.toUpperCase());
+
+                console.log("departmentsUpper", departmentsUpper);
+
+                const [data] = await Promise.all([
+                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
+                        nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
+                    }, config)
+                ]);
+
+                const departmentsData2: Department[] = data.data.map((item: any) => ({
+                    name: capitalizeWords(item.departamento.toLowerCase()),
+                    legend: item.leyenda,
+                    value: parseFloat(item.tasa) || 0,
+                    year: selectedYear,
+                    level: selectedLevel
+                }));
+
+                setDepartmentsData(departmentsData2);
+                applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+            }
+        } catch (error) {
+            console.error("Error posting data:", error);
         } finally {
             setLoading(false);
         }
@@ -316,14 +360,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     };
 
     useEffect(() => {
-        fetchData();
+        getYears();
+        if (!comparison) {
+            fetchData();
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
-        if (departments.length > 0) {
-            applyFilters(departments, selectedYear, selectedLevel, selectedDepartment);
+        if (departmentsData.length > 0) {
+            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
         }
-    }, [selectedYear, selectedLevel, selectedDepartment, departments]);
+    }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
 
     const renderGraph = () => {
         if (activeGraph === 'bar') {
@@ -404,12 +453,38 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                     >
                         <option value="Ninguno">{t("Ninguno")}</option>
-                        {[...new Set(departments.map(d => d.name))].sort().map(dep => (
-                            <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
+                        {departments.map((department, index) => (
+                            <option key={index} value={department}>
+                                {department}
+                            </option>
                         ))}
                     </select>
                 </div >
             )
+        }
+    }
+
+    const handleCheck = (dept: string) => {
+        setSelectedDepartments((prev: string[]) =>
+            prev.includes(dept)
+                ? prev.filter((d: string) => d !== dept)
+                : [...prev, dept]
+        );
+    };
+
+    const getYears = async () => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+            };
+
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config);
+            setYears(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
         }
     }
 
@@ -443,7 +518,67 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                     ))}
                                 </select>
                             </div>
-                            {renderFilter()}
+                            {/* Filtros de comparacion */}
+                            {comparison ? (
+                                <>
+                                    {/* Año */}
+                                    <div style={{ flex: 1, minWidth: '220px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                            {t("Año")}:
+                                        </label>
+                                        <select
+                                            value={selectedYear}
+                                            onChange={(e) => setSelectedYear(e.target.value)}
+                                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                        >
+                                            <option value="Ninguno">{t("Ninguno")}</option>
+                                            {years.map(year => (
+                                                <option key={year} value={year}>
+                                                    {year}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {/* Departamento */}
+                                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                        <Dropdown autoClose={false}>
+                                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                                                {t("Departamento")}
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                                                {departments.map((dept) => (
+                                                    <Dropdown.Item
+                                                        key={dept}
+                                                        as="div"
+                                                        className="px-2"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            id={`dept-${dept}`}
+                                                            label={dept}
+                                                            checked={selectedDepartments.includes(dept)}
+                                                            onChange={() => handleCheck(dept)}
+                                                        />
+                                                    </Dropdown.Item>
+                                                ))}
+                                                <Dropdown.Divider />
+                                                <div className="d-flex px-2 py-1 justify-content-end ">
+                                                    <button
+                                                        className="btn btn-blue"
+                                                        onClick={postComparison}
+                                                        type="button"
+                                                    >
+                                                        Graficar
+                                                    </button>
+                                                </div>
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </div>
+                                </>
+                            ) : (
+                                renderFilter()
+                            )}
                         </div>
 
                         <h2 style={{ marginBottom: '20px' }}>

@@ -11,10 +11,12 @@ import GraphScreen from "../screens/graphscreen";
 
 export default function Dashboard() {
     const { t } = useTranslation('common');
-    const [activeTab, setActiveTab] = useState("coberturaBruta");
+    const [activeDepaTab, setDepaActiveTab] = useState("coberturaBruta");
+    const [activeMuniTab, setMuniActiveTab] = useState("coberturaBruta");
+    const [activeCompDepaTab, setCompDepaActiveTab] = useState("coberturaBruta");
     const [key, setKey] = useState(0);
 
-    const tabsConfig = [
+    const depaTabsConfig = [
         {
             id: "coberturaBruta",
             label: "Cobertura (Tasa Bruta)",
@@ -59,12 +61,107 @@ export default function Dashboard() {
         }
     ];
 
-    const activeTabConfig = tabsConfig.find(tab => tab.id === activeTab) || tabsConfig[0];
+    const activeDepaTabConfig = depaTabsConfig.find(tab => tab.id === activeDepaTab) || depaTabsConfig[0];
+
+    const muniTabsConfig = [
+        {
+            id: "coberturaBruta",
+            label: "Cobertura (Tasa Bruta)",
+            dataEndpoint: "/tasabruta",
+            limitsEndpoint: "/limitesTasaBruta",
+            titleKey: "TasaBruta"
+        },
+        {
+            id: "coberturaNeta",
+            label: "Cobertura (Tasa Neta)",
+            dataEndpoint: "/tasaneta",
+            limitsEndpoint: "/limitesTasaNeta",
+            titleKey: "TasaNeta"
+        },
+        {
+            id: "aprobacion",
+            label: "Aprobación",
+            dataEndpoint: "/aprobacion",
+            limitsEndpoint: "/limitesAprobacion",
+            titleKey: "Aprobacion"
+        },
+        {
+            id: "desercion",
+            label: "Deserción",
+            dataEndpoint: "/desercion",
+            limitsEndpoint: "/limitesDesercion",
+            titleKey: "Desercion"
+        },
+        {
+            id: "repitencia",
+            label: "Repitencia",
+            dataEndpoint: "/repitencia",
+            limitsEndpoint: "/limitesRepitencia",
+            titleKey: "Repitencia"
+        },
+        {
+            id: "reprobacion",
+            label: "Reprobación",
+            dataEndpoint: "/reprobacion",
+            limitsEndpoint: "/limitesReprobacion",
+            titleKey: "Reprobacion"
+        }
+    ];
+    const activeMuniTabConfig = muniTabsConfig.find(tab => tab.id === activeMuniTab) || muniTabsConfig[0];
+
+    const compDepaTabsConfig = [
+        {
+            id: "coberturaBruta",
+            label: "Cobertura (Tasa Bruta)",
+            dataEndpoint: "/tasabrutaDepartamentos",
+            limitsEndpoint: "/limitesTasaBruta",
+            titleKey: "TasaBruta"
+        },
+        {
+            id: "coberturaNeta",
+            label: "Cobertura (Tasa Neta)",
+            dataEndpoint: "/tasanetaDepartamentos",
+            limitsEndpoint: "/limitesTasaNeta",
+            titleKey: "TasaNeta"
+        },
+        {
+            id: "aprobacion",
+            label: "Aprobación",
+            dataEndpoint: "/aprobacionDepartamentos",
+            limitsEndpoint: "/limitesAprobacion",
+            titleKey: "Aprobacion"
+        },
+        {
+            id: "desercion",
+            label: "Deserción",
+            dataEndpoint: "/desercionDepartamentos",
+            limitsEndpoint: "/limitesDesercion",
+            titleKey: "Desercion"
+        },
+        {
+            id: "repitencia",
+            label: "Repitencia",
+            dataEndpoint: "/repitenciaDepartamentos",
+            limitsEndpoint: "/limitesRepitencia",
+            titleKey: "Repitencia"
+        },
+        {
+            id: "reprobacion",
+            label: "Reprobación",
+            dataEndpoint: "/reprobacionDepartamentos",
+            limitsEndpoint: "/limitesReprobacion",
+            titleKey: "Reprobacion"
+        }
+    ];
+
+    const activeCompDepaTabConfig = compDepaTabsConfig.find(tab => tab.id === activeCompDepaTab) || compDepaTabsConfig[0];
+
+
 
     // Maneja el cambio de tab
     const handleTabChange = (selectedKey: string | null) => {
         if (selectedKey) {
-            setActiveTab(selectedKey);
+            setDepaActiveTab(selectedKey);
             setKey(prevKey => prevKey + 1);
         }
     };
@@ -90,17 +187,17 @@ export default function Dashboard() {
                     </p>
                     <Nav
                         variant="tabs"
-                        activeKey={activeTab}
+                        activeKey={activeDepaTab}
                         onSelect={handleTabChange}
 
                     >
-                        {tabsConfig.map((tab) => (
+                        {depaTabsConfig.map((tab) => (
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
                                     style={{
-                                        backgroundColor: activeTab === tab.id ? "#f8f9fa" : "white",
-                                        fontWeight: activeTab === tab.id ? "bold" : "normal"
+                                        backgroundColor: activeDepaTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeDepaTab === tab.id ? "bold" : "normal"
                                     }}
                                     className="orangeText border-bottom"
                                 >
@@ -113,9 +210,10 @@ export default function Dashboard() {
                     <div className="mt-3">
                         <GraphScreen
                             key={key}
-                            title={t(activeTabConfig.label)}
-                            extensionData={activeTabConfig.dataEndpoint}
-                            extensionLimits={activeTabConfig.limitsEndpoint}
+                            title={t(activeDepaTabConfig.label)}
+                            extensionData={activeDepaTabConfig.dataEndpoint}
+                            extensionLimits={activeDepaTabConfig.limitsEndpoint}
+                            comparison={false}
                         />
                     </div>
                 </div>
@@ -134,17 +232,17 @@ export default function Dashboard() {
                     </p>
                     <Nav
                         variant="tabs"
-                        activeKey={activeTab}
+                        activeKey={activeMuniTab}
                         onSelect={handleTabChange}
 
                     >
-                        {tabsConfig.map((tab) => (
+                        {depaTabsConfig.map((tab) => (
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
                                     style={{
-                                        backgroundColor: activeTab === tab.id ? "#f8f9fa" : "white",
-                                        fontWeight: activeTab === tab.id ? "bold" : "normal"
+                                        backgroundColor: activeMuniTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeMuniTab === tab.id ? "bold" : "normal"
                                     }}
                                     className="orangeText border-bottom"
                                 >
@@ -157,9 +255,56 @@ export default function Dashboard() {
                     <div className="mt-3">
                         <GraphScreen
                             key={key}
-                            title={t(activeTabConfig.label)}
-                            extensionData={activeTabConfig.dataEndpoint}
-                            extensionLimits={activeTabConfig.limitsEndpoint}
+                            title={t(activeMuniTabConfig.label)}
+                            extensionData={activeMuniTabConfig.dataEndpoint}
+                            extensionLimits={activeMuniTabConfig.limitsEndpoint}
+                            comparison={false}
+                        />
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Indicadores Educativos - Comparación Departamento */}
+            <div className="font container-fluid fondoGris" style={{ padding: "3%", paddingTop: "0" }}>
+                <div style={{
+                    backgroundColor: "white",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                    borderRadius: "8px",
+                    overflow: "hidden"
+                }}>
+                    <p className="p-3 form-text pb-0">
+                        Comparación entre Departamentos
+                    </p>
+                    <Nav
+                        variant="tabs"
+                        activeKey={activeCompDepaTab}
+                        onSelect={handleTabChange}
+
+                    >
+                        {depaTabsConfig.map((tab) => (
+                            <Nav.Item key={tab.id} >
+                                <Nav.Link
+                                    eventKey={tab.id}
+                                    style={{
+                                        backgroundColor: activeCompDepaTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeCompDepaTab === tab.id ? "bold" : "normal"
+                                    }}
+                                    className="orangeText border-bottom"
+                                >
+                                    {tab.label}
+                                </Nav.Link>
+                            </Nav.Item>
+                        ))}
+                    </Nav>
+
+                    <div className="mt-3">
+                        <GraphScreen
+                            key={key}
+                            title={t(activeCompDepaTabConfig.label)}
+                            extensionData={activeCompDepaTabConfig.dataEndpoint}
+                            extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
+                            comparison={true}
                         />
                     </div>
                 </div>
