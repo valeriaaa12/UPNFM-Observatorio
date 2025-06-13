@@ -346,7 +346,7 @@ export default function TablasTasas() {
     return dept.includes(term) || muni.includes(term);
   });
 
-  //const { t } = useTranslation('common');
+  const { t } = useTranslation('common');
 
   // Imprimir
   const handlePrint = () => {
@@ -433,6 +433,7 @@ export default function TablasTasas() {
           <div className="px-5 py-4">
             {/* Responsive: comboboxes + search */}
             <Form className="row g-2 mb-3">
+              <h2>{t('DatosMunicipales')}</h2>
               <div className="col-12 col-md-auto">
                 <Form.Select
                   value={selectedMetric.path}
