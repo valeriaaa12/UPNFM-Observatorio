@@ -58,11 +58,11 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
 
   useEffect(() => {
     if (geoData) {
-      
+
       const bounds = L.geoJSON(geoData).getBounds();
-      map.fitBounds(bounds, { padding: [50, 50],animate: true });
+      map.fitBounds(bounds, { padding: [50, 50], animate: true });
       setTimeout(() => {
-        if (map.getZoom() < 7) { 
+        if (map.getZoom() < 7) {
           map.setZoom(7);
         }
       }, 500);
@@ -78,79 +78,79 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<L.Map | null>(null); 
+  const mapRef = useRef<L.Map | null>(null);
 
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([14.8, -86.8]);
-  
+
   const getCenterFromGeoJSON = (geoData: FeatureCollection): [number, number] => {
-  const bounds = L.geoJSON(geoData).getBounds();
-  const center = bounds.getCenter();
-  return [center.lat, center.lng]; // Convert LatLng to [number, number]
+    const bounds = L.geoJSON(geoData).getBounds();
+    const center = bounds.getCenter();
+    return [center.lat, center.lng]; // Convert LatLng to [number, number]
   };
   //Inicio de pruebas de mapa cargado a backend dinamico
 
-  const generateData = async () =>{
-    if(year == "Ninguno" || level == "Ninguno"){
+  const generateData = async () => {
+    if (year == "Ninguno" || level == "Ninguno") {
       setDepartments([])
       return
     }
     setIsLoading(true);
-    try{
-    let url = process.env.NEXT_PUBLIC_BACKEND_URL + filter
-    
-    if(municipio != "Honduras"){
-      url += "Municipal";
-    }
-    console.log(url);
-    const config = {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              params:{
-                departamento: municipio.toUpperCase(),
-                anio: year == "Ninguno" ? "2020" : year,
-                nivel: level == "Ninguno" ? "Básica III Ciclo" : level
-            }
-    }
-    //petición a backend
-    const response = await axios.get(url, config)
+    try {
+      let url = process.env.NEXT_PUBLIC_BACKEND_URL + filter
 
-    //mapeo a lista temporal
-     let tempoDepartments: department[] | null = null;
-    if(municipio === "Honduras"){
-      tempoDepartments = response.data.map((item: any) => ({
-            name: item.departamento.toLowerCase(),
-            legend: item.leyenda,
-            value: parseFloat(item.tasa),
-            year: item.periodo_anual,
-            level: item.nivel
-          }));
-     }else{
-      tempoDepartments = response.data.map((item: any) => ({
-            name: item.municipio.toLowerCase(),
-            legend: item.leyenda,
-            value: parseFloat(item.tasa),
-            year: item.periodo_anual,
-            level: item.nivel
-          }));
-     }
+      if (municipio != "Honduras") {
+        url += "Municipal";
+      }
 
-    setDepartments(tempoDepartments)
-     
-    setIsLoading(false);
-    }catch (error){
-        setTimeout(() => {
-          generateData();
-        }, 3000);
+      const config = {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        params: {
+          departamento: municipio.toUpperCase(),
+          anio: year == "Ninguno" ? "2020" : year,
+          nivel: level == "Ninguno" ? "Básica III Ciclo" : level
+        }
+      }
+      //petición a backend
+      const response = await axios.get(url, config)
+
+      //mapeo a lista temporal
+      let tempoDepartments: department[] | null = null;
+      if (municipio === "Honduras") {
+        tempoDepartments = response.data.map((item: any) => ({
+          name: item.departamento.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+      } else {
+        tempoDepartments = response.data.map((item: any) => ({
+          name: item.municipio.toLowerCase(),
+          legend: item.leyenda,
+          value: parseFloat(item.tasa),
+          year: item.periodo_anual,
+          level: item.nivel
+        }));
+      }
+
+      setDepartments(tempoDepartments)
+
+      setIsLoading(false);
+    } catch (error) {
+      setTimeout(() => {
+        generateData();
+      }, 3000);
     }
 
   }
-  useEffect(()=>{
+  useEffect(() => {
 
     generateData();
-  },[year, level])
+  }, [year, level])
   //fin de pruebas
   const hasZero = () => {
     if (legends?.find((item) => item.lowerLimit == 0) && level != 'Ninguno') {
@@ -158,7 +158,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     } else if (legends?.find((item) => item.upperLimit == 0) && level != 'Ninguno') {
       return true;
     } else {
-      
+
       return false;
     }
 
@@ -174,13 +174,13 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     const currentDep = departments?.find((item) =>
       item.name == deptName.toLowerCase()
     )
-  
-    const value = currentDep? currentDep.value : -1;
-    
+
+    const value = currentDep ? currentDep.value : -1;
+
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-    
+
     const green: legend = legends?.find((item) =>
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
@@ -221,9 +221,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           // Recenter the map after new data loads
           if (mapRef.current && data) {
             const bounds = L.geoJSON(data).getBounds();
-              const paddedBounds = bounds.pad(10);
-          mapRef.current.setMaxBounds(paddedBounds);
-            mapRef.current.fitBounds(bounds, { padding: [50, 50] }, );
+            const paddedBounds = bounds.pad(10);
+            mapRef.current.setMaxBounds(paddedBounds);
+            mapRef.current.fitBounds(bounds, { padding: [50, 50] },);
           }
         }, 3000);
       })
@@ -269,7 +269,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     const darkgreen: legend = legends?.find((item) =>
       item.message === "Mucho mejor que la meta" && item.level === level
     ) ?? fallback;
-    
+
     const green: legend = legends?.find((item) =>
       item.message === "Dentro de la meta" && item.level === level
     ) ?? fallback;
@@ -284,18 +284,18 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
     return (<>
       <div
-      id="limits-container" 
-      style={{
-        position: 'absolute',
-        bottom: '80px',
-        left: '20px',
-        backgroundColor: '#F0F0F0',
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-        zIndex: 1000,
-        border: '1px solid #ccc'
-      }}>
+        id="limits-container"
+        style={{
+          position: 'absolute',
+          bottom: '80px',
+          left: '20px',
+          backgroundColor: '#F0F0F0',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          border: '1px solid #ccc'
+        }}>
         <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
@@ -313,7 +313,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
           <span>{red.lowerLimit} - {red.upperLimit}</span>
         </div>
-        {map != '/others/hn.json' &&<div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+        {map != '/others/hn.json' && <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
           <span>N/D</span>
         </div>}
@@ -337,7 +337,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     });
   };
   const { t, i18n } = useTranslation('common');
-  
+
   return (
     <div style={{
       flex: 1,
@@ -399,7 +399,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           }}
           minZoom={6}
           maxBounds={L.geoJSON(geoData).getBounds()}
-           
+
         >
           {geoData && (
             <GeoJSON
@@ -407,7 +407,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
               style={deptStyle}
               onEachFeature={onEachDepartment}
               ref={geoJsonLayerRef}
-              key={JSON.stringify(geoData)} 
+              key={JSON.stringify(geoData)}
             />
           )}
 
@@ -417,20 +417,20 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         {/* Limites */}
         {limites()}
         {/* Leyendas */}
-        <div 
+        <div
           id="legends-container"
-        style={{
-          
-          position: 'absolute',
-          bottom: '80px',
-          right: '20px',
-          backgroundColor: 'white',
-          padding: '10px',
-          borderRadius: '5px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-          zIndex: 1000,
-          border: '1px solid #ccc'
-        }}>
+          style={{
+
+            position: 'absolute',
+            bottom: '80px',
+            right: '20px',
+            backgroundColor: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+            zIndex: 1000,
+            border: '1px solid #ccc'
+          }}>
           <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("NivelCumplimiento")}</div>
           <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
             <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
@@ -448,11 +448,11 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
             <span>{t("l4")}</span>
           </div>
-          { map != '/others/hn.json' &&
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-            <span>N/D</span>
-          </div>}
+          {map != '/others/hn.json' &&
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+              <span>N/D</span>
+            </div>}
         </div>
 
         <div style={{
@@ -474,28 +474,28 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         {/* Department Info */}
         {selectedDept && (
           <div
-          id="info-container" 
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            backgroundColor: 'white',
-            padding: '15px',
-            borderRadius: '5px',
-            boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-            zIndex: 1000,
-            maxWidth: '300px',
-            border: '1px solid #ccc'
-          }}>
+            id="info-container"
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              backgroundColor: 'white',
+              padding: '15px',
+              borderRadius: '5px',
+              boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+              zIndex: 1000,
+              maxWidth: '300px',
+              border: '1px solid #ccc'
+            }}>
             <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
             <p>
               {t("Valor")}: {
-              (() => {
-                const dept = departments?.find(
-                (item) => item.name === selectedDept.toLowerCase()
-                );
-                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
-              })()
+                (() => {
+                  const dept = departments?.find(
+                    (item) => item.name === selectedDept.toLowerCase()
+                  );
+                  return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
+                })()
               }
             </p>
 
