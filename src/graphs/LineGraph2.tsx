@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import axios from 'axios';
 import {
     LineChart,
     Line,
@@ -54,7 +56,23 @@ const LineGraph2: React.FC<LineGraphProps> = ({
     legendKey = 'legend',
     legends = []
 }) => {
-    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+  const [years, setYears] = useState<string[]>([]); 
+        useEffect(() => {
+            const fetchYears = async () => {
+                try {
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`);
+                    
+                    const sortedYears = response.data.sort((a: string, b: string) => parseInt(a) - parseInt(b));
+                    setYears(sortedYears);
+                } catch (error) {
+                    console.error("Error fetching years:", error);
+                  
+                    setYears(['2018', '2019', '2020', '2021', '2022', '2023']);
+                }
+            };
+
+            fetchYears();
+        }, []);
     const uniqueLegends = legends.filter(
         (legend, index, self) =>
             index === self.findIndex((l) => l.message === legend.message)
@@ -75,15 +93,20 @@ const LineGraph2: React.FC<LineGraphProps> = ({
             upperLimit: match?.upperLimit ?? 0
         };
     });
-    const transformedData = years.map(year => {
-        const yearData: any = { year };
-        data.forEach(item => {
-            if (item.year === year) {
-                yearData[normalize(item.departamento)] = parseFloat(item.value as any) || 0;
-            }
+     const transformedData = useMemo(() => {
+     
+        const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
+        
+        return sortedYears.map(year => {
+            const yearData: any = { year };
+            data.forEach(item => {
+                if (item.year === year) {
+                    yearData[normalize(item.departamento)] = parseFloat(item.value as any) || 0;
+                }
+            });
+            return yearData;
         });
-        return yearData;
-    });
+    }, [data, years]);
 
     const getColor = (department: string) => {
         const deptLegend = data.find(d => normalize(d.departamento) === department)?.legend;
@@ -124,7 +147,7 @@ const LineGraph2: React.FC<LineGraphProps> = ({
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <ResponsiveContainer width="100%" height={500}>
+            <ResponsiveContainer width="100%" height={400}>
                 <LineChart
                     data={transformedData}
                     margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
