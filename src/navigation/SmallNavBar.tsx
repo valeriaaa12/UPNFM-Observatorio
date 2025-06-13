@@ -83,6 +83,19 @@ export default function SmallNavBar() {
                     >
                       {t("Reprobacion")}
                     </NavDropdown.Item>
+                     <NavDropdown.Item
+                        href="/dashboard"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Gráficos Estadísticos"}
+                      </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/Graficas/lineGraphScreen"
+                        style={{ whiteSpace: 'normal' }}
+                      >
+                        {"Line Graph"}
+                      </NavDropdown.Item>
                     {user?.admin && (
                       <>
                         <NavDropdown.Divider />
@@ -112,8 +125,11 @@ export default function SmallNavBar() {
                       <Nav.Link className="whiteText" href="/login"><b>{t("Login")}</b></Nav.Link> :
                       <Nav.Link className="orangeText" onClick={(e) => {
                         e.preventDefault();
-                        window.location.href = "/landingpage";
-                        setTimeout(() => setUser(null), 100);
+                        setUser(null);
+                        setTimeout(() => {
+                      
+                          window.location.href = "/landingpage";
+                        }, 100);
                       }}><b>{t("Logout")}</b></Nav.Link>
                   }
                 </Nav>

@@ -328,8 +328,10 @@ export default function NavBar() {
                           style={{ whiteSpace: 'normal' }}
                           onClick={(e) => {
                             e.preventDefault();
-                            window.location.href = "/landingpage";
-                            setTimeout(() => setUser(null), 100);
+                            setUser(null);
+                            setTimeout(() => {
+                              window.location.href = "/landingpage";
+                            }, 100);
                           }}><b>{t("Logout")}</b>
                         </Dropdown.Item>
 

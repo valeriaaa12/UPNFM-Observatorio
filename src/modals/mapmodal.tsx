@@ -26,7 +26,7 @@ export default function MapModal({showModal, setShowModal} : params) {
         <Modal.Header closeButton>
           <Modal.Title>ERROR</Modal.Title>
         </Modal.Header>
-        <Modal.Body>No se puede exportar el excel si no se elije un año y departamento/municipio</Modal.Body>
+        <Modal.Body>No se puede exportar a excel o pdf si no se elije un año y departamento/municipio</Modal.Body>
         
         
       </Modal>
