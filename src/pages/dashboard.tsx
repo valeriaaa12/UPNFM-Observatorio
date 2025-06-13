@@ -8,7 +8,7 @@ import Client from "@/components/client";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
 import GraphScreen from "../screens/graphscreen";
-
+import GraphScreenM from "../screens/graphscreenM";
 export default function Dashboard() {
     const { t } = useTranslation('common');
     const [activeTab, setActiveTab] = useState("coberturaBruta");
@@ -155,7 +155,7 @@ export default function Dashboard() {
                     </Nav>
 
                     <div className="mt-3">
-                        <GraphScreen
+                        <GraphScreenM
                             key={key}
                             title={t(activeTabConfig.label)}
                             extensionData={activeTabConfig.dataEndpoint}
