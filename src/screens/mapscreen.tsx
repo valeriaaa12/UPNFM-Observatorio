@@ -104,8 +104,11 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
       /*setDepartments(tempoDepartments)
       filterData()*/;
       setLoading(false);
-    } catch (error: unknown) {
-        mapData();
+    } catch (error) {
+       setTimeout(() => {
+          mapData();
+        }, 3000);
+        
     }
   }
 
