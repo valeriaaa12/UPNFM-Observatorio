@@ -1,4 +1,4 @@
-
+import html2canvas from "html2canvas";
 import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -88,20 +88,111 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       .join(' ');
   };
 
-  const exportPDF = async () => {
-    try {
-      if (typeof window === 'undefined' || !document) return;
-      if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
-        setShow(true);
-        return
-      }
 
-      const mapContainer = document.createElement("div");
-      mapContainer.id = "map-container";
-      const L = (await import('leaflet')).default;
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
+// 0) Función de estilo reutilizable (ya tenías algo parecido)
+const styleFeature = (feature: any) => {
+  const deptName = feature.properties.NOMBRE || feature.properties.name;
+  return {
+    fillColor: getDeptColor(deptName),
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.85,
+    color: 'black'
+  };
+};
 
+// 1) Función para imprimir sólo el mapa + encabezados
+const handlePrintMapa = async () => {
+  if (typeof window === 'undefined') return;
+
+  // crear contenedor oculto
+  const printContainer = document.createElement('div');
+  Object.assign(printContainer.style, {
+    position: 'fixed',
+    top: '0',
+    left: '-9999px',
+    width: '800px',
+    height: '600px',
+    background: 'white',
+    overflow: 'hidden'
+  });
+  document.body.appendChild(printContainer);
+
+  // clonar mapa en Leaflet
+  const L = (await import('leaflet')).default;
+  const mapClone = L.map(printContainer, {
+    zoomControl: false,
+    attributionControl: false,
+    center: [14.8, -86.8],
+    zoom: 7,
+    renderer: L.canvas()
+  });
+  const resp    = await fetch(mapa);
+  const geoData = await resp.json();
+  const layer   = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
+  mapClone.fitBounds((layer as any).getBounds());
+
+  // clonar títulos, límites, leyendas e info
+  (['Titulo','limits-container','legends-container','info-container'] as const)
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) printContainer.appendChild(el.cloneNode(true));
+    });
+
+  // Agrega la fuente al final del printContainer
+  const fuente = document.createElement('div');
+  fuente.style.textAlign = "center";
+  fuente.style.width = '100%';
+  fuente.style.backgroundColor = "#e0e0e0";
+  fuente.style.marginTop = '40px';
+  fuente.style.padding = '10px';
+  fuente.style.fontSize = '13px';
+  fuente.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+  printContainer.appendChild(fuente);
+
+  // esperar render Leaflet
+  await new Promise(r => setTimeout(r, 500));
+
+  // capturar con html2canvas
+  const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
+  const dataUrl = canvas.toDataURL('image/png');
+
+  // abrir ventana de impresión
+  const pw = window.open('', '_blank', 'width=900,height=650');
+  if (pw) {
+    pw.document.write(`
+      <html>
+        <head><title>Imprimir Mapa</title></head>
+        <body style="margin:0;padding:0;text-align:center;">
+          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+        </body>
+      </html>
+    `);
+    pw.document.close();
+    pw.focus();
+    pw.print();
+    pw.close();
+  }
+
+  // limpiar
+  document.body.removeChild(printContainer);
+};
+
+
+const exportPDF = async () => {
+  try{
+    if (typeof window === 'undefined' || !document) return;
+    if(!departments || selectedYear == "Ninguno" || level == "Ninguno"){
+    setShow(true);
+    return
+  }
+  
+    const mapContainer = document.createElement("div");
+    mapContainer.id = "map-container";
+    const L = (await import('leaflet')).default;
+    const html2canvas = (await import('html2canvas')).default;
+    const { jsPDF } = await import('jspdf');
+        
 
       const legendContainer = document.getElementById('legends-container') as HTMLElement;
       const limitsContainer = document.getElementById('limits-container') as HTMLElement;
@@ -110,7 +201,17 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       const controls = document.querySelectorAll('.leaflet-control-container');
       controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
 
-      // pdf container creation
+    
+    const title = document.createElement('h2');
+    title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
+    //const subtitle = document.createElement('h3');
+    //subtitle.textContent = level +" " + selectedYear
+    title.style.textAlign = 'center';
+    title.style.marginBottom = '20px';
+    //subtitle.style.textAlign = 'center';
+    //subtitle.style.marginBottom = '20px';
+
+    // pdf container creation
       const pdfContainer = document.createElement('div');
 
       pdfContainer.style.position = 'fixed';
@@ -138,15 +239,6 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
 
       limitsClone.style.margin = '10px 0';
 
-
-      const title = document.createElement('h2');
-      title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
-      const subtitle = document.createElement('h3');
-      subtitle.textContent = level + " " + selectedYear
-      title.style.textAlign = 'center';
-      title.style.marginBottom = '20px';
-      subtitle.style.textAlign = 'center';
-      subtitle.style.marginBottom = '20px';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -221,31 +313,32 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
           tBody.appendChild(row)
 
         });
-        table.appendChild(tBody)
-        tableDiv.appendChild(table)
-        //appends al contenedor
-        pdfContainer.appendChild(title);
-        pdfContainer.appendChild(subtitle);
-        pdfContainer.appendChild(mapDiv);
-        document.body.appendChild(pdfContainer2);
-        pdfContainer2.appendChild(tableDiv);
-        pdfContainer2.appendChild(footer);
-      } else {
-        pdfContainer.appendChild(title);
-        pdfContainer.appendChild(subtitle);
-        pdfContainer.appendChild(mapDiv);
-        pdfContainer.appendChild(footer);
-      }
 
-      //map clone for resizing (so it prints the same size regardless of any user zoom in)
-      const cloneMap = L.map("map-container", {
-        zoomControl: false,
-        zoom: 7,
-        center: [14.8, -86.8],
-        renderer: L.canvas(),
-        attributionControl: false
-
-      });
+      table.appendChild(tBody)
+      tableDiv.appendChild(table)
+      //appends al contenedor
+      pdfContainer.appendChild(title);
+      //pdfContainer.appendChild(subtitle);
+      pdfContainer.appendChild(mapDiv);
+      document.body.appendChild(pdfContainer2);
+      pdfContainer2.appendChild(tableDiv);
+      pdfContainer2.appendChild(footer); 
+    }else{
+      pdfContainer.appendChild(title);
+      //pdfContainer.appendChild(subtitle);
+      pdfContainer.appendChild(mapDiv);
+      pdfContainer.appendChild(footer); 
+    }
+    
+    //map clone for resizing (so it prints the same size regardless of any user zoom in)
+    const cloneMap = L.map("map-container", {
+      zoomControl: false,
+      zoom: 7,
+      center: [14.8, -86.8],
+      renderer: L.canvas(), 
+      attributionControl: false
+      
+    });
 
       // Set white background
       const container = document.getElementById('map-container');
@@ -528,9 +621,20 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
             borderRadius: '4px',
             cursor: 'pointer'
           }}
+          
+          onClick={()=>exportPDF()}>
+            {t("Descargar PDF")}
+          </button>
 
-            onClick={() => exportPDF()}>
-            {t("Descargar")}
+          <button
+            style={{
+              width:'100%', padding:'8px', backgroundColor:'#e9ecef',
+              border:'1px solid #ced4da', borderRadius:'4px', cursor:'pointer',
+              marginTop:'8px'
+            }}
+            onClick={handlePrintMapa}
+          >
+            {t("Imprimir Mapa")}
           </button>
 
           <Form>

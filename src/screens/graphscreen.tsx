@@ -1,5 +1,8 @@
 import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useRef } from 'react';
 import axios from 'axios'
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
@@ -11,6 +14,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
+
 
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
@@ -48,6 +52,7 @@ interface Legend {
 }
 
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison }: Params) {
+    const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
@@ -488,6 +493,107 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }
 
+  const handleDownloadImage = async () => {
+    if (!exportRef.current) return;
+    const off = document.createElement('div');
+    Object.assign(off.style, {
+      position: 'fixed', left: '-9999px',
+      width: '800px',    height: '600px',
+      background: 'white', overflow: 'hidden'
+    });
+    document.body.appendChild(off);
+
+    const clone = exportRef.current.cloneNode(true) as HTMLElement;
+    clone.style.width  = '800px';
+    clone.style.height = '600px';
+    off.appendChild(clone);
+
+    await new Promise(r => setTimeout(r, 300));
+    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+    const link   = document.createElement('a');
+    link.download = `${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.png`;
+    link.href     = canvas.toDataURL('image/png');
+    link.click();
+    document.body.removeChild(off);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!exportRef.current) return;
+    const off = document.createElement('div');
+    Object.assign(off.style, {
+      position: 'fixed', left: '-9999px',
+      width: '800px',    height: '600px',
+      background: 'white', overflow: 'hidden'
+    });
+    document.body.appendChild(off);
+
+    const clone = exportRef.current.cloneNode(true) as HTMLElement;
+    clone.style.width  = '800px';
+    clone.style.height = '600px';
+    off.appendChild(clone);
+
+    await new Promise(r => setTimeout(r, 300));
+    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+    const img    = canvas.toDataURL('image/png');
+    const pdf    = new jsPDF('landscape','pt','a4');
+    const w      = pdf.internal.pageSize.getWidth();
+    const h      = (canvas.height * w) / canvas.width;
+    pdf.addImage(img,'PNG',0,0,w,h);
+    pdf.save(`${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.pdf`);
+    document.body.removeChild(off);
+  };
+
+  // Imprimir el gráfico (fija tamaño y evita distorsión)
+const handlePrintGraph = async () => {
+  if (!exportRef.current) return;
+
+  // 1) Crear contenedor off-screen de tamaño fijo
+  const off = document.createElement('div');
+  Object.assign(off.style, {
+    position: 'fixed',
+    left:     '-9999px',
+    width:    '800px',
+    height:   '600px',
+    background: 'white',
+    overflow: 'hidden'
+  });
+  document.body.appendChild(off);
+
+  // 2) Clonar el nodo real dentro de él
+  const clone = exportRef.current.cloneNode(true) as HTMLElement;
+  clone.style.width  = '800px';
+  clone.style.height = '600px';
+  off.appendChild(clone);
+
+  // 3) Esperar renderizado
+  await new Promise(r => setTimeout(r, 300));
+
+  // 4) Capturar con html2canvas
+  const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+  const dataUrl = canvas.toDataURL('image/png');
+
+  // 5) Abrir ventana nueva y escribir la imagen
+  const pw = window.open('', '_blank', 'width=900,height=650');
+  if (pw) {
+    pw.document.write(`
+      <html>
+        <head><title>${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`:""}</title></head>
+        <body style="margin:0;padding:0;text-align:center;">
+          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+        </body>
+      </html>
+    `);
+    pw.document.close();
+    pw.focus();
+    pw.print();
+    pw.close();
+  }
+
+  // 6) Limpiar
+  document.body.removeChild(off);
+};
+
+
     return (
         <Client>
             <div className="font" >
@@ -580,20 +686,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                 renderFilter()
                             )}
                         </div>
-
-                        <h2 style={{ marginBottom: '20px' }}>
-                            {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
-                        </h2>
-
-                        <div style={{
-                            height: '500px',
-                            border: '1px solid #eee',
-                            borderRadius: '8px',
-                            padding: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            position: 'relative'
-                        }}>
+                        <div ref={exportRef}>
+                            <h2 style={{ marginBottom: '20px' }}>
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
+                            </h2>
+                            <div style={{
+                                height: '500px',
+                                border: '1px solid #eee',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                position: 'relative'
+                            }}>
                             {showGraph ? (
                                 <>
                                     <div style={{
@@ -691,12 +796,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         </Tooltip>
                                                     }
                                                 >
-                                                    <ListGroup.Item
-                                                        action
-                                                        href="#link3"
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                    >
+                                                    <ListGroup.Item 
+                                                        action 
+                                                        className='graphsMenu' 
+                                                        onClick={handleDownloadImage}
+                                                        >
                                                         <i className="bi bi-download"></i>
                                                     </ListGroup.Item>
                                                 </OverlayTrigger>
@@ -708,12 +812,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         </Tooltip>
                                                     }
                                                 >
-                                                    <ListGroup.Item
-                                                        action
-                                                        href="#link3"
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                    >
+                                                    <ListGroup.Item 
+                                                        action 
+                                                        className='graphsMenu' 
+                                                        onClick={handlePrintGraph}
+                                                        >
                                                         <i className="bi bi-printer"></i>
                                                     </ListGroup.Item>
                                                 </OverlayTrigger>
@@ -728,7 +831,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                 >
                                                     <ListGroup.Item
                                                         action
-                                                        href="#link3"
                                                         className='graphsMenu d-flex align-items-center justify-content-center'
                                                         style={{ height: "40px" }}
                                                         active={false}
@@ -753,12 +855,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         </Tooltip>
                                                     }
                                                 >
-                                                    <ListGroup.Item
-                                                        action
-                                                        href="#link5"
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                    >
+                                                    <ListGroup.Item 
+                                                        action 
+                                                        className='graphsMenu' 
+                                                        onClick={handleDownloadPDF}
+                                                        >
                                                         <i className="bi bi-filetype-pdf"></i>
                                                     </ListGroup.Item>
                                                 </OverlayTrigger>
@@ -782,7 +883,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                             )}
                         </div>
                     </div>
-                )}
+                </div>
+            )}
 
                 <LanguageSelector />
             </div>
