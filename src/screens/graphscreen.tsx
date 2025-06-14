@@ -493,27 +493,105 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }
 
-      // Descargar como PNG
   const handleDownloadImage = async () => {
     if (!exportRef.current) return;
-    const canvas = await html2canvas(exportRef.current);
-    const link = document.createElement("a");
-    link.download = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.png`;
-    link.href = canvas.toDataURL("image/png");
+    const off = document.createElement('div');
+    Object.assign(off.style, {
+      position: 'fixed', left: '-9999px',
+      width: '800px',    height: '600px',
+      background: 'white', overflow: 'hidden'
+    });
+    document.body.appendChild(off);
+
+    const clone = exportRef.current.cloneNode(true) as HTMLElement;
+    clone.style.width  = '800px';
+    clone.style.height = '600px';
+    off.appendChild(clone);
+
+    await new Promise(r => setTimeout(r, 300));
+    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+    const link   = document.createElement('a');
+    link.download = `${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.png`;
+    link.href     = canvas.toDataURL('image/png');
     link.click();
+    document.body.removeChild(off);
   };
 
-  // Descargar como PDF
   const handleDownloadPDF = async () => {
     if (!exportRef.current) return;
-    const canvas = await html2canvas(exportRef.current);
-    const img = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("landscape", "pt", "a4");
-    const w = pdf.internal.pageSize.getWidth();
-    const h = (canvas.height * w) / canvas.width;
-    pdf.addImage(img, "PNG", 0, 0, w, h);
-    pdf.save(`${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`);
+    const off = document.createElement('div');
+    Object.assign(off.style, {
+      position: 'fixed', left: '-9999px',
+      width: '800px',    height: '600px',
+      background: 'white', overflow: 'hidden'
+    });
+    document.body.appendChild(off);
+
+    const clone = exportRef.current.cloneNode(true) as HTMLElement;
+    clone.style.width  = '800px';
+    clone.style.height = '600px';
+    off.appendChild(clone);
+
+    await new Promise(r => setTimeout(r, 300));
+    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+    const img    = canvas.toDataURL('image/png');
+    const pdf    = new jsPDF('landscape','pt','a4');
+    const w      = pdf.internal.pageSize.getWidth();
+    const h      = (canvas.height * w) / canvas.width;
+    pdf.addImage(img,'PNG',0,0,w,h);
+    pdf.save(`${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.pdf`);
+    document.body.removeChild(off);
   };
+
+  // Imprimir el gráfico (fija tamaño y evita distorsión)
+const handlePrintGraph = async () => {
+  if (!exportRef.current) return;
+
+  // 1) Crear contenedor off-screen de tamaño fijo
+  const off = document.createElement('div');
+  Object.assign(off.style, {
+    position: 'fixed',
+    left:     '-9999px',
+    width:    '800px',
+    height:   '600px',
+    background: 'white',
+    overflow: 'hidden'
+  });
+  document.body.appendChild(off);
+
+  // 2) Clonar el nodo real dentro de él
+  const clone = exportRef.current.cloneNode(true) as HTMLElement;
+  clone.style.width  = '800px';
+  clone.style.height = '600px';
+  off.appendChild(clone);
+
+  // 3) Esperar renderizado
+  await new Promise(r => setTimeout(r, 300));
+
+  // 4) Capturar con html2canvas
+  const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+  const dataUrl = canvas.toDataURL('image/png');
+
+  // 5) Abrir ventana nueva y escribir la imagen
+  const pw = window.open('', '_blank', 'width=900,height=650');
+  if (pw) {
+    pw.document.write(`
+      <html>
+        <head><title>${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`:""}</title></head>
+        <body style="margin:0;padding:0;text-align:center;">
+          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+        </body>
+      </html>
+    `);
+    pw.document.close();
+    pw.focus();
+    pw.print();
+    pw.close();
+  }
+
+  // 6) Limpiar
+  document.body.removeChild(off);
+};
 
 
     return (
@@ -737,7 +815,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                     <ListGroup.Item 
                                                         action 
                                                         className='graphsMenu' 
-                                                        onClick={handleDownloadPDF}
+                                                        onClick={handlePrintGraph}
                                                         >
                                                         <i className="bi bi-printer"></i>
                                                     </ListGroup.Item>
