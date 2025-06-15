@@ -11,6 +11,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { isDataView } from 'node:util/types';
 
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
@@ -287,11 +288,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 }
             };
 
-            if (departments.length > 0) {
-                const departmentsUpper = departments.map(dep => dep.toUpperCase());
+            if (selectedDepartments.length > 0) {
+                const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
 
                 console.log("departmentsUpper", departmentsUpper);
-
                 const [data] = await Promise.all([
                     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
                         nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
@@ -306,11 +306,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     level: selectedLevel
                 }));
 
+                const legendsData: Legend[] = data.data.map((item: any) => ({
+                    level: item.nivel,
+                    message: item.leyenda,
+                    lowerLimit: parseFloat(item.min) || 0,
+                    upperLimit: parseFloat(item.max) || 0
+                }));
+
+
+                console.log("departmentsData2", data.data);
+
+                const legendsWithColors = assignColorsToLegends(legendsData);
+                setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
-                applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+                applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
             }
-        } catch (error) {
-            console.error("Error posting data:", error);
+        } catch (error: any) {
+            if (error.response) {
+                console.error("Backend error:", error.response.data);
+            } else {
+                console.error("Error:", error.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -398,10 +414,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             return (
                 <LineGraph
                     data={lineData}
-                    xAxisKey="year"
-                    yAxisKey="value"
-                    legendKey="legend"
                     legends={legends}
+                    years={years}
                 />
             );
         }

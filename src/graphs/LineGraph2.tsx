@@ -1,14 +1,6 @@
 import React from "react";
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    ReferenceLine,
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 
 interface LegendItem {
@@ -27,11 +19,10 @@ interface DataItem {
 
 interface LineGraphProps {
     data: DataItem[];
-    xAxisKey: string;
-    yAxisKey: string;
-    legendKey?: string;
     legends?: LegendItem[];
+    years: string[];
 }
+
 const ALL_LEVELS = [
     "Muy lejos de la meta",
     "Lejos de la meta",
@@ -46,19 +37,7 @@ const colorMap: Record<string, string> = {
     "Muy lejos de la meta": "#e41a1c"
 };
 
-
-const LineGraph2: React.FC<LineGraphProps> = ({
-    data,
-    xAxisKey,
-    yAxisKey,
-    legendKey = 'legend',
-    legends = []
-}) => {
-    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
-    const uniqueLegends = legends.filter(
-        (legend, index, self) =>
-            index === self.findIndex((l) => l.message === legend.message)
-    );
+const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
             ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -75,6 +54,7 @@ const LineGraph2: React.FC<LineGraphProps> = ({
             upperLimit: match?.upperLimit ?? 0
         };
     });
+
     const transformedData = years.map(year => {
         const yearData: any = { year };
         data.forEach(item => {
@@ -90,41 +70,15 @@ const LineGraph2: React.FC<LineGraphProps> = ({
         return legends.find(l => l.message === deptLegend)?.color || '#808080';
     };
 
-    const renderLegend = (props: any) => {
-        const { payload } = props;
-
-        const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
-            .filter((legend): legend is string => legend !== undefined)
-            .map(legend => {
-                const legendItem = legends.find(l => l.message === legend);
-                return {
-                    value: legend,
-                    color: legendItem?.color || '#808080',
-                    id: legend
-                };
-            });
-
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {uniqueLegends.map((entry, index) => (
-                    <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', margin: '0 10px' }}>
-                        <div style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: entry.color,
-                            marginRight: '5px',
-                            display: 'inline-block'
-                        }} />
-                        <span>{entry.value}</span>
-                    </div>
-                ))}
-            </div>
-        );
+    const capitalizeWords = (str: string) => {
+        return str.toLowerCase().split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
     };
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <ResponsiveContainer width="100%" height={500}>
+            <ResponsiveContainer width="100%" height={400}>
                 <LineChart
                     data={transformedData}
                     margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
@@ -140,7 +94,7 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                                         <p><strong>Año: {label}</strong></p>
                                         {payload.map((entry: any, index: number) => (
                                             <div key={index} style={{ color: entry.color }}>
-                                                {entry.name}: {entry.value?.toFixed(2)}
+                                                {capitalizeWords(entry.name)}: {entry.value?.toFixed(2)}
                                             </div>
                                         ))}
                                     </div>
@@ -174,8 +128,6 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                             }}
                         />
                     ))}
-
-
 
                 </LineChart>
             </ResponsiveContainer>
