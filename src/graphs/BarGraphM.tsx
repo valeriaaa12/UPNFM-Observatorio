@@ -125,6 +125,8 @@ const BarGraph: React.FC<BarGraphProps> = ({
                     params: { departamento: selectedDepartment.toUpperCase() }
                 };
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}Municipal`, config);
+                console.log("📡 Solicitando a URL:", `${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}Municipal`);
+                console.log("🧪 Parámetros:", { departamento: selectedDepartment?.toUpperCase() });
                 console.log("📦 Municipios recibidos:", response.data);
                 setMunicipalData(response.data);
             } catch (error) {

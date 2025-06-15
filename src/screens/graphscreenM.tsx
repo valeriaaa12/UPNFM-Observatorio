@@ -5,7 +5,7 @@ import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import Client from '@/components/client';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip, Dropdown, Form } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
 import LineGraphScreen from "../screens/linegraphscreen2";
 import ExcelJS from "exceljs";
@@ -29,15 +29,16 @@ interface Department {
     value: number;
     year: string;
     level: string;
+    municipios?: string[]; 
 }
+
 interface Municipio {
-    name: string;
+   name: string;
     legend: string;
     value: number;
     year: string;
     level: string;
-    department?: string;
-    municipio?: string;
+    department: string;
 }
 
 
@@ -45,6 +46,7 @@ interface Params {
     title: string;
     extensionData: string;
     extensionLimits: string;
+    comparison: boolean;
 }
 
 interface Legend {
@@ -55,7 +57,7 @@ interface Legend {
     color: string;
 }
 
-export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
+export default function GraphScreen({ title, extensionData, extensionLimits,comparison }: Params) {
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
@@ -70,6 +72,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
+    const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+    const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([]);
+    const [municipalities, setMunicipalities] = useState<Municipio[]>([]);
+    const [availableMunicipalities, setAvailableMunicipalities] = useState<string[]>([]);
+
     const exportExcel = async () =>{
       
       const nombre = "Departamentos"
@@ -185,15 +192,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         );
     }
     const departmentsData: Department[] = departments.map((item: any) => ({
-        name: capitalizeWords(item.municipio?.toLowerCase() || item.departamento.toLowerCase()), // Usa municipio si existe
+        name: capitalizeWords(item.municipio?.toLowerCase() || item.departamento.toLowerCase()), 
         legend: item.leyenda,
         value: parseFloat(item.tasa) || 0,
         year: item.periodo_anual,
         level: item.nivel,
-        department: capitalizeWords(item.departamento.toLowerCase()), // siempre incluimos el departamento
-        municipio: item.municipio ? capitalizeWords(item.municipio.toLowerCase()) : undefined // nuevo campo
+        department: capitalizeWords(item.departamento.toLowerCase()), 
+        municipio: item.municipio ? capitalizeWords(item.municipio.toLowerCase()) : undefined 
     }));
-
+    const handleCheck = (dept: string) => {
+        setSelectedDepartments((prev: string[]) =>
+            prev.includes(dept)
+                ? prev.filter((d: string) => d !== dept)
+                : [...prev, dept]
+        );
+    };
    
     const value = currentDep? currentDep.value : -1;
     
@@ -235,6 +248,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         };
         handleGraph();
     }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
+     const getYears = async () => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+            };
+
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config);
+            setYears(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
 
 
     const capitalizeWords = (str: string) => {
@@ -258,7 +286,88 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }));
     };
 
-    const fetchData = async () => {
+   const fetchData = async () => {
+    setLoading(true);
+    try {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        };
+
+        const [data, legends, years] = await Promise.all([
+            axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
+            axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config),
+            axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
+        ]);
+
+      
+        const departmentsData: Department[] = data.data
+            .filter((item: any) => !item.municipio) 
+            .map((item: any) => ({
+                name: capitalizeWords(item.departamento.toLowerCase()),
+                legend: item.leyenda,
+                value: parseFloat(item.tasa) || 0,
+                year: item.periodo_anual,
+                level: item.nivel
+            }));
+
+        const municipalitiesData: Municipio[] = data.data
+            .filter((item: any) => item.municipio) 
+            .map((item: any) => ({
+                name: capitalizeWords(item.municipio.toLowerCase()),
+                legend: item.leyenda,
+                value: parseFloat(item.tasa) || 0,
+                year: item.periodo_anual,
+                level: item.nivel,
+                department: capitalizeWords(item.departamento.toLowerCase())
+            }));
+
+        const legendsData: Legend[] = legends.data.map((item: any) => ({
+            level: item.nivel,
+            message: item.leyenda,
+            lowerLimit: parseFloat(item.min),
+            upperLimit: parseFloat(item.max)
+        }));
+
+        const legendsWithColors = assignColorsToLegends(legendsData);
+
+        setDepartments(departmentsData);
+        setMunicipalities(municipalitiesData);
+        setLegends(legendsWithColors);
+        setYears(years.data);
+        applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    } finally {
+        setLoading(false);
+    }
+};
+const handleDepartmentChange = (dept: string) => {
+    setSelectedDepartment(dept);
+    setSelectedMunicipalities([]); 
+    
+    if (dept === "Ninguno") {
+        setAvailableMunicipalities([]);
+        return;
+    }
+    
+    const deptMunicipalities = municipalities
+        .filter(m => m.department.toLowerCase() === dept.toLowerCase())
+        .map(m => m.name);
+    
+    setAvailableMunicipalities([...new Set(deptMunicipalities)]);
+};
+const handleMunicipalityCheck = (municipality: string) => {
+    setSelectedMunicipalities(prev => 
+        prev.includes(municipality)
+            ? prev.filter(m => m !== municipality)
+            : [...prev, municipality]
+    );
+};
+
+    const postComparison = async () => {
         setLoading(true);
         try {
             const config = {
@@ -268,75 +377,71 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 }
             };
 
-            const [data, legends, years] = await Promise.all([
-                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
-                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config),
-                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config)
-            ]);
+            if (departments.length === 0) {
+                await fetchData(); // Asegurarse de tener datos
+            }
 
-            const departmentsData: Department[] = data.data.map((item: any) => ({
+            const departmentsUpper = departments.map(dep => dep.name.toUpperCase());
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
+                nivel: selectedLevel, 
+                periodo_anual: selectedYear, 
+                departamentos: departmentsUpper,
+            }, config);
+
+            // Actualiza el estado principal de departamentos con los nuevos datos
+            const updatedDepartments = response.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento.toLowerCase()),
                 legend: item.leyenda,
                 value: parseFloat(item.tasa) || 0,
-                year: item.periodo_anual,
-                level: item.nivel
+                year: selectedYear,
+                level: selectedLevel
             }));
 
-            const legendsData: Legend[] = legends.data.map((item: any) => ({
-                level: item.nivel,
-                message: item.leyenda,
-                lowerLimit: parseFloat(item.min),
-                upperLimit: parseFloat(item.max)
-            }));
-
-            const legendsWithColors = assignColorsToLegends(legendsData);
-
-            setDepartments(departmentsData);
-            setLegends(legendsWithColors);
-            setYears(years.data);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+            setDepartments(updatedDepartments);
+            applyFilters(updatedDepartments, selectedYear, selectedLevel, selectedDepartment);
         } catch (error) {
-            console.error("Error fetching data:", error);
+            console.error("Error posting data:", error);
         } finally {
             setLoading(false);
         }
     };
 
-        const applyFilters = (data: Department[], year: string, level: string, department: string) => {
-        if ((year === "Ninguno" && level === "Ninguno") || 
-            (department === "Ninguno" && level === "Ninguno" && activeGraph === 'line')) {
-            setFilteredData([]);
-            return;
+    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+    if ((year === "Ninguno" && level === "Ninguno") || 
+        (department === "Ninguno" && level === "Ninguno" && activeGraph === 'line')) {
+        setFilteredData([]);
+        return;
+    }
+
+    let result = [...data];
+
+    if (activeGraph === 'bar' || activeGraph === 'pie') {
+        if (year !== "Ninguno") {
+            result = result.filter(d => d.year === year);
         }
-
-        let result = [...data];
-
-        if (activeGraph === 'bar' || activeGraph === 'pie') {
-            if (year !== "Ninguno") {
-                result = result.filter(d => d.year === year);
-            }
-            if (department !== "Ninguno") {
-                result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
-            }
-        } else if (activeGraph === 'line') {
-            if (department !== "Ninguno") {
-                result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
-            }
+        if (department !== "Ninguno") {
+            result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
         }
-
-        if (level !== "Ninguno") {
-            result = result.filter(d => d.level === level);
+    } else if (activeGraph === 'line') {
+        if (department !== "Ninguno") {
+            result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
         }
+    }
 
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        setFilteredData(result);
+    if (level !== "Ninguno") {
+        result = result.filter(d => d.level === level);
+    }
 
-        if (activeGraph === 'bar' || activeGraph === 'pie') {
-            setShowGraph((year !== "Ninguno" || department !== "Ninguno") && level !== "Ninguno");
-        } else {
-            setShowGraph(department !== "Ninguno" && level !== "Ninguno");
-        }
-    };
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    setFilteredData(result);
+
+    if (activeGraph === 'bar' || activeGraph === 'pie') {
+        setShowGraph((year !== "Ninguno" || department !== "Ninguno") && level !== "Ninguno");
+    } else {
+        setShowGraph(department !== "Ninguno" && level !== "Ninguno");
+    }
+};
     const formatDataForLineGraph = (data: Department[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
@@ -350,9 +455,20 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
-
+    const initializeData = async () => {
+        try {
+            setLoading(true);
+            await getYears();
+            await fetchData();
+        } catch (error) {
+            console.error("Error inicializando datos:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    initializeData();
+}, [comparison]);
     useEffect(() => {
         if (departments.length > 0) {
             applyFilters(departments, selectedYear, selectedLevel, selectedDepartment);
@@ -417,47 +533,52 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-        const renderFilter = () => {
-        return (
-            <>
-                {activeGraph !== 'line' && (
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                            {t("Año")}:
-                        </label>
-                        <select
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                            <option value="Ninguno">{t("Ninguno")}</option>
-                            {years.map(year => (
-                                <option key={year} value={year}>
-                                    {year}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-                
+    const renderFilter = () => {
+    return (
+        <>
+            {activeGraph !== 'line' && (
                 <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                        {activeGraph === 'line' ? t("Departamento") : t("Filtrar por Departamento")}:
+                        {t("Año")}:
                     </label>
                     <select
-                        value={selectedDepartment}
-                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(e.target.value)}
                         style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                     >
                         <option value="Ninguno">{t("Ninguno")}</option>
-                        {[...new Set(departments.map(d => d.name))].sort().map(dep => (
-                            <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
+                        {years.map(year => (
+                            <option key={year} value={year}>
+                                {year}
+                            </option>
                         ))}
                     </select>
                 </div>
-            </>
-        );
-    };
+            )}
+            
+            <div style={{ flex: 1, minWidth: '200px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                    {activeGraph === 'line' ? t("Departamento") : t("Filtrar por Departamento")}:
+                </label>
+                <select
+                    value={selectedDepartment}
+                    onChange={(e) => handleDepartmentChange(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                >
+                    <option value="Ninguno">{t("Ninguno")}</option>
+                    {[...new Set(departments.map(d => d.name))].sort().map(dep => (
+                        <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
+                    ))}
+                </select>
+            </div>
+            
+        </>
+    );
+};
+
+    function handleCheck(name: string): void {
+        throw new Error('Function not implemented.');
+    }
 
     return (
         <Client>
@@ -470,7 +591,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     </div>
                 ) : (
                     <div style={{ width: '100%', height: '100%', padding: '20px' }}>
-
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
                             {/* Nivel */}
                             <div style={{ flex: 1, minWidth: '200px' }}>
@@ -489,8 +609,73 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                     ))}
                                 </select>
                             </div>
-                            {renderFilter()}
+                            {/* Filtros de comparacion */}
+                        {comparison ? (
+                            <>
+                                {/* Año */}
+                                <div style={{ flex: 1, minWidth: '220px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                        {t("Año")}:
+                                    </label>
+                                    <select
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                    >
+                                        <option value="Ninguno">{t("Ninguno")}</option>
+                                        {years.map(year => (
+                                            <option key={year} value={year}>
+                                                {year}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ flex: 1, minWidth: '200px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                        {activeGraph === 'line' ? t("Departamento") : t("Filtrar por Departamento")}:
+                                    </label>
+                                    <select
+                                        value={selectedDepartment}
+                                        onChange={(e) => handleDepartmentChange(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                    >
+                                        <option value="Ninguno">{t("Ninguno")}</option>
+                                        {[...new Set(departments.map(d => d.name))].sort().map(dep => (
+                                            <option key={dep} value={dep}>{dep.charAt(0).toUpperCase() + dep.slice(1)}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                        <Dropdown autoClose="outside">
+                                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                                                {t("Municipios")} ({selectedMunicipalities.length})
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                                                {availableMunicipalities.map((municipality) => (
+                                                    <Dropdown.Item
+                                                        key={municipality}
+                                                        as="div"
+                                                        className="px-2"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            id={`mun-${municipality}`}
+                                                            label={municipality}
+                                                            checked={selectedMunicipalities.includes(municipality)}
+                                                            onChange={() => handleMunicipalityCheck(municipality)}
+                                                        />
+                                                    </Dropdown.Item>
+                                                ))}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </div>
+                            </>
+                        ) : (
+                            renderFilter()
+                        )}
                         </div>
+                       
                         <h2 style={{ marginBottom: '20px' }}>
                             {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
                         </h2>
