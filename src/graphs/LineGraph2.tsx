@@ -2,15 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import axios from 'axios';
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    ReferenceLine,
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 
 interface LegendItem {
@@ -29,11 +21,10 @@ interface DataItem {
 
 interface LineGraphProps {
     data: DataItem[];
-    xAxisKey: string;
-    yAxisKey: string;
-    legendKey?: string;
     legends?: LegendItem[];
+    years: string[];
 }
+
 const ALL_LEVELS = [
     "Muy lejos de la meta",
     "Lejos de la meta",
@@ -48,35 +39,7 @@ const colorMap: Record<string, string> = {
     "Muy lejos de la meta": "#e41a1c"
 };
 
-
-const LineGraph2: React.FC<LineGraphProps> = ({
-    data,
-    xAxisKey,
-    yAxisKey,
-    legendKey = 'legend',
-    legends = []
-}) => {
-  const [years, setYears] = useState<string[]>([]); 
-        useEffect(() => {
-            const fetchYears = async () => {
-                try {
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`);
-                    
-                    const sortedYears = response.data.sort((a: string, b: string) => parseInt(a) - parseInt(b));
-                    setYears(sortedYears);
-                } catch (error) {
-                    console.error("Error fetching years:", error);
-                  
-                    setYears(['2018', '2019', '2020', '2021', '2022', '2023']);
-                }
-            };
-
-            fetchYears();
-        }, []);
-    const uniqueLegends = legends.filter(
-        (legend, index, self) =>
-            index === self.findIndex((l) => l.message === legend.message)
-    );
+const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
             ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -93,10 +56,10 @@ const LineGraph2: React.FC<LineGraphProps> = ({
             upperLimit: match?.upperLimit ?? 0
         };
     });
-     const transformedData = useMemo(() => {
-     
+    const transformedData = useMemo(() => {
+
         const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
-        
+
         return sortedYears.map(year => {
             const yearData: any = { year };
             data.forEach(item => {
@@ -113,36 +76,10 @@ const LineGraph2: React.FC<LineGraphProps> = ({
         return legends.find(l => l.message === deptLegend)?.color || '#808080';
     };
 
-    const renderLegend = (props: any) => {
-        const { payload } = props;
-
-        const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
-            .filter((legend): legend is string => legend !== undefined)
-            .map(legend => {
-                const legendItem = legends.find(l => l.message === legend);
-                return {
-                    value: legend,
-                    color: legendItem?.color || '#808080',
-                    id: legend
-                };
-            });
-
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {uniqueLegends.map((entry, index) => (
-                    <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', margin: '0 10px' }}>
-                        <div style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: entry.color,
-                            marginRight: '5px',
-                            display: 'inline-block'
-                        }} />
-                        <span>{entry.value}</span>
-                    </div>
-                ))}
-            </div>
-        );
+    const capitalizeWords = (str: string) => {
+        return str.toLowerCase().split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
     };
 
     return (
@@ -163,7 +100,7 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                                         <p><strong>Año: {label}</strong></p>
                                         {payload.map((entry: any, index: number) => (
                                             <div key={index} style={{ color: entry.color }}>
-                                                {entry.name}: {entry.value?.toFixed(2)}
+                                                {capitalizeWords(entry.name)}: {entry.value?.toFixed(2)}
                                             </div>
                                         ))}
                                     </div>
@@ -197,8 +134,6 @@ const LineGraph2: React.FC<LineGraphProps> = ({
                             }}
                         />
                     ))}
-
-
 
                 </LineChart>
             </ResponsiveContainer>
