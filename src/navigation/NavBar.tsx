@@ -180,7 +180,6 @@ export default function NavBar() {
                       >
                         {"Gráficos Estadísticos"}
                       </NavDropdown.Item>
-
                       {user?.admin && (
                         <>
                           <NavDropdown.Divider />

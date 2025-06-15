@@ -1,5 +1,15 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    Cell
+} from 'recharts';
 import { useTranslation } from "react-i18next";
 import FuenteDeDatos from '@/components/FuenteDeDatos';
 
@@ -17,6 +27,7 @@ interface DataItem {
     legend: string;
     year: string;
     level: string;
+    department?: string;
 }
 
 interface BarGraphProps {
@@ -37,23 +48,22 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
 
         return {
             ...item,
-            color: legendColor
+            color: legendColor,
+            displayName: item.department ? `${t("Municipio")}: ${item.name}` : item.name
         };
     });
 
-    const renderLegend = (props: any) => {
-        const { payload } = props;
-
+    const renderLegend = () => {
         const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
             .filter((legend): legend is string => legend !== undefined)
             .map(legend => {
                 const legendItem = legends.find(l => l.message === legend);
                 return {
                     value: legend,
-                    color: legendItem?.color || '#808080',
-                    id: legend
+                    color: legendItem?.color || '#808080'
                 };
             });
+
         return (
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {uniqueLegends.map((entry, index) => (
@@ -72,6 +82,24 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
         );
     };
 
+    const customTooltip = ({ active, payload }: any) => {
+        if (active && payload && payload.length > 0) {
+            const item = payload[0].payload;
+            return (
+                <div style={{ background: "#fff", padding: 10, border: "1px solid #ccc" }}>
+                    <p><strong>{item.department ? `${t("Municipio")}` : `${t("Departamento")}`}:</strong> {item.name}</p>
+                    {item.department && (
+                        <p><strong>{t("Departamento")}:</strong> {item.department}</p>
+                    )}
+                    <p><strong>{t("Valor")}:</strong> {item.value}</p>
+                    <p><strong>{t("Leyenda")}:</strong> {item.legend}</p>
+                    <p><strong>{t("Año")}:</strong> {item.year}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -82,12 +110,12 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis
-                    dataKey={xAxisKey}
+                    dataKey="displayName"
                     type="category"
-                    width={150}
+                    width={200}
                     interval={0}
                 />
-                <Tooltip />
+                <Tooltip content={customTooltip} />
                 <Legend content={renderLegend} />
                 <Bar dataKey={yAxisKey} name={t("Valor")}>
                     {processedData.map((item, index) => (

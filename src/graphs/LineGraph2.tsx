@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import axios from 'axios';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
@@ -54,16 +56,20 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => 
             upperLimit: match?.upperLimit ?? 0
         };
     });
+    const transformedData = useMemo(() => {
 
-    const transformedData = years.map(year => {
-        const yearData: any = { year };
-        data.forEach(item => {
-            if (item.year === year) {
-                yearData[normalize(item.departamento)] = parseFloat(item.value as any) || 0;
-            }
+        const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
+
+        return sortedYears.map(year => {
+            const yearData: any = { year };
+            data.forEach(item => {
+                if (item.year === year) {
+                    yearData[normalize(item.departamento)] = parseFloat(item.value as any) || 0;
+                }
+            });
+            return yearData;
         });
-        return yearData;
-    });
+    }, [data, years]);
 
     const getColor = (department: string) => {
         const deptLegend = data.find(d => normalize(d.departamento) === department)?.legend;
