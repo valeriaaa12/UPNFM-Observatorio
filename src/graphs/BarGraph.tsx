@@ -1,17 +1,8 @@
 import React from 'react';
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Cell
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts';
 import { useTranslation } from "react-i18next";
-import FuenteDeDatos from '@/components/FuenteDeDatos';
 
 interface LegendItem {
     message: string;
@@ -32,24 +23,24 @@ interface DataItem {
 
 interface BarGraphProps {
     data: DataItem[];
-    xAxisKey: string;
     yAxisKey: string;
     legendKey: string;
     legends: LegendItem[];
 }
 
-const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey, legends = [] }) => {
+const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends = [] }) => {
     const { t } = useTranslation('common');
 
     const processedData = data.map(item => {
+        const legendValue = (item as any)[legendKey] ?? '';
         const legendColor = legends.find(
-            l => l.message === (item as any)[legendKey]
+            l => (l.message ?? '').toString().toLowerCase() === legendValue.toString().toLowerCase()
         )?.color || '#808080';
 
         return {
             ...item,
             color: legendColor,
-            displayName: item.department ? `${t("Municipio")}: ${item.name}` : item.name
+            displayName: item.name
         };
     });
 
@@ -57,7 +48,9 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
         const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
             .filter((legend): legend is string => legend !== undefined)
             .map(legend => {
-                const legendItem = legends.find(l => l.message === legend);
+                const legendItem = legends.find(
+                    l => (l.message ?? '').toString().toLowerCase() === (legend ?? '').toString().toLowerCase()
+                );
                 return {
                     value: legend,
                     color: legendItem?.color || '#808080'
@@ -86,14 +79,33 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
         if (active && payload && payload.length > 0) {
             const item = payload[0].payload;
             return (
-                <div style={{ background: "#fff", padding: 10, border: "1px solid #ccc" }}>
-                    <p><strong>{item.department ? `${t("Municipio")}` : `${t("Departamento")}`}:</strong> {item.name}</p>
+                <div style={{
+                    background: "#fff",
+                    padding: "12px 16px",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    minWidth: 220
+                }}>
+                    <div style={{ marginBottom: 6 }}>
+                        <strong>
+                            {item.department ? t("Municipio") : t("Departamento")}:
+                        </strong> {item.name}
+                    </div>
                     {item.department && (
-                        <p><strong>{t("Departamento")}:</strong> {item.department}</p>
+                        <div style={{ marginBottom: 6 }}>
+                            <strong>{t("Departamento")}:</strong> {item.department}
+                        </div>
                     )}
-                    <p><strong>{t("Valor")}:</strong> {item.value}</p>
-                    <p><strong>{t("Leyenda")}:</strong> {item.legend}</p>
-                    <p><strong>{t("Año")}:</strong> {item.year}</p>
+                    <div style={{ marginBottom: 6 }}>
+                        <strong>{t("Valor")}:</strong> {item.value}
+                    </div>
+                    <div style={{ marginBottom: 6 }}>
+                        <strong>{t("Leyenda")}:</strong> {item.legend}
+                    </div>
+                    <div>
+                        <strong>{t("Año")}:</strong> {item.year}
+                    </div>
                 </div>
             );
         }
@@ -101,7 +113,7 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, xAxisKey, yAxisKey, legendKey
     };
 
     return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={450}>
             <BarChart
                 data={processedData}
                 layout="vertical"

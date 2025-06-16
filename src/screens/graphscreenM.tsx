@@ -336,6 +336,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departments]);
 
+    const filteredMunicipios = municipios
+        ? municipios.filter(item =>
+            (selectedYear === "Ninguno" || item.year === selectedYear) &&
+            (selectedDepartment === "Ninguno" || item.department?.toLowerCase() === selectedDepartment.toLowerCase()) &&
+            (selectedLevel === "Ninguno" || item.level?.toLowerCase() === selectedLevel.toLowerCase())
+        ) : [];
+
     const renderGraph = () => {
         if (activeGraph === 'bar') {
             const barData = filteredData.map(d => ({
@@ -347,17 +354,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             }));
             return (
                 <BarGraphM
-                    initialData={barData}
-                    extensionData={extensionData}
-                    extensionLimits={extensionLimits}
-                    title={title}
-                    selectedDepartment={selectedDepartment}
-                    selectedLevel={selectedLevel}
-                    selectedYear={selectedYear}
+                    data={filteredMunicipios}
                     legendKey="legend"
                     legends={legends}
                     yAxisKey="value"
-                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -385,13 +385,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         year: d.year,
                         level: d.level,
                     }))}
-                    extensionData={extensionData}
-                    extensionLimits={extensionLimits}
-                    title={title}
-                    selectedYear={selectedYear}
-                    selectedLevel={selectedLevel}
-                    selectedDepartment={selectedDepartment}
-                    setMunicipios={setMunicipios}
                 />
             );
         }

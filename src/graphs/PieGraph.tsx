@@ -36,49 +36,24 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     }));
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '500px' }}>
-            <div style={{
-                width: '250px',
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-start'
-            }}>
-                {processedData.map((entry, index) => (
-                    <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <div style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: entry.color,
-                            marginRight: '8px',
-                            display: 'inline-block'
-                        }} />
-                        <span>{entry.name}</span>
-                    </div>
-                ))}
-            </div>
-            <div style={{ flex: 1 }}>
-                <ResponsiveContainer width="100%" height="80%">
-                    <PieChart>
-                        <Tooltip />
-                        <Pie
-                            data={processedData}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={180}
-                            label={false}
-                        >
-                            {processedData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
+        <ResponsiveContainer width="100%" height={450}>
+            <PieChart>
+                <Tooltip />
+                <Pie
+                    data={processedData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={180}
+                    label={({ name }) => name}
+                >
+                    {processedData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+            </PieChart>
+        </ResponsiveContainer>
     );
 };
 
