@@ -1,140 +1,115 @@
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
+    LineChart, Line, XAxis, YAxis, CartesianGrid,
+    Tooltip, ResponsiveContainer
 } from "recharts";
-
-interface LegendItem {
-    message: string;
-    color: string;
-}
+import axios from "axios";
 
 interface DataItem {
     departamento: string;
     year: string;
     value: number;
-    legend?: string;
 }
 
 interface LineGraphProps {
     data: DataItem[];
-    xAxisKey: string; // e.g., "year"
-    yAxisKey: string; // e.g., "value"
-    legendKey?: string; // e.g., "legend"
-    legends?: LegendItem[];
 }
 
-const LineGraph: React.FC<LineGraphProps> = ({
-    data,
-    xAxisKey,
-    yAxisKey,
-    legendKey = 'legend',
-    legends = []
-}) => {
+const defaultColors = [
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+    '#C9CBCF', '#8E44AD', '#2ECC71', '#E67E22', '#3498DB', '#E74C3C',
+    '#1ABC9C', '#9B59B6', '#34495E', '#95A5A6', '#F39C12', '#D35400'
+];
 
-    // Agrupar datos por departamento
-    const departments = Array.from(new Set(data.map(d => d.departamento)));
+const normalize = (str: string | undefined | null) =>
+    typeof str === "string"
+        ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        : "";
 
-    // Años fijos en el eje X
-    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+const LineGraph: React.FC<LineGraphProps> = ({ data }) => {
+    const [years, setYears] = useState<string[]>([]);
 
-    // Reorganizar los datos por año
-    const transformedData = years.map(year => {
-        const yearData: any = { year };
-        data.forEach(item => {
-            if (item.year === year) {
-                yearData[item.departamento] = item.value;
+    const departments = useMemo(() => {
+        return Array.from(new Set(data.map(d => normalize(d.departamento))));
+    }, [data]);
+
+    useEffect(() => {
+        const fetchYears = async () => {
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`);
+                const sorted = response.data.sort((a: string, b: string) => parseInt(a) - parseInt(b));
+                setYears(sorted);
+            } catch (error) {
+                console.error("Error fetching years:", error);
+                setYears(['2018', '2019', '2020', '2021', '2022', '2023']); // fallback
             }
-        });
-        return yearData;
-    });
+        };
+        fetchYears();
+    }, []);
 
-    // Obtener color por departamento
-    const getColor = (department: string) => {
-        const deptLegend = data.find(d => d.departamento === department)?.legend;
-        return legends.find(l => l.message === deptLegend)?.color || '#808080';
-    };
+    const colorMap = useMemo(() => {
+        return departments.reduce((acc, dep, index) => {
+            acc[dep] = defaultColors[index % defaultColors.length];
+            return acc;
+        }, {} as Record<string, string>);
+    }, [departments]);
 
-      const renderLegend = (props: any) => {
-        const { payload } = props;
-
-        const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
-            .filter((legend): legend is string => legend !== undefined)
-            .map(legend => {
-                const legendItem = legends.find(l => l.message === legend);
-                return {
-                    value: legend,
-                    color: legendItem?.color || '#808080',
-                    id: legend
-                };
+    const transformedData = useMemo(() => {
+        const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
+        return sortedYears.map(year => {
+            const yearData: any = { year };
+            data.forEach(item => {
+                if (item.year === year) {
+                    yearData[normalize(item.departamento)] = item.value;
+                }
             });
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {uniqueLegends.map((entry, index) => (
-                    <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', margin: '0 10px' }}>
-                        <div style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: entry.color,
-                            marginRight: '5px',
-                            display: 'inline-block'
-                        }} />
-                        <span>{entry.value}</span>
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
+            return yearData;
+        });
+    }, [data, years]);
 
     return (
-        <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <h2>Indicadores por Departamento (2018–2023)</h2>
-            <ResponsiveContainer width="100%" height={500}>
-                <LineChart
-                    data={transformedData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip 
-                    content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                        return (
-                            <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '10px' }}>
-                            <p><strong>Año: {label}</strong></p>
-                            {payload.map((entry: any, index: number) => (
-                                <div key={index} style={{ color: entry.color }}>
-                                {entry.name}: {entry.value?.toFixed(2)}
-                                </div>
-                            ))}
-                            </div>
-                        );
-                        }
-                        return null;
-                    }}
-                    />
-
-                    <Legend content={renderLegend} />
+        <div style={{ display: 'flex', width: '100%' }}>
+            {/* Leyenda izquierda */}
+            <div style={{ width: '25%', padding: '1rem', maxHeight: '500px', overflowY: 'auto' }}>
+                <h4 style={{ marginBottom: '0.5rem' }}>Departamentos</h4>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {departments.map((dep, index) => (
-                        <Line
-                            key={index}
-                            type="monotone"
-                            dataKey={dep}
-                            stroke={getColor(dep)}
-                            dot={{ r: 2 }}
-                            strokeWidth={2}
-                        />
+                        <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.75rem' }}>
+                            <span style={{
+                                display: 'inline-block',
+                                width: 12,
+                                height: 10,
+                                backgroundColor: colorMap[dep],
+                                marginRight: 6,
+                                borderRadius: 2
+                            }} />
+                            <span>{dep}</span>
+                        </li>
                     ))}
-                </LineChart>
-            </ResponsiveContainer>
+                </ul>
+            </div>
+
+            {/* Gráfico derecha */}
+            <div style={{ width: '75%', height: '400px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={transformedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        {departments.map((dep, index) => (
+                            <Line
+                                key={index}
+                                type="monotone"
+                                dataKey={dep}
+                                stroke={colorMap[dep]}
+                                dot={{ r: 2 }}
+                                strokeWidth={2}
+                            />
+                        ))}
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 };

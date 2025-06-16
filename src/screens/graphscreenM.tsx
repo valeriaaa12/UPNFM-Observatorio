@@ -612,7 +612,6 @@ const handleMunicipalityCheck = (municipality: string) => {
                             {/* Filtros de comparacion */}
                         {comparison ? (
                             <>
-                                {/* Año */}
                                 <div style={{ flex: 1, minWidth: '220px' }}>
                                     <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
                                         {t("Año")}:

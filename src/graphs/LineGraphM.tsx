@@ -82,8 +82,6 @@ const LineGraph: React.FC<LineGraphProps> = ({
                     level: item.nivel?.toLowerCase() || '',
                     department: item.departamento?.toLowerCase() || ''
                 }));
-
-                console.log("✅ MUNICIPAL PROCESSED:", processed);
                 setMunicipalData(processed);
             } catch (error) {
                 console.error("❌ Error fetching data:", error);
@@ -150,8 +148,7 @@ const graphData = useMemo(() => {
 }, [filteredSource, years]);
     return (
         <div style={{ display: 'flex', width: '100%' }}>
-            {/* Leyenda personalizada a la izquierda */}
-            <div style={{ width: '25%', padding: '1rem', maxHeight: '500px', overflowY: 'auto' }}>
+            <div style={{ width: '25%', padding: '1rem', maxHeight: '400px', overflowY: 'auto' }}>
                 <h4 style={{ marginBottom: '0.5rem' }}>Municipios</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {lineNames.map((name, index) => (
@@ -216,7 +213,6 @@ const graphData = useMemo(() => {
                                     return null;
                                 }}
                             />
-
                             {lineNames.map((name, index) => (
                                     <Line
                                         key={index}

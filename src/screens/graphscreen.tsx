@@ -21,7 +21,7 @@ const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
 });
 
-const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
+const LineGraph = dynamic(() => import("@/graphs/LineGraph"), {
     ssr: false
 });
 
@@ -72,7 +72,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
-
+    
     const exportExcel = async () => {
         const nombre = "Departamentos"
 
@@ -350,8 +350,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 result = result.filter(d => d.year === year);
             }
         } else if (activeGraph === 'line') {
-            if (department !== "Ninguno") {
-                result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
+            if (activeGraph === 'line' && department !== "Ninguno") {
+                result = result.filter(d => 
+                    d.name.toLowerCase() === department.toLowerCase() 
+                );
             }
         }
 
@@ -369,10 +371,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const formatDataForLineGraph = (data: Department[]) => {
+     const formatDataForLineGraph = (data: Department[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-            .map(({ year, value, name, legend }) => ({
+            .map(({ year, value, name, legend, level }) => ({
                 departamento: name,
                 year,
                 value,
@@ -419,9 +421,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             return (
                 <LineGraph
                     data={lineData}
-                    legends={legends}
-                    years={years}
-                />
+                     />
             );
         }
         if (activeGraph === 'pie') {
@@ -621,85 +621,79 @@ const handlePrintGraph = async () => {
                     <div style={{ width: '100%', height: '100%', padding: '20px' }}>
 
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                            {/* Nivel */}
-                            <div style={{ flex: 1, minWidth: '200px' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                {t("Nivel Educativo")}:
+                            </label>
+                            <select
+                                value={selectedLevel}
+                                onChange={(e) => setSelectedLevel(e.target.value)}
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                            >
+                                {levels.map(level => (
+                                    <option key={level} value={level}>
+                                        {level}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {!(comparison && activeGraph === 'line') && (
+                            <div style={{ flex: 1, minWidth: '220px' }}>
                                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                    {t("Nivel Educativo")}:
+                                    {t("Año")}:
                                 </label>
                                 <select
-                                    value={selectedLevel}
-                                    onChange={(e) => setSelectedLevel(e.target.value)}
+                                    value={selectedYear}
+                                    onChange={(e) => setSelectedYear(e.target.value)}
                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
-                                    {levels.map(level => (
-                                        <option key={level} value={level}>
-                                            {level}
+                                    <option value="Ninguno">{t("Ninguno")}</option>
+                                    {years.map(year => (
+                                        <option key={year} value={year}>
+                                            {year}
                                         </option>
                                     ))}
                                 </select>
                             </div>
-                            {/* Filtros de comparacion */}
-                            {comparison ? (
-                                <>
-                                    {/* Año */}
-                                    <div style={{ flex: 1, minWidth: '220px' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                            {t("Año")}:
-                                        </label>
-                                        <select
-                                            value={selectedYear}
-                                            onChange={(e) => setSelectedYear(e.target.value)}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                                        >
-                                            <option value="Ninguno">{t("Ninguno")}</option>
-                                            {years.map(year => (
-                                                <option key={year} value={year}>
-                                                    {year}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {/* Departamento */}
-                                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                        <Dropdown autoClose={false}>
-                                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
-                                                {t("Departamento")}
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
-                                                {departments.map((dept) => (
-                                                    <Dropdown.Item
-                                                        key={dept}
-                                                        as="div"
-                                                        className="px-2"
-                                                        onClick={e => e.stopPropagation()}
-                                                    >
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            id={`dept-${dept}`}
-                                                            label={dept}
-                                                            checked={selectedDepartments.includes(dept)}
-                                                            onChange={() => handleCheck(dept)}
-                                                        />
-                                                    </Dropdown.Item>
-                                                ))}
-                                                <Dropdown.Divider />
-                                                <div className="d-flex px-2 py-1 justify-content-end ">
-                                                    <button
-                                                        className="btn btn-blue"
-                                                        onClick={postComparison}
-                                                        type="button"
-                                                    >
-                                                        Graficar
-                                                    </button>
-                                                </div>
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </div>
-                                </>
-                            ) : (
-                                renderFilter()
-                            )}
-                        </div>
+                        )}
+                        {comparison && (
+                            <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                <Dropdown autoClose={false}>
+                                    <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                                        {t("Departamento")}
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                                        {departments.map((dept) => (
+                                            <Dropdown.Item
+                                                key={dept}
+                                                as="div"
+                                                className="px-2"
+                                                onClick={e => e.stopPropagation()}
+                                            >
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    id={`dept-${dept}`}
+                                                    label={dept}
+                                                    checked={selectedDepartments.includes(dept)}
+                                                    onChange={() => handleCheck(dept)}
+                                                />
+                                            </Dropdown.Item>
+                                        ))}
+                                        <Dropdown.Divider />
+                                        <div className="d-flex px-2 py-1 justify-content-end ">
+                                            <button
+                                                className="btn btn-blue"
+                                                onClick={postComparison}
+                                                type="button"
+                                            >
+                                                Graficar
+                                            </button>
+                                        </div>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </div>
+                        )}
+                    </div>
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
                                 {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
