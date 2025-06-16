@@ -16,7 +16,7 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { isDataView } from 'node:util/types';
 
-
+//Departamentos
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
 });
@@ -26,6 +26,19 @@ const LineGraph = dynamic(() => import("@/graphs/LineGraph2"), {
 });
 
 const PieGraph = dynamic(() => import("@/graphs/PieGraph"), {
+    ssr: false
+});
+
+//Municipios
+const BarGraphM = dynamic(() => import("@/graphs/BarGraphM"), {
+    ssr: false
+});
+
+const LineGraphM = dynamic(() => import("@/graphs/LineGraphM"), {
+    ssr: false
+});
+
+const PieGraphM = dynamic(() => import("@/graphs/PieGraphM"), {
     ssr: false
 });
 
@@ -42,6 +55,7 @@ interface Params {
     extensionData: string;
     extensionLimits: string;
     comparison: boolean;
+    department: boolean;
 }
 
 interface Legend {
@@ -52,13 +66,23 @@ interface Legend {
     color: string;
 }
 
-export default function GraphScreen({ title, extensionData, extensionLimits, comparison }: Params) {
+interface DataItem {
+    name: string;
+    value: number;
+    legend: string;
+    year: string;
+    level: string;
+    department?: string;
+}
+
+export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
     const [departmentsData, setDepartmentsData] = useState<Department[]>([]);
+    const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [filteredData, setFilteredData] = useState<Department[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
@@ -166,10 +190,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         saveAs(new Blob([buffer]), fileName);
     }
     const getColor = (msg: string) => {
-        if(msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
-        else if(msg === "Dentro de la meta") return "27ae60"; // verde
-        else if(msg === "Lejos de la meta") return "FFC300"; // amarillo           
-        else if(msg === "Muy lejos de la meta") return "e41a1c"; // rojo
+        if (msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
+        else if (msg === "Dentro de la meta") return "27ae60"; // verde
+        else if (msg === "Lejos de la meta") return "FFC300"; // amarillo           
+        else if (msg === "Muy lejos de la meta") return "e41a1c"; // rojo
         return "#808080"; // gris
     }
     const fallback: Legend = {
@@ -376,7 +400,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const formatDataForLineGraph = (data: Department[]) => {
+    const formatDataForLineGraphD = (data: Department[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
             .map(({ year, value, name, legend }) => ({
@@ -384,6 +408,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 year,
                 value,
                 legend,
+            }));
+    };
+
+    const formatDataForLineGraphM = (data: Department[]) => {
+        return data
+            .sort((a, b) => parseInt(a.year) - parseInt(b.year))
+            .map(({ year, value, name, legend, level }) => ({
+                name,
+                year,
+                value,
+                legend,
+                level,
             }));
     };
 
@@ -402,7 +438,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
 
-    const renderGraph = () => {
+    const renderGraphD = () => {
         if (activeGraph === 'bar') {
             const barData = filteredData.map(d => ({
                 name: d.name,
@@ -422,7 +458,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
         if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraph(filteredData);
+            const lineData = formatDataForLineGraphD(filteredData);
             return (
                 <LineGraph
                     data={lineData}
@@ -446,49 +482,152 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const renderFilter = () => {
-        if (activeFilter === 'year') {
+    const renderGraphM = () => {
+        if (activeGraph === 'bar') {
+            const barData = filteredData.map(d => ({
+                name: d.name,
+                value: d.value,
+                legend: d.legend,
+                year: d.year,
+                level: d.level,
+            }));
             return (
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                        {t("Año")}:
-                    </label>
-                    <select
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
-                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                    >
-                        <option value="Ninguno">{t("Ninguno")}</option>
-                        {years.map(year => (
-                            <option key={year} value={year}>
-                                {year}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            )
+                <BarGraphM
+                    initialData={barData}
+                    extensionData={extensionData}
+                    extensionLimits={extensionLimits}
+                    title={title}
+                    selectedDepartment={selectedDepartment}
+                    selectedLevel={selectedLevel}
+                    selectedYear={selectedYear}
+                    legendKey="legend"
+                    legends={legends}
+                    yAxisKey="value"
+                    setMunicipios={setMunicipios}
+                />
+            );
+        }
+        if (activeGraph === 'line') {
+            const lineData = formatDataForLineGraphM(filteredData);
+            return (
+                <LineGraphM
+                    data={lineData}
+                    xAxisKey="year"
+                    yAxisKey="value"
+                    extensionData={extensionData}
+                    selectedDepartment={selectedDepartment}
+                    selectedLevel={selectedLevel}
+                    setMunicipios={setMunicipios}
+                />
+            );
+        }
+        if (activeGraph === 'pie') {
+            return (
+                <PieGraphM
+                    data={filteredData.map(d => ({
+                        name: d.name,
+                        value: d.value,
+                        legend: d.legend,
+                        year: d.year,
+                        level: d.level,
+                    }))}
+                    extensionData={extensionData}
+                    extensionLimits={extensionLimits}
+                    title={title}
+                    selectedYear={selectedYear}
+                    selectedLevel={selectedLevel}
+                    selectedDepartment={selectedDepartment}
+                    setMunicipios={setMunicipios}
+                />
+            );
+        }
+    };
+
+    const renderFilter = () => {
+        if (department) {
+            if (activeFilter === 'year') {
+                return (
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            {t("Año")}:
+                        </label>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        >
+                            <option value="Ninguno">{t("Ninguno")}</option>
+                            {years.map(year => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )
+            } else {
+                return (
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            {t("Departamento")}:
+                        </label>
+                        <select
+                            value={selectedDepartment}
+                            onChange={(e) => setSelectedDepartment(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        >
+                            <option value="Ninguno">{t("Ninguno")}</option>
+                            {departments.map((department, index) => (
+                                <option key={index} value={department}>
+                                    {department}
+                                </option>
+                            ))}
+                        </select>
+                    </div >
+                )
+            }
         } else {
             return (
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                        {t("Departamento")}:
-                    </label>
-                    <select
-                        value={selectedDepartment}
-                        onChange={(e) => setSelectedDepartment(e.target.value)}
-                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                    >
-                        <option value="Ninguno">{t("Ninguno")}</option>
-                        {departments.map((department, index) => (
-                            <option key={index} value={department}>
-                                {department}
-                            </option>
-                        ))}
-                    </select>
-                </div >
+                <>
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            {t("Año")}:
+                        </label>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        >
+                            <option value="Ninguno">{t("Ninguno")}</option>
+                            {years.map(year => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            {t("Departamento")}:
+                        </label>
+                        <select
+                            value={selectedDepartment}
+                            onChange={(e) => setSelectedDepartment(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        >
+                            <option value="Ninguno">{t("Ninguno")}</option>
+                            {departments.map((department, index) => (
+                                <option key={index} value={department}>
+                                    {department}
+                                </option>
+                            ))}
+                        </select>
+                    </div >
+                </>
             )
         }
     }
+
 
     const handleCheck = (dept: string) => {
         setSelectedDepartments((prev: string[]) =>
@@ -514,105 +653,105 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }
 
-  const handleDownloadImage = async () => {
-    if (!exportRef.current) return;
-    const off = document.createElement('div');
-    Object.assign(off.style, {
-      position: 'fixed', left: '-9999px',
-      width: '800px',    height: '600px',
-      background: 'white', overflow: 'hidden'
-    });
-    document.body.appendChild(off);
+    const handleDownloadImage = async () => {
+        if (!exportRef.current) return;
+        const off = document.createElement('div');
+        Object.assign(off.style, {
+            position: 'fixed', left: '-9999px',
+            width: '800px', height: '600px',
+            background: 'white', overflow: 'hidden'
+        });
+        document.body.appendChild(off);
 
-    const clone = exportRef.current.cloneNode(true) as HTMLElement;
-    clone.style.width  = '800px';
-    clone.style.height = '600px';
-    off.appendChild(clone);
+        const clone = exportRef.current.cloneNode(true) as HTMLElement;
+        clone.style.width = '800px';
+        clone.style.height = '600px';
+        off.appendChild(clone);
 
-    await new Promise(r => setTimeout(r, 300));
-    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-    const link   = document.createElement('a');
-    link.download = `${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.png`;
-    link.href     = canvas.toDataURL('image/png');
-    link.click();
-    document.body.removeChild(off);
-  };
+        await new Promise(r => setTimeout(r, 300));
+        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+        const link = document.createElement('a');
+        link.download = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        document.body.removeChild(off);
+    };
 
-  const handleDownloadPDF = async () => {
-    if (!exportRef.current) return;
-    const off = document.createElement('div');
-    Object.assign(off.style, {
-      position: 'fixed', left: '-9999px',
-      width: '800px',    height: '600px',
-      background: 'white', overflow: 'hidden'
-    });
-    document.body.appendChild(off);
+    const handleDownloadPDF = async () => {
+        if (!exportRef.current) return;
+        const off = document.createElement('div');
+        Object.assign(off.style, {
+            position: 'fixed', left: '-9999px',
+            width: '800px', height: '600px',
+            background: 'white', overflow: 'hidden'
+        });
+        document.body.appendChild(off);
 
-    const clone = exportRef.current.cloneNode(true) as HTMLElement;
-    clone.style.width  = '800px';
-    clone.style.height = '600px';
-    off.appendChild(clone);
+        const clone = exportRef.current.cloneNode(true) as HTMLElement;
+        clone.style.width = '800px';
+        clone.style.height = '600px';
+        off.appendChild(clone);
 
-    await new Promise(r => setTimeout(r, 300));
-    const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-    const img    = canvas.toDataURL('image/png');
-    const pdf    = new jsPDF('landscape','pt','a4');
-    const w      = pdf.internal.pageSize.getWidth();
-    const h      = (canvas.height * w) / canvas.width;
-    pdf.addImage(img,'PNG',0,0,w,h);
-    pdf.save(`${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`: ""}.pdf`);
-    document.body.removeChild(off);
-  };
+        await new Promise(r => setTimeout(r, 300));
+        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+        const img = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('landscape', 'pt', 'a4');
+        const w = pdf.internal.pageSize.getWidth();
+        const h = (canvas.height * w) / canvas.width;
+        pdf.addImage(img, 'PNG', 0, 0, w, h);
+        pdf.save(`${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`);
+        document.body.removeChild(off);
+    };
 
-  // Imprimir el gráfico (fija tamaño y evita distorsión)
-const handlePrintGraph = async () => {
-  if (!exportRef.current) return;
+    // Imprimir el gráfico (fija tamaño y evita distorsión)
+    const handlePrintGraph = async () => {
+        if (!exportRef.current) return;
 
-  // 1) Crear contenedor off-screen de tamaño fijo
-  const off = document.createElement('div');
-  Object.assign(off.style, {
-    position: 'fixed',
-    left:     '-9999px',
-    width:    '800px',
-    height:   '600px',
-    background: 'white',
-    overflow: 'hidden'
-  });
-  document.body.appendChild(off);
+        // 1) Crear contenedor off-screen de tamaño fijo
+        const off = document.createElement('div');
+        Object.assign(off.style, {
+            position: 'fixed',
+            left: '-9999px',
+            width: '800px',
+            height: '600px',
+            background: 'white',
+            overflow: 'hidden'
+        });
+        document.body.appendChild(off);
 
-  // 2) Clonar el nodo real dentro de él
-  const clone = exportRef.current.cloneNode(true) as HTMLElement;
-  clone.style.width  = '800px';
-  clone.style.height = '600px';
-  off.appendChild(clone);
+        // 2) Clonar el nodo real dentro de él
+        const clone = exportRef.current.cloneNode(true) as HTMLElement;
+        clone.style.width = '800px';
+        clone.style.height = '600px';
+        off.appendChild(clone);
 
-  // 3) Esperar renderizado
-  await new Promise(r => setTimeout(r, 300));
+        // 3) Esperar renderizado
+        await new Promise(r => setTimeout(r, 300));
 
-  // 4) Capturar con html2canvas
-  const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-  const dataUrl = canvas.toDataURL('image/png');
+        // 4) Capturar con html2canvas
+        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+        const dataUrl = canvas.toDataURL('image/png');
 
-  // 5) Abrir ventana nueva y escribir la imagen
-  const pw = window.open('', '_blank', 'width=900,height=650');
-  if (pw) {
-    pw.document.write(`
+        // 5) Abrir ventana nueva y escribir la imagen
+        const pw = window.open('', '_blank', 'width=900,height=650');
+        if (pw) {
+            pw.document.write(`
       <html>
-        <head><title>${title}${selectedLevel!=="Ninguno"?` - ${selectedLevel}`:""}${selectedYear!=="Ninguno"?` (${selectedYear})`:""}</title></head>
+        <head><title>${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}</title></head>
         <body style="margin:0;padding:0;text-align:center;">
           <img src="${dataUrl}" style="width:100%;height:auto;"/>
         </body>
       </html>
     `);
-    pw.document.close();
-    pw.focus();
-    pw.print();
-    pw.close();
-  }
+            pw.document.close();
+            pw.focus();
+            pw.print();
+            pw.close();
+        }
 
-  // 6) Limpiar
-  document.body.removeChild(off);
-};
+        // 6) Limpiar
+        document.body.removeChild(off);
+    };
 
 
     return (
@@ -720,192 +859,192 @@ const handlePrintGraph = async () => {
                                 flexDirection: 'column',
                                 position: 'relative'
                             }}>
-                            {showGraph ? (
-                                <>
+                                {showGraph ? (
+                                    <>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            flex: 1,
+                                            gap: '20px',
+                                            minHeight: 0,
+                                        }}>
+                                            {/* Gráfico */}
+                                            <div style={{
+                                                flex: 1,
+                                                minWidth: '300px',
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                height: '100%',
+                                            }}>
+                                                {department ? renderGraphD() : renderGraphM()}
+                                            </div>
+
+                                            {/* Menú derecho */}
+                                            <div style={{
+                                                width: '50px',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}>
+                                                <ListGroup defaultActiveKey="#link1">
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={<Tooltip>Gráfico de Barras</Tooltip>}
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            active={false}
+                                                            onClick={() => {
+                                                                setActiveGraph('bar');
+                                                                setActiveFilter('year');
+                                                                setSelectedDepartment("Ninguno");
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-bar-chart-line"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Gráfico de Líneas
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            active={false}
+                                                            onClick={() => {
+                                                                setActiveGraph('line');
+                                                                setActiveFilter('department');
+                                                                setSelectedDepartment("Ninguno");
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-graph-up"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Gráfico Circular
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            active={false}
+                                                            onClick={() => {
+                                                                setActiveGraph('pie');
+                                                                setActiveFilter('year');
+                                                                setSelectedDepartment("Ninguno");
+                                                            }}
+                                                        >
+
+                                                            <i className="bi bi-pie-chart"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Guardar como imagen
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            onClick={handleDownloadImage}
+                                                        >
+                                                            <i className="bi bi-download"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Imprimir Gráfico
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            onClick={handlePrintGraph}
+                                                        >
+                                                            <i className="bi bi-printer"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Exportar a Excel
+                                                            </Tooltip>
+                                                        }
+
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu d-flex align-items-center justify-content-center'
+                                                            style={{ height: "40px" }}
+                                                            active={false}
+                                                            onMouseEnter={() => setIsHovered(true)}
+                                                            onMouseLeave={() => setIsHovered(false)}
+                                                            onClick={() => exportExcel()}
+                                                        >
+                                                            <img
+                                                                src={isHovered ? "images/excel1.png" : "images/excel2.png"}
+                                                                alt="Excel"
+                                                                width={30}
+                                                                height={30}
+                                                                style={{ display: "block" }}
+                                                            />
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="left"
+                                                        overlay={
+                                                            <Tooltip id="tooltip-graph">
+                                                                Descargar PDF
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <ListGroup.Item
+                                                            action
+                                                            className='graphsMenu'
+                                                            onClick={handleDownloadPDF}
+                                                        >
+                                                            <i className="bi bi-filetype-pdf"></i>
+                                                        </ListGroup.Item>
+                                                    </OverlayTrigger>
+                                                </ListGroup>
+                                            </div>
+                                        </div>
+                                        <FuenteDeDatos />
+
+                                    </>
+
+                                ) : (
                                     <div style={{
                                         display: 'flex',
-                                        flexDirection: 'row',
-                                        flex: 1,
-                                        gap: '20px',
-                                        minHeight: 0,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        height: '100%',
+                                        color: '#666'
                                     }}>
-                                        {/* Gráfico */}
-                                        <div style={{
-                                            flex: 1,
-                                            minWidth: '300px',
-                                            position: 'relative',
-                                            overflow: 'hidden',
-                                            height: '100%',
-                                        }}>
-                                            {renderGraph()}
-                                        </div>
-
-                                        {/* Menú derecho */}
-                                        <div style={{
-                                            width: '50px',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                            <ListGroup defaultActiveKey="#link1">
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={<Tooltip>Gráfico de Barras</Tooltip>}
-                                                >
-                                                    <ListGroup.Item
-                                                        action
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                        onClick={() => {
-                                                            setActiveGraph('bar');
-                                                            setActiveFilter('year');
-                                                            setSelectedDepartment("Ninguno");
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-bar-chart-line"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Gráfico de Líneas
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                    <ListGroup.Item
-                                                        action
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                        onClick={() => {
-                                                            setActiveGraph('line');
-                                                            setActiveFilter('department');
-                                                            setSelectedDepartment("Ninguno");
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-graph-up"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Gráfico Circular
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                    <ListGroup.Item
-                                                        action
-                                                        className='graphsMenu'
-                                                        active={false}
-                                                        onClick={() => {
-                                                            setActiveGraph('pie');
-                                                            setActiveFilter('year');
-                                                            setSelectedDepartment("Ninguno");
-                                                        }}
-                                                    >
-
-                                                        <i className="bi bi-pie-chart"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Guardar como imagen
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                    <ListGroup.Item 
-                                                        action 
-                                                        className='graphsMenu' 
-                                                        onClick={handleDownloadImage}
-                                                        >
-                                                        <i className="bi bi-download"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Imprimir Gráfico
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                    <ListGroup.Item 
-                                                        action 
-                                                        className='graphsMenu' 
-                                                        onClick={handlePrintGraph}
-                                                        >
-                                                        <i className="bi bi-printer"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Exportar a Excel
-                                                        </Tooltip>
-                                                    }
-
-                                                >
-                                                    <ListGroup.Item
-                                                        action
-                                                        className='graphsMenu d-flex align-items-center justify-content-center'
-                                                        style={{ height: "40px" }}
-                                                        active={false}
-                                                        onMouseEnter={() => setIsHovered(true)}
-                                                        onMouseLeave={() => setIsHovered(false)}
-                                                        onClick={() => exportExcel()}
-                                                    >
-                                                        <img
-                                                            src={isHovered ? "images/excel1.png" : "images/excel2.png"}
-                                                            alt="Excel"
-                                                            width={30}
-                                                            height={30}
-                                                            style={{ display: "block" }}
-                                                        />
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="left"
-                                                    overlay={
-                                                        <Tooltip id="tooltip-graph">
-                                                            Descargar PDF
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                    <ListGroup.Item 
-                                                        action 
-                                                        className='graphsMenu' 
-                                                        onClick={handleDownloadPDF}
-                                                        >
-                                                        <i className="bi bi-filetype-pdf"></i>
-                                                    </ListGroup.Item>
-                                                </OverlayTrigger>
-                                            </ListGroup>
-                                        </div>
+                                        No hay datos disponibles para los filtros seleccionados
                                     </div>
-                                    <FuenteDeDatos />
-
-                                </>
-
-                            ) : (
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                    color: '#666'
-                                }}>
-                                    No hay datos disponibles para los filtros seleccionados
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
                 <LanguageSelector />
             </div>
