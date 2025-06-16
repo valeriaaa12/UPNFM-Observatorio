@@ -57,7 +57,13 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
   const [show, setShow] = useState(false);
-
+  const [menuName, setMenuName] = useState(t("Ninguno"));
+  const changeLevel = (value: string) => {
+    const levels = [
+        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
+        setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
+        setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
+  }
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
     { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
@@ -572,8 +578,8 @@ const exportPDF = async () => {
             <ComboBox
               title={t("Nivel Educativo")}
               options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")]}
-              value={level}
-              onChange={setLevel}
+              value={menuName}
+              onChange={changeLevel}
             >
             </ComboBox>
           </div>

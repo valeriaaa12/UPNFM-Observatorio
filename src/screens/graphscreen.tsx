@@ -79,7 +79,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState<string[]>([]);
     const { t } = useTranslation('common');
-    const levels = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
+    const levels2 = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
+    const levels = [
+        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
     const departments = ["Atlántida", "Choluteca", "Colón", "Comayagua", "Copán", "Cortés", "El Paraíso",
         "Francisco Morazán", "Gracias a Dios", "Intibucá", "Islas de la Bahía", "La Paz", "Lempira",
         "Ocotepeque", "Olancho", "Santa Bárbara", "Valle", "Yoro"];
@@ -541,6 +543,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
         if (activeGraph === 'pie') {
+            console.log("filteredMunicipios", filteredMunicipios)
             return (
                 <PieGraphM
                     data={filteredMunicipios}
@@ -807,8 +810,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
                                     {levels.map(level => (
-                                        <option key={level} value={level}>
-                                            {level}
+                                        <option key={level.value} value={level.value}>
+                                            {level.name}
                                         </option>
                                     ))}
                                 </select>
