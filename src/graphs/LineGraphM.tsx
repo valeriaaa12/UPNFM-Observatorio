@@ -17,8 +17,16 @@ interface DataItem {
     year: string;
     level: string;
     department?: string;
+    legend: string;
 }
-
+interface DataItem2 {
+    name: string;
+    value: number;
+    legend: string;
+    year: string;
+    level: string;
+    department?: string;
+}
 interface LineGraphProps {
     data: DataItem[];
     xAxisKey: string;
@@ -26,6 +34,7 @@ interface LineGraphProps {
     extensionData: string;
     selectedLevel: string;
     selectedDepartment: string;
+    setMunicipios: React.Dispatch<React.SetStateAction<DataItem2[] | null>>;
 }
 
 const defaultColors = [
@@ -43,6 +52,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
     extensionData,
     selectedLevel,
     selectedDepartment,
+    setMunicipios
 }) => {
     const { t } = useTranslation('common');
     const [municipalData, setMunicipalData] = useState<any[]>([]);
@@ -80,7 +90,8 @@ const LineGraph: React.FC<LineGraphProps> = ({
                     value: parseFloat(item.tasa),
                     year: item.periodo_anual.toString(),
                     level: item.nivel?.toLowerCase() || '',
-                    department: item.departamento?.toLowerCase() || ''
+                    department: item.departamento?.toLowerCase() || '',
+                    legend: item.leyenda || "default"
                 }));
 
                 console.log("✅ MUNICIPAL PROCESSED:", processed);
@@ -95,6 +106,16 @@ const LineGraph: React.FC<LineGraphProps> = ({
         fetchData();
     }, [selectedDepartment, extensionData]);
 
+    useEffect(() => {
+        //filter and set
+        const filtered = municipalData?.filter(item => {
+            const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
+            const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();        
+            return matchesLevel && matchesDepartment;
+        });
+            
+        setMunicipios(filtered)
+    },[municipalData, selectedLevel, selectedDepartment])
     const [years, setYears] = useState<string[]>([]); 
         useEffect(() => {
             const fetchYears = async () => {
