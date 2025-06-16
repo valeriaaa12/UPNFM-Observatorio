@@ -143,7 +143,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 tempCell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: getDeptColor(dept.name).substring(1) },
+                    fgColor: { argb: getColor(dept.legend) },
                 }
             } else {
                 const tempRow = excelSheet.addRow({
@@ -178,6 +178,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
         }
         saveAs(new Blob([buffer]), fileName);
+    }
+    const getColor = (msg: string) => {
+        if(msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
+        else if(msg === "Dentro de la meta") return "27ae60"; // verde
+        else if(msg === "Lejos de la meta") return "FFC300"; // amarillo           
+        else if(msg === "Muy lejos de la meta") return "e41a1c"; // rojo
+        return "#808080"; // gris
     }
     const fallback: Legend = {
         level: "",

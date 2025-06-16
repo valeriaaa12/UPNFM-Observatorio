@@ -17,7 +17,14 @@ interface DataItem {
     level: string;
     department?: string;
 }
-
+interface DataItem2 {
+    name: string;
+    value: number;
+    legend: string;
+    year: string;
+    level: string;
+    department?: string;
+}
 interface PieGraphProps {
     data: DataItem[];
     selectedYear: string;
@@ -26,6 +33,7 @@ interface PieGraphProps {
     extensionData: string;
     extensionLimits: string;
     title: string;
+    setMunicipios: React.Dispatch<React.SetStateAction<DataItem2[] | null>>;
 }
 
 const PieGraph: React.FC<PieGraphProps> = ({
@@ -35,7 +43,8 @@ const PieGraph: React.FC<PieGraphProps> = ({
     selectedDepartment,
     extensionData,
     extensionLimits,
-    title
+    title,
+    setMunicipios
 }) => {
     const { t } = useTranslation('common');
     const [municipalData, setMunicipalData] = useState<any[]>([]);
@@ -80,6 +89,29 @@ const PieGraph: React.FC<PieGraphProps> = ({
 
         fetchData();
     }, [selectedDepartment, extensionData]);
+
+    //seteo de municipios para el excel
+    useEffect(() => {
+            //filter and set
+            const dataSource = selectedDepartment && municipalData.length > 0
+            ? municipalData.map(item => ({
+                name: item.municipio || item.departamento || 'Sin nombre',
+                value: parseFloat(item.tasa) || 0,
+                year: item.periodo_anual?.toString() || '',
+                level: item.nivel?.toLowerCase() || '',
+                department: item.departamento?.toLowerCase() || '',
+                legend: item.leyenda || ''
+            }))
+            : departmentData;
+            const filtered = dataSource?.filter(item => {
+                const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
+                const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();        
+                const matchesYear = !selectedYear || item.year === selectedYear.toString();
+                return matchesLevel && matchesDepartment && matchesYear;
+            });
+                
+            //setMunicipios(filtered)
+    },[municipalData, selectedLevel, selectedDepartment, selectedYear])
 
     const graphData = useMemo(() => {
         const dataSource = selectedDepartment && municipalData.length > 0

@@ -9,6 +9,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
 import LineGraphScreen from "../screens/linegraphscreen2";
 import ExcelJS from "exceljs";
+import MessageModal from '@/modals/modal';
 import { saveAs } from "file-saver";
 
 const BarGraphM = dynamic(() => import("@/graphs/BarGraphM"), {
@@ -30,6 +31,16 @@ interface Department {
     year: string;
     level: string;
 }
+interface Municipio {
+    name: string;
+    legend: string;
+    value: number;
+    year: string;
+    level: string;
+    department?: string;
+    municipio?: string;
+}
+
 
 interface Params {
     title: string;
@@ -45,6 +56,14 @@ interface Legend {
     color: string;
 }
 
+interface DataItem {
+    name: string;
+    value: number;
+    legend: string;
+    year: string;
+    level: string;
+    department?: string;
+}
 export default function GraphScreen({ title, extensionData, extensionLimits }: Params) {
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
@@ -52,6 +71,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [showGraph, setShowGraph] = useState<boolean>(false);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [filteredData, setFilteredData] = useState<Department[]>([]);
+    const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState<string[]>([]);
@@ -60,12 +80,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
+    const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
+    const [dataSelectedPdf, setDataSelectedPdf] = useState<boolean>(false);
+    const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
     const exportExcel = async () => {
+        console.log("Departamentos")
+        console.log(filteredData)
+        console.log("Municipios")
+        console.log(departments)
+        const nombre = "Municipios"
 
-        const nombre = "Departamentos"
-
-        if (!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
-
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line")) {
+            setDataSelectedExcel(true);
             return
         }
 
@@ -106,7 +132,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
             }
         })
         let number = 1;
-        filteredData.forEach((dept) => {
+        municipios?.forEach((dept) => {
             if (activeGraph !== 'line') {
                 const tempRow = excelSheet.addRow({
                     name: capitalizeWords(dept.name),
@@ -120,7 +146,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 tempCell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: getDeptColor(dept.name).substring(1) },
+                    fgColor: { argb: getColor(dept.legend) },
                 }
             } else {
                 const tempRow = excelSheet.addRow({
@@ -136,7 +162,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 tempCell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: getDeptColor(dept.name, dept.year).substring(1) },
+                    fgColor: { argb: getColor(dept.legend) },
                 }
             }
             number++;
@@ -164,61 +190,22 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         upperLimit: 0,
         color: "#FFFFFF"
     }
-    const getDeptColor = (deptName: string, year?: string): string => {
 
-        let currentDep = filteredData?.find((item) =>
-            item.name.toLowerCase() == deptName.toLowerCase()
-        )
-        if (activeGraph === 'line') {
-            currentDep = filteredData?.find((item) =>
-                item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
-            );
-        }
-        const departmentsData: Department[] = departments.map((item: any) => ({
-            name: capitalizeWords(item.municipio?.toLowerCase() || item.departamento.toLowerCase()), // Usa municipio si existe
-            legend: item.leyenda,
-            value: parseFloat(item.tasa) || 0,
-            year: item.periodo_anual,
-            level: item.nivel,
-            department: capitalizeWords(item.departamento.toLowerCase()), // siempre incluimos el departamento
-            municipio: item.municipio ? capitalizeWords(item.municipio.toLowerCase()) : undefined // nuevo campo
-        }));
+    const getColor = (msg: string) => {
+        if (msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
+        else if (msg === "Dentro de la meta") return "27ae60"; // verde
+        else if (msg === "Lejos de la meta") return "FFC300"; // amarillo           
+        else if (msg === "Muy lejos de la meta") return "e41a1c"; // rojo
+        return "#808080"; // gris
+    }
 
-
-        const value = currentDep ? currentDep.value : -1;
-
-        const darkgreen: Legend = legends?.find((item) =>
-            item.message === "Mucho mejor que la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const green: Legend = legends?.find((item) =>
-            item.message === "Dentro de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const yellow: Legend = legends?.find((item) =>
-            item.message === "Lejos de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const red: Legend = legends?.find((item) =>
-            item.message === "Muy lejos de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        console.log("yellow: " + yellow.lowerLimit + " " + yellow.upperLimit)
-
-        console.log("green: " + green.lowerLimit + " " + green.upperLimit)
-        console.log("value: " + value)
-        if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
-        if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-        if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-        if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
-        if (value == -1) return '#808080'; //gris
-        return '#e41a1c'; //rojo 
-    };
 
     useEffect(() => {
         const handleGraph = () => {
+
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((selectedYear !== "Ninguno" || selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
+                setShowGraph((selectedYear !== "Ninguno" && selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
+                console.log("showGraph", showGraph)
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
@@ -228,7 +215,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
 
 
     const capitalizeWords = (str: string) => {
-        return str.toLowerCase().split(' ')
+        return str?.toLowerCase().split(' ')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
@@ -322,7 +309,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         setFilteredData(result);
 
         if (activeGraph === 'bar' || activeGraph === 'pie') {
-            setShowGraph((year !== "Ninguno" || department !== "Ninguno") && level !== "Ninguno");
+            setShowGraph((year !== "Ninguno" && department !== "Ninguno") && level !== "Ninguno");
         } else {
             setShowGraph(department !== "Ninguno" && level !== "Ninguno");
         }
@@ -370,6 +357,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     legendKey="legend"
                     legends={legends}
                     yAxisKey="value"
+                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -383,6 +371,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     extensionData={extensionData}
                     selectedDepartment={selectedDepartment}
                     selectedLevel={selectedLevel}
+                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -402,6 +391,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     selectedYear={selectedYear}
                     selectedLevel={selectedLevel}
                     selectedDepartment={selectedDepartment}
+                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -494,7 +484,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                             flexDirection: 'column',
                             position: 'relative'
                         }}>
-                            {showGraph ? (
+                            {true ? (
                                 <>
                                     <div style={{
                                         display: 'flex',
@@ -504,7 +494,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                         minHeight: 0,
                                     }}>
                                         {/* Gráfico */}
-                                        <div style={{
+                                        {showGraph ? <div style={{
                                             flex: 1,
                                             minWidth: '300px',
                                             position: 'relative',
@@ -512,7 +502,16 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                             height: '100%',
                                         }}>
                                             {renderGraph()}
-                                        </div>
+                                        </div> :
+                                            <div style={{
+                                                flex: 1,
+                                                minWidth: '300px',
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                height: '100%',
+                                            }}>
+
+                                            </div>}
 
                                         {/* Menú derecho */}
                                         <div style={{
@@ -683,7 +682,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         </div>
                     </div>
                 )}
-
+                <MessageModal title='Error' message='Debe seleccionar filtros para poder descargar imagenes' footer="" show={dataSelectedImg} onHide={() => setDataSelectedImg(false)} />
+                <MessageModal title='Error' message='Debe seleccionar filtros para poder descargar PDF' footer="" show={dataSelectedPdf} onHide={() => setDataSelectedPdf(false)} />
+                <MessageModal title='Error' message='Debe seleccionar filtros para poder descargar Excel' footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
                 <LanguageSelector />
             </div>
         </Client >
