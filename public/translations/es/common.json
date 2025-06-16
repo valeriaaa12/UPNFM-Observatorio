@@ -176,5 +176,16 @@
   "data_uploaded_successfully": "✅ Datos enviados correctamente al backend",
   "file_deleted": "Archivo eliminado",
   "upload_error": "❌ Error al subir los datos",
-  "exportExcel": "Exportar Excel"
+  "exportExcel": "Exportar Excel",
+  "select_filters_download_images": "Debe seleccionar filtros para poder descargar imágenes",
+  "select_filters_download_pdf": "Debe seleccionar filtros para poder descargar PDF",
+  "select_filters_download_excel": "Debe seleccionar filtros para poder descargar Excel",
+  "select_filters_print": "Debe seleccionar filtros para poder imprimir",
+  "select_departments_compare": "Debe seleccionar departamentos para comparar",
+  "Exportar a Excel": "Exportar a Excel",
+  "Imprimir Gráfico": "Imprimir Gráfico",
+  "Guardar como imagen": "Guardar como imagen",
+  "Gráfico Circular": "Gráfico Circular",
+  "Gráfico de Líneas": "Gráfico de Líneas",
+  "Gráfico de Barras": "Gráfico de Barras"
 }
