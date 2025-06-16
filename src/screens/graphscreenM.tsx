@@ -83,126 +83,126 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
     const [dataSelectedPdf, setDataSelectedPdf] = useState<boolean>(false);
     const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
-    const exportExcel = async () =>{
-      console.log("Departamentos")  
-      console.log(filteredData)
-      console.log("Municipios")
-      console.log(departments)
-      const nombre = "Municipios"
-    
-      if(!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line")){
-        setDataSelectedExcel(true);
-        return
-      }
-      
-      const excelFile = new ExcelJS.Workbook();
-      const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
-      if(activeGraph !== 'line') {
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Color', key: 'color', width: 30 },
-                  
-        ]
-    }else{
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Año', key: 'año', width: 15 },
-            { header: 'Color', key: 'color', width: 30 },
-            
-                  
-        ]
-    }
-      excelSheet.getRow(1).eachCell((cell) => {
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.font = {bold: true, size: 12};
-      
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid', 
-          fgColor: { argb: '4472C4' } 
+    const exportExcel = async () => {
+        console.log("Departamentos")
+        console.log(filteredData)
+        console.log("Municipios")
+        console.log(departments)
+        const nombre = "Municipios"
+
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line")) {
+            setDataSelectedExcel(true);
+            return
         }
-        
-        cell.border = {
-          left: {style:'thin'},
-          right: {style:'thin'}
+
+        const excelFile = new ExcelJS.Workbook();
+        const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
+        if (activeGraph !== 'line') {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Color', key: 'color', width: 30 },
+
+            ]
+        } else {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Año', key: 'año', width: 15 },
+                { header: 'Color', key: 'color', width: 30 },
+
+
+            ]
         }
-      })
-      let number = 1;
-      municipios?.forEach((dept) => {
-        if(activeGraph !== 'line') {
-            const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value+"%",
-            legend: dept.legend,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getColor(dept.legend) },
+        excelSheet.getRow(1).eachCell((cell) => {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.font = { bold: true, size: 12 };
+
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '4472C4' }
             }
-        }else{
-             const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value + "%",
-            legend: dept.legend,
-            año: dept.year,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getColor(dept.legend)},
+
+            cell.border = {
+                left: { style: 'thin' },
+                right: { style: 'thin' }
             }
+        })
+        let number = 1;
+        municipios?.forEach((dept) => {
+            if (activeGraph !== 'line') {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getColor(dept.legend) },
+                }
+            } else {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    año: dept.year,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getColor(dept.legend) },
+                }
+            }
+            number++;
+        })
+        number += 2;
+        excelSheet.mergeCells(`A${number}:D${number}`);
+
+
+        const cell = excelSheet.getCell(`A${number}`);
+        excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
+        excelSheet.getRow(number).height = 100;
+        cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
+
+        const buffer = await excelFile.xlsx.writeBuffer();
+        let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
+        if (activeGraph === 'line') {
+            fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
         }
-        number++;
-      })
-      number+=2;
-      excelSheet.mergeCells(`A${number}:D${number}`);
-    
-      
-      const cell = excelSheet.getCell(`A${number}`);
-      excelSheet.getRow(number).alignment = {wrapText: true, horizontal:'center'}
-      excelSheet.getRow(number).height=100;
-      cell.value= "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
-    
-      const buffer = await excelFile.xlsx.writeBuffer();
-      let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      if(activeGraph === 'line') {
-        fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      }
-      saveAs(new Blob([buffer]), fileName);
+        saveAs(new Blob([buffer]), fileName);
     }
     const fallback: Legend = {
-    level: "",
-    message: "",
-    lowerLimit: 0,
-    upperLimit: 0,
-    color: "#FFFFFF"
-  }
+        level: "",
+        message: "",
+        lowerLimit: 0,
+        upperLimit: 0,
+        color: "#FFFFFF"
+    }
 
     const getColor = (msg: string) => {
-        if(msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
-        else if(msg === "Dentro de la meta") return "27ae60"; // verde
-        else if(msg === "Lejos de la meta") return "FFC300"; // amarillo           
-        else if(msg === "Muy lejos de la meta") return "e41a1c"; // rojo
+        if (msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
+        else if (msg === "Dentro de la meta") return "27ae60"; // verde
+        else if (msg === "Lejos de la meta") return "FFC300"; // amarillo           
+        else if (msg === "Muy lejos de la meta") return "e41a1c"; // rojo
         return "#808080"; // gris
     }
-   
-    
-   useEffect(() => {
+
+
+    useEffect(() => {
         const handleGraph = () => {
-           
+
             if (activeGraph === 'bar' || activeGraph === 'pie') {
                 setShowGraph((selectedYear !== "Ninguno" && selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
                 console.log("showGraph", showGraph)
@@ -279,8 +279,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-        const applyFilters = (data: Department[], year: string, level: string, department: string) => {
-        if ((year === "Ninguno" && level === "Ninguno") || 
+    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+        if ((year === "Ninguno" && level === "Ninguno") ||
             (department === "Ninguno" && level === "Ninguno" && activeGraph === 'line')) {
             setFilteredData([]);
             return;
@@ -356,7 +356,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     selectedYear={selectedYear}
                     legendKey="legend"
                     legends={legends}
-                     yAxisKey="value"
+                    yAxisKey="value"
                     setMunicipios={setMunicipios}
                 />
             );
@@ -368,11 +368,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     data={lineData}
                     xAxisKey="year"
                     yAxisKey="value"
-                    extensionData={extensionData}               
+                    extensionData={extensionData}
                     selectedDepartment={selectedDepartment}
                     selectedLevel={selectedLevel}
                     setMunicipios={setMunicipios}
-                     />
+                />
             );
         }
         if (activeGraph === 'pie') {
@@ -397,7 +397,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-        const renderFilter = () => {
+    const renderFilter = () => {
         return (
             <>
                 {activeGraph !== 'line' && (
@@ -419,7 +419,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         </select>
                     </div>
                 )}
-                
+
                 <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
                         {activeGraph === 'line' ? t("Departamento") : t("Filtrar por Departamento")}:
@@ -502,16 +502,16 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                             height: '100%',
                                         }}>
                                             {renderGraph()}
-                                        </div> : 
-                                        <div style={{
-                                            flex: 1,
-                                            minWidth: '300px',
-                                            position: 'relative',
-                                            overflow: 'hidden',
-                                            height: '100%',
-                                        }}>
-                                            
-                                        </div>}
+                                        </div> :
+                                            <div style={{
+                                                flex: 1,
+                                                minWidth: '300px',
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                height: '100%',
+                                            }}>
+
+                                            </div>}
 
                                         {/* Menú derecho */}
                                         <div style={{
@@ -575,7 +575,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             setActiveGraph('pie');
                                                             setActiveFilter('year');
                                                             setActiveFilter('department');
-                                                         
+
                                                         }}
                                                     >
 
@@ -623,7 +623,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             Exportar a Excel
                                                         </Tooltip>
                                                     }
-                                                    
+
                                                 >
                                                     <ListGroup.Item
                                                         action
@@ -633,8 +633,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         active={false}
                                                         onMouseEnter={() => setIsHovered(true)}
                                                         onMouseLeave={() => setIsHovered(false)}
-                                                        onClick={()=>exportExcel()}
-                                                    >   
+                                                        onClick={() => exportExcel()}
+                                                    >
                                                         <img
                                                             src={isHovered ? "images/excel1.png" : "images/excel2.png"}
                                                             alt="Excel"

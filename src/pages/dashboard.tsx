@@ -8,7 +8,6 @@ import Client from "@/components/client";
 import NavBar from "@/navigation/NavBar";
 import SmallNavBar from "@/navigation/SmallNavBar";
 import GraphScreen from "../screens/graphscreen";
-import GraphScreenM from "../screens/graphscreenM";
 export default function Dashboard() {
     const { t } = useTranslation('common');
     const [activeDepaTab, setDepaActiveTab] = useState("coberturaBruta");
@@ -67,34 +66,34 @@ export default function Dashboard() {
         {
             id: "coberturaBruta",
             label: "Cobertura (Tasa Bruta)",
-            dataEndpoint: "/tasabruta",
+            dataEndpoint: "/tasabrutaMunicipal",
             limitsEndpoint: "/limitesTasaBruta",
             titleKey: "TasaBruta"
         },
         {
             id: "coberturaNeta",
             label: "Cobertura (Tasa Neta)",
-            dataEndpoint: "/tasaneta",
+            dataEndpoint: "/tasanetaMunicipal",
             limitsEndpoint: "/limitesTasaNeta",
             titleKey: "TasaNeta"
         },
         {
             id: "aprobacion",
             label: "Aprobación",
-            dataEndpoint: "/aprobacion",
+            dataEndpoint: "/aprobacionMunicipal",
             limitsEndpoint: "/limitesAprobacion",
             titleKey: "Aprobacion"
         },
         {
             id: "desercion",
             label: "Deserción",
-            dataEndpoint: "/desercion",
+            dataEndpoint: "/desercionMunicipal",
             limitsEndpoint: "/limitesDesercion",
             titleKey: "Desercion"
         },
         {
             id: "repitencia",
-            label: "Repitencia",
+            label: "RepitenciaMunicipal",
             dataEndpoint: "/repitencia",
             limitsEndpoint: "/limitesRepitencia",
             titleKey: "Repitencia"
@@ -102,7 +101,7 @@ export default function Dashboard() {
         {
             id: "reprobacion",
             label: "Reprobación",
-            dataEndpoint: "/reprobacion",
+            dataEndpoint: "/reprobacionMunicipal",
             limitsEndpoint: "/limitesReprobacion",
             titleKey: "Reprobacion"
         }
@@ -214,6 +213,7 @@ export default function Dashboard() {
                             extensionData={activeDepaTabConfig.dataEndpoint}
                             extensionLimits={activeDepaTabConfig.limitsEndpoint}
                             comparison={false}
+                            department={true}
                         />
                     </div>
                 </div>
@@ -253,12 +253,13 @@ export default function Dashboard() {
                     </Nav>
 
                     <div className="mt-3">
-                        <GraphScreenM
+                        <GraphScreen
                             key={key}
                             title={t(activeMuniTabConfig.label)}
                             extensionData={activeMuniTabConfig.dataEndpoint}
                             extensionLimits={activeMuniTabConfig.limitsEndpoint}
                             comparison={false}
+                            department={false}
                         />
                     </div>
                 </div>
@@ -305,6 +306,7 @@ export default function Dashboard() {
                             extensionData={activeCompDepaTabConfig.dataEndpoint}
                             extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
                             comparison={true}
+                            department={true}
                         />
                     </div>
                 </div>

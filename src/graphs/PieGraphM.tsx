@@ -77,7 +77,7 @@ const PieGraph: React.FC<PieGraphProps> = ({
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     params: { departamento: selectedDepartment.toUpperCase() }
                 };
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}Municipal`, config);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config);
                 console.log("Municipios recibidos:", response.data);
                 setMunicipalData(response.data);
             } catch (error) {
