@@ -66,6 +66,15 @@ interface Legend {
     color: string;
 }
 
+interface DataItem {
+    name: string;
+    value: number;
+    legend: string;
+    year: string;
+    level: string;
+    department?: string;
+}
+
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
@@ -73,6 +82,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
     const [departmentsData, setDepartmentsData] = useState<Department[]>([]);
+    const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [filteredData, setFilteredData] = useState<Department[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
@@ -180,10 +190,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         saveAs(new Blob([buffer]), fileName);
     }
     const getColor = (msg: string) => {
-        if(msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
-        else if(msg === "Dentro de la meta") return "27ae60"; // verde
-        else if(msg === "Lejos de la meta") return "FFC300"; // amarillo           
-        else if(msg === "Muy lejos de la meta") return "e41a1c"; // rojo
+        if (msg === "Mucho mejor que la meta") return "008000"; // verde oscuro
+        else if (msg === "Dentro de la meta") return "27ae60"; // verde
+        else if (msg === "Lejos de la meta") return "FFC300"; // amarillo           
+        else if (msg === "Muy lejos de la meta") return "e41a1c"; // rojo
         return "#808080"; // gris
     }
     const fallback: Legend = {
@@ -493,6 +503,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     legendKey="legend"
                     legends={legends}
                     yAxisKey="value"
+                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -506,6 +517,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     extensionData={extensionData}
                     selectedDepartment={selectedDepartment}
                     selectedLevel={selectedLevel}
+                    setMunicipios={setMunicipios}
                 />
             );
         }
@@ -525,6 +537,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     selectedYear={selectedYear}
                     selectedLevel={selectedLevel}
                     selectedDepartment={selectedDepartment}
+                    setMunicipios={setMunicipios}
                 />
             );
         }
