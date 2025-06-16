@@ -1,17 +1,8 @@
 import React from 'react';
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Cell
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts';
 import { useTranslation } from "react-i18next";
-import FuenteDeDatos from '@/components/FuenteDeDatos';
 
 interface LegendItem {
     message: string;
@@ -40,19 +31,26 @@ interface BarGraphProps {
 const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends = [] }) => {
     const { t } = useTranslation('common');
 
-    const processedData = data.map(item => ({
-        ...item,
-        color: legends.find(
-            l => l.message.toLowerCase() === (item as any)[legendKey].toLowerCase()
-        )?.color || '#808080',
-        displayName: item.name
-    }));
+    const processedData = data.map(item => {
+        const legendValue = (item as any)[legendKey] ?? '';
+        const legendColor = legends.find(
+            l => (l.message ?? '').toString().toLowerCase() === legendValue.toString().toLowerCase()
+        )?.color || '#808080';
+
+        return {
+            ...item,
+            color: legendColor,
+            displayName: item.name
+        };
+    });
 
     const renderLegend = () => {
         const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
             .filter((legend): legend is string => legend !== undefined)
             .map(legend => {
-                const legendItem = legends.find(l => l.message.toLowerCase() === legend.toLowerCase());
+                const legendItem = legends.find(
+                    l => (l.message ?? '').toString().toLowerCase() === (legend ?? '').toString().toLowerCase()
+                );
                 return {
                     value: legend,
                     color: legendItem?.color || '#808080'

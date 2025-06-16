@@ -84,10 +84,6 @@ const BarGraphM: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends
                 label: item.department ? t("Municipio") : t("Departamento"),
                 value: item.name
             },
-            item.department && {
-                label: t("Departamento"),
-                value: item.department
-            },
             {
                 label: t("Valor"),
                 value: item.value

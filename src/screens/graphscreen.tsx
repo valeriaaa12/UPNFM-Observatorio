@@ -268,10 +268,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         year: string,
         level: string,
         department: string,
-        isMunicipio = false
+        isMunicipio = false,
+        activeGraph: string
     ) => {
         return data.filter(item =>
-            (year === "Ninguno" || item.year === year) &&
+            // Solo filtra por año si el gráfico NO es de línea
+            (activeGraph === 'line' || year === "Ninguno" || item.year === year) &&
             (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
             (
                 isMunicipio
@@ -281,8 +283,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         );
     };
 
-    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment);
-    const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true);
+    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
+    const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
 
     const fetchData = async () => {
         setLoading(true);
@@ -310,7 +312,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
             const legendsData: Legend[] = legends.data.map((item: any) => ({
                 level: item.nivel || "",
-                message: item.mensaje || "",
+                message: item.leyenda || "",
                 lowerLimit: item.limite_inferior ?? 0,
                 upperLimit: item.limite_superior ?? 0,
                 color: item.color || "#808080"
@@ -350,12 +352,16 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     }));
 
                     const municipiosData = municipios.data.map((item: any) => ({
-                        name: capitalizeWords(item.municipio.toLowerCase()) || capitalizeWords(item.departamento.toLowerCase()) || 'Sin nombre',
+                        name: item.municipio
+                            ? capitalizeWords(item.municipio.toString().toLowerCase())
+                            : item.departamento
+                                ? capitalizeWords(item.departamento.toString().toLowerCase())
+                                : 'Sin nombre',
                         value: parseFloat(item.tasa) || 0,
                         legend: item.leyenda,
                         year: item.periodo_anual?.toString() || '',
-                        level: item.nivel?.toLowerCase() || '',
-                        department: item.departamento?.toLowerCase() || ''
+                        level: (item.nivel ?? '').toString().toLowerCase(),
+                        department: (item.departamento ?? '').toString().toLowerCase(),
                     }));
 
                     const legendsWithColors = assignColorsToLegends(legendsData);
@@ -412,13 +418,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     upperLimit: parseFloat(item.max) || 0
                 }));
 
-
-                console.log("departmentsData2", data.data);
-
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
                 applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
+
             }
         } catch (error: any) {
             if (error.response) {
@@ -493,7 +497,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     useEffect(() => {
         getYears();
-        if (!comparison) {
+        if (!comparison && department) {
             fetchData();
         } else {
             setLoading(false);
@@ -519,7 +523,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
         if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraphD(filteredData);
+            const lineData = formatDataForLineGraphD(filteredDepartments);
             return (
                 <LineGraph
                     data={lineData}
@@ -531,13 +535,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         if (activeGraph === 'pie') {
             return (
                 <PieGraph
-                    data={filteredData.map(d => ({
-                        name: d.name,
-                        value: d.value,
-                        legend: d.legend,
-                        year: d.year,
-                        level: d.level,
-                    }))}
+                    data={filteredDepartments}
                 />
             );
         }
@@ -555,36 +553,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
         if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraphM(municipios ?? []);
+            const lineData = formatDataForLineGraphM(filteredMunicipios);
             return (
                 <LineGraphM
                     data={lineData}
-                    xAxisKey="year"
-                    yAxisKey="value"
-                    extensionData={extensionData}
-                    selectedDepartment={selectedDepartment}
-                    selectedLevel={selectedLevel}
-                    setMunicipios={setMunicipios}
+                    years={years}
                 />
             );
         }
         if (activeGraph === 'pie') {
             return (
                 <PieGraphM
-                    data={(municipios ?? []).map(d => ({
-                        name: d.name,
-                        value: d.value,
-                        legend: d.legend,
-                        year: d.year,
-                        level: d.level,
-                    }))}
-                    extensionData={extensionData}
-                    extensionLimits={extensionLimits}
-                    title={title}
-                    selectedYear={selectedYear}
-                    selectedLevel={selectedLevel}
-                    selectedDepartment={selectedDepartment}
-                    setMunicipios={setMunicipios}
+                    data={filteredMunicipios}
                 />
             );
         }

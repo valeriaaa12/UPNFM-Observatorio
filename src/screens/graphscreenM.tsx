@@ -385,13 +385,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         year: d.year,
                         level: d.level,
                     }))}
-                    extensionData={extensionData}
-                    extensionLimits={extensionLimits}
-                    title={title}
-                    selectedYear={selectedYear}
-                    selectedLevel={selectedLevel}
-                    selectedDepartment={selectedDepartment}
-                    setMunicipios={setMunicipios}
                 />
             );
         }
