@@ -78,6 +78,9 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t, i18n } = useTranslation('common');
+  const levelsList = [
+        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
   const mapRef = useRef<L.Map | null>(null);
 
 
@@ -336,7 +339,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       className: 'dept-tooltip'
     });
   };
-  const { t, i18n } = useTranslation('common');
+  
 
   return (
     <div style={{
@@ -379,7 +382,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           fontSize: '1.4rem',
           fontWeight: '500'
         }}>
-          {title} {level !== "Ninguno" ? `- ${level}` : ""} {year !== "Ninguno" ? `(${year})` : ""}
+          {title} {level !== "Ninguno" ? `- ${levelsList.find(l => l.value === level)?.name}` : ""} {year !== "Ninguno" ? `(${year})` : ""}
         </h2>
       </div>
       <div style={{

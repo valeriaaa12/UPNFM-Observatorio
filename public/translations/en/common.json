@@ -178,5 +178,16 @@
   "upload_error": "❌ Error uploading data",
   "exportExcel": "Export Excel",
   "Mas Reciente": "Most Recent",
-  "Mas Antiguo": "Oldest"
+  "Mas Antiguo": "Oldest",
+  "select_filters_download_images": "You must select filters to download images",
+  "select_filters_download_pdf": "You must select filters to download PDF",
+  "select_filters_download_excel": "You must select filters to download Excel",
+  "select_filters_print": "You must select filters to print",
+  "select_departments_compare": "You must select departments to compare",
+  "Exportar a Excel": "Export to Excel",
+  "Imprimir Gráfico": "Print Graph",
+  "Guardar como imagen": "Save as Image",
+  "Gráfico Circular": "Pie Chart",
+  "Gráfico de Líneas": "Line graph",
+  "Gráfico de Barras": "Bar graph"
 }
