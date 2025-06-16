@@ -176,5 +176,7 @@
   "data_uploaded_successfully": "✅ Data successfully sent to the backend",
   "file_deleted": "File deleted",
   "upload_error": "❌ Error uploading data",
-  "exportExcel": "Export Excel"
+  "exportExcel": "Export Excel",
+  "Mas Reciente": "Most Recent",
+  "Mas Antiguo": "Oldest"
 }

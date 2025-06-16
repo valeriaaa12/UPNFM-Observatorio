@@ -101,11 +101,16 @@ const styleFeature = (feature: any) => {
   };
 };
 
-// 1) Función para imprimir sólo el mapa + encabezados
 const handlePrintMapa = async () => {
   if (typeof window === 'undefined') return;
 
-  // crear contenedor oculto
+  // 1) Validación idéntica a exportPDF
+  if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+    setShow(true);
+    return;
+  }
+
+  // 2) Crear contenedor oculto
   const printContainer = document.createElement('div');
   Object.assign(printContainer.style, {
     position: 'fixed',
@@ -114,11 +119,11 @@ const handlePrintMapa = async () => {
     width: '800px',
     height: '600px',
     background: 'white',
-    overflow: 'hidden'
+    overflow: 'hidden',
   });
   document.body.appendChild(printContainer);
 
-  // clonar mapa en Leaflet
+  // 3) Clonar el mapa
   const L = (await import('leaflet')).default;
   const mapClone = L.map(printContainer, {
     zoomControl: false,
@@ -127,44 +132,48 @@ const handlePrintMapa = async () => {
     zoom: 7,
     renderer: L.canvas()
   });
-  const resp    = await fetch(mapa);
+  const resp = await fetch(mapa);
   const geoData = await resp.json();
-  const layer   = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
+  const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
   mapClone.fitBounds((layer as any).getBounds());
 
-  // clonar títulos, límites, leyendas e info
+  // 4) Esperar render Leaflet
+  await new Promise(r => setTimeout(r, 500));
+
+  // 5) Clonar Título, Límites, Leyenda e Info exactamente como antes
   (['Titulo','limits-container','legends-container','info-container'] as const)
     .forEach(id => {
       const el = document.getElementById(id);
       if (el) printContainer.appendChild(el.cloneNode(true));
     });
 
-  // Agrega la fuente al final del printContainer
-  const fuente = document.createElement('div');
-  fuente.style.textAlign = "center";
-  fuente.style.width = '100%';
-  fuente.style.backgroundColor = "#e0e0e0";
-  fuente.style.marginTop = '40px';
-  fuente.style.padding = '10px';
-  fuente.style.fontSize = '13px';
-  fuente.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
-  printContainer.appendChild(fuente);
+  // ←——── CAMBIO AQUÍ: Añadir la caja de la fuente justo debajo
+  const fuenteDiv = document.createElement('div');
+  // **Se mantienen tus estilos originales**:
+  fuenteDiv.style.textAlign = "center";
+  fuenteDiv.style.width = '100%';
+  fuenteDiv.style.backgroundColor = "#e0e0e0";
+  fuenteDiv.style.borderRadius = '20px';
+  fuenteDiv.style.height = 'auto';
+  fuenteDiv.style.padding = '10px';
+  fuenteDiv.style.marginTop = '20px';
+  fuenteDiv.textContent =
+    "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+  printContainer.appendChild(fuenteDiv);
+  // ——CAMBIO FIN
 
-  // esperar render Leaflet
-  await new Promise(r => setTimeout(r, 500));
-
-  // capturar con html2canvas
+  // 6) Capturar con html2canvas
   const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
-  const dataUrl = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/png');
 
-  // abrir ventana de impresión
+  // 7) Abrir ventana de impresión
   const pw = window.open('', '_blank', 'width=900,height=650');
   if (pw) {
     pw.document.write(`
       <html>
         <head><title>Imprimir Mapa</title></head>
         <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+          <img src="${imgData}" style="width:100%;height:auto;"/>
         </body>
       </html>
     `);
@@ -174,9 +183,15 @@ const handlePrintMapa = async () => {
     pw.close();
   }
 
-  // limpiar
+  // 8) Limpiar
   document.body.removeChild(printContainer);
 };
+
+
+
+
+
+
 
 
 const exportPDF = async () => {
