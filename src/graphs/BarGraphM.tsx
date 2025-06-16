@@ -28,6 +28,17 @@ interface LegendItem {
     lowerLimit: number;
     upperLimit: number;
 }
+
+interface Municipio {
+    name: string;
+    legend: string;
+    value: number;
+    year: string;
+    level: string;
+    department?: string;
+    municipio?: string;
+}
+
 interface BarGraphProps {
     initialData: any[];
     extensionData: string;
@@ -39,6 +50,7 @@ interface BarGraphProps {
     legendKey: string;
     legends: LegendItem[];
     yAxisKey: string;
+    setMunicipios: React.Dispatch<React.SetStateAction<DataItem[] | null>> 
 }
 
 const BarGraph: React.FC<BarGraphProps> = ({
@@ -49,7 +61,7 @@ const BarGraph: React.FC<BarGraphProps> = ({
     selectedDepartment,
     selectedLevel,
     selectedYear,
-     legendKey, legends = [] ,yAxisKey
+     legendKey, legends = [] ,yAxisKey, setMunicipios
 }) => {
     const { t } = useTranslation('common');
     const [municipalData, setMunicipalData] = useState<any[]>([]);
@@ -127,6 +139,8 @@ const BarGraph: React.FC<BarGraphProps> = ({
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}Municipal`, config);
                 console.log("📦 Municipios recibidos:", response.data);
                 setMunicipalData(response.data);
+
+                
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -136,7 +150,31 @@ const BarGraph: React.FC<BarGraphProps> = ({
 
         fetchData();
     }, [selectedDepartment, extensionData]);
-
+    useEffect(() => {
+        //filter and set
+                
+        const dataSource = selectedDepartment && municipalData.length > 0 ?
+            municipalData.map(item => ({
+                    name: item.municipio || item.departamento || 'Sin nombre',
+                    value: parseFloat(item.tasa) || 0,
+                    legend: item.leyenda,
+                    year: item.periodo_anual?.toString() || '',
+                    level: item.nivel?.toLowerCase() || '',
+                    department: item.departamento?.toLowerCase() || ''
+            })) :
+                departmentData;
+            console.log("dataSource:", dataSource);
+            const filtered = dataSource.filter(item => {
+                const matchesYear = !selectedYear || item.year === selectedYear.toString();
+                const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
+                const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();
+                
+                return matchesYear && matchesLevel && matchesDepartment;
+            });
+          
+            setMunicipios(filtered)
+            
+    },[municipalData, selectedLevel, selectedYear])
     const graphData = useMemo(() => {
     const dataSource = selectedDepartment && municipalData.length > 0 ?
         municipalData.map(item => ({
@@ -146,16 +184,18 @@ const BarGraph: React.FC<BarGraphProps> = ({
             year: item.periodo_anual?.toString() || '',
             level: item.nivel?.toLowerCase() || '',
             department: item.departamento?.toLowerCase() || ''
-        })) :
+    })) :
         departmentData;
-
+        
     const filtered = dataSource.filter(item => {
         const matchesYear = !selectedYear || item.year === selectedYear.toString();
         const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
         const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();
+        
         return matchesYear && matchesLevel && matchesDepartment;
     });
-
+ 
+  
     // ✅ Asignar color según leyenda
     const colored = filtered.map(item => ({
         ...item,
