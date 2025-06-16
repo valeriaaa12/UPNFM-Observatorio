@@ -14,7 +14,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
-
+import MessageModal from '@/modals/modal';
 //Departamentos
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
     ssr: false
@@ -87,14 +87,26 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+    
+    //states para validaciones de menu
+    const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
+    const [dataSelectedPdf, setDataSelectedPdf] = useState<boolean>(false);
+    const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
+    const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
+    const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
 
     const exportExcel = async () => {
-        const nombre = "Departamentos"
+        const nombre = department ? "Departamentos" : "Municipios"
 
-        if (!departmentsData || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            setDataSelectedExcel(true);
             return
         }
-
+        
+        if(comparison && selectedDepartments.length === 0) {
+            setDataSelectedComparison(true);
+            return;
+        }
         const excelFile = new ExcelJS.Workbook();
         const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
         if (activeGraph !== 'line') {
@@ -130,7 +142,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }
         })
         let number = 1;
-        filteredData.forEach((dept) => {
+        const filteredList = department ? filteredDepartments : filteredMunicipios;
+        filteredList.forEach((dept) => {
             if (activeGraph !== 'line') {
                 const tempRow = excelSheet.addRow({
                     name: capitalizeWords(dept.name),
@@ -160,7 +173,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 tempCell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: getDeptColor(dept.name, dept.year).substring(1) },
+                    fgColor: { argb: getColor(dept.legend) },
                 }
             }
             number++;
@@ -195,46 +208,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         color: "#FFFFFF"
     }
 
-    const getDeptColor = (deptName: string, year?: string): string => {
-        let currentDep = filteredData?.find((item) =>
-            item.name.toLowerCase() == deptName.toLowerCase()
-        )
-        if (activeGraph === 'line') {
-            currentDep = filteredData?.find((item) =>
-                item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
-            );
-        }
-
-        const value = currentDep ? currentDep.value : -1;
-
-        const darkgreen: Legend = legends?.find((item) =>
-            item.message === "Mucho mejor que la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const green: Legend = legends?.find((item) =>
-            item.message === "Dentro de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const yellow: Legend = legends?.find((item) =>
-            item.message === "Lejos de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        const red: Legend = legends?.find((item) =>
-            item.message === "Muy lejos de la meta" && item.level === selectedLevel
-        ) ?? fallback;
-
-        if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
-        if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-        if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-        if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
-        if (value == -1) return '#808080'; //gris
-        return '#e41a1c'; //rojo 
-    };
-
+  
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((selectedYear !== "Ninguno" && selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
+                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !=="Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
+                console.log(showGraph)
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
@@ -682,6 +661,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     const handleDownloadImage = async () => {
         if (!exportRef.current) return;
+         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            setDataSelectedImg(true);
+            return
+        }
+        if(comparison && selectedDepartments.length === 0) {
+            setDataSelectedComparison(true);
+            return;
+        }
         const off = document.createElement('div');
         Object.assign(off.style, {
             position: 'fixed', left: '-9999px',
@@ -706,6 +693,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     const handleDownloadPDF = async () => {
         if (!exportRef.current) return;
+         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            setDataSelectedPdf(true);
+            return
+        }
+        if(comparison && selectedDepartments.length === 0) {
+            setDataSelectedComparison(true);
+            return;
+        }
         const off = document.createElement('div');
         Object.assign(off.style, {
             position: 'fixed', left: '-9999px',
@@ -733,7 +728,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
         if (!exportRef.current) return;
-
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            return
+        }
+        if(comparison && selectedDepartments.length === 0) {
+            setDataSelectedComparison(true);
+            return;
+        }
         // 1) Crear contenedor off-screen de tamaño fijo
         const off = document.createElement('div');
         Object.assign(off.style, {
@@ -889,7 +890,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                     background: '#fff'
                                 }}
                             >
-                                {showGraph ? (
+                                {true ? (
                                     <>
                                         <div
                                             style={{
@@ -900,7 +901,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                             }}
                                         >
                                             {/* Gráfico */}
-                                            <div
+                                            {showGraph ? <div
                                                 style={{
                                                     flex: 1,
                                                     minWidth: '300px',
@@ -910,7 +911,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                 }}
                                             >
                                                 {department ? renderGraphD() : renderGraphM()}
-                                            </div>
+                                            </div> :
+                                            <div
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: '300px',
+                                                    position: 'relative',
+                                                    overflow: 'hidden',
+                                                    background: '#fff'
+                                                }}
+                                            >
+                                                
+                                            </div>}
 
                                             {/* Menú derecho */}
                                             <div style={{
@@ -923,7 +935,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                 <ListGroup defaultActiveKey="#link1">
                                                     <OverlayTrigger
                                                         placement="left"
-                                                        overlay={<Tooltip>Gráfico de Barras</Tooltip>}
+                                                        overlay={<Tooltip>{t("Gráfico de Barras")}</Tooltip>}
                                                     >
                                                         <ListGroup.Item
                                                             action
@@ -942,7 +954,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Gráfico de Líneas
+                                                                {t("Gráfico de Líneas")}
                                                             </Tooltip>
                                                         }
                                                     >
@@ -963,7 +975,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Gráfico Circular
+                                                                {t("Gráfico Circular")}
                                                             </Tooltip>
                                                         }
                                                     >
@@ -985,7 +997,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Guardar como imagen
+                                                                {t("Guardar como imagen")}
                                                             </Tooltip>
                                                         }
                                                     >
@@ -1001,7 +1013,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Imprimir Gráfico
+                                                                {t("Imprimir Gráfico")}
                                                             </Tooltip>
                                                         }
                                                     >
@@ -1017,7 +1029,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Exportar a Excel
+                                                                {t("Exportar a Excel")}
                                                             </Tooltip>
                                                         }
 
@@ -1044,7 +1056,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         placement="left"
                                                         overlay={
                                                             <Tooltip id="tooltip-graph">
-                                                                Descargar PDF
+                                                                {t("Descargar PDF")}
                                                             </Tooltip>
                                                         }
                                                     >
@@ -1079,7 +1091,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     </div>
                 )}
 
-                <LanguageSelector />
+                
+                <MessageModal title='Error' message={t('select_filters_download_images')} footer="" show={dataSelectedImg} onHide={() => setDataSelectedImg(false)} />
+                <MessageModal title='Error' message={t('select_filters_download_pdf')} footer="" show={dataSelectedPdf} onHide={() => setDataSelectedPdf(false)} />
+                <MessageModal title='Error' message={t('select_filters_download_excel')} footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
+                <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
+                <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
+                
             </div>
         </Client >
     );

@@ -50,7 +50,8 @@ export default function LanguageSelector() {
                         onClick={() => i18n.changeLanguage(lang.code)}
                         active={i18n.language === lang.code}
                         className="d-flex align-items-center"
-                    >
+                        style={{zIndex: 1000, cursor: 'pointer'}}
+                    >   
                         <img
                             src={lang.img}
                             alt={lang.label}
