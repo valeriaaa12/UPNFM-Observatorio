@@ -40,6 +40,8 @@ const colorMap: Record<string, string> = {
 };
 
 const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
+    const { t } = useTranslation('common');
+
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
             ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -74,14 +76,28 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => 
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={390}>
                 <LineChart
                     data={transformedData}
                     margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
+                    <XAxis dataKey="year"
+                        tick={{ fontSize: 12 }}
+                        label={{
+                            value: t("Año"),
+                            position: "insideBottom",
+                            offset: -25,
+                            fontSize: 14,
+                        }} />
+                    <YAxis
+                        tick={{ fontSize: 12 }}
+                        label={{
+                            value: t("Valor"),
+                            angle: -90,
+                            position: "insideLeft",
+                            fontSize: 14,
+                        }} />
                     <Tooltip />
                     {legends.map((legend, index) => (
                         <ReferenceLine

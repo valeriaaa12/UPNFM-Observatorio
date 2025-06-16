@@ -118,7 +118,7 @@ const BarGraphM: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends
     };
 
     return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={450}>
             <BarChart
                 data={processedData}
                 layout="vertical"

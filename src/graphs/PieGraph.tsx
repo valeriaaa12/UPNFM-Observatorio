@@ -36,28 +36,24 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     }));
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '500px' }}>
-            <div style={{ flex: 1 }}>
-                <ResponsiveContainer width="100%" height="80%">
-                    <PieChart>
-                        <Tooltip />
-                        <Pie
-                            data={processedData}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={180}
-                            label={({ name }) => name}
-                        >
-                            {processedData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
+        <ResponsiveContainer width="100%" height={450}>
+            <PieChart>
+                <Tooltip />
+                <Pie
+                    data={processedData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={180}
+                    label={({ name }) => name}
+                >
+                    {processedData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+            </PieChart>
+        </ResponsiveContainer>
     );
 };
 

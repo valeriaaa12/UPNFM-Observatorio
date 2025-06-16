@@ -108,7 +108,7 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
                         {t("No hay datos disponibles para los filtros seleccionados.")}
                     </p>
                 ) : (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={390}>
                         <LineChart
                             data={graphData}
                             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}

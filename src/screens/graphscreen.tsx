@@ -878,32 +878,37 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                             <h2 style={{ marginBottom: '20px' }}>
                                 {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
                             </h2>
-                            <div style={{
-                                height: '500px',
-                                border: '1px solid #eee',
-                                borderRadius: '8px',
-                                padding: '20px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                position: 'relative'
-                            }}>
+                            <div
+                                style={{
+                                    border: '1px solid #eee',
+                                    borderRadius: '8px',
+                                    padding: '20px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    position: 'relative',
+                                    background: '#fff'
+                                }}
+                            >
                                 {showGraph ? (
                                     <>
-                                        <div style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            flex: 1,
-                                            gap: '20px',
-                                            minHeight: 0,
-                                        }}>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                gap: '20px',
+                                                minHeight: 0,
+                                            }}
+                                        >
                                             {/* Gráfico */}
-                                            <div style={{
-                                                flex: 1,
-                                                minWidth: '300px',
-                                                position: 'relative',
-                                                overflow: 'hidden',
-                                                height: '100%',
-                                            }}>
+                                            <div
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: '300px',
+                                                    position: 'relative',
+                                                    overflow: 'hidden',
+                                                    background: '#fff'
+                                                }}
+                                            >
                                                 {department ? renderGraphD() : renderGraphM()}
                                             </div>
 

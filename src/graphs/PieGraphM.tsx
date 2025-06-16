@@ -32,27 +32,24 @@ const PieGraphM: React.FC<PieGraphMProps> = ({ data }) => {
         }))
     ), [data]);
 
-    return (
-        <div style={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Tooltip formatter={(value: number, name: string) => [`${value}%`, name]} />
-                    <Pie
-                        data={graphData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={160}
-                        label={({ name }) => name}
-                    >
-                        {graphData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Pie>
-                </PieChart>
-            </ResponsiveContainer>
-        </div>
+    return (<ResponsiveContainer width="100%" height={450}>
+        <PieChart>
+            <Tooltip formatter={(value: number, name: string) => [`${value}%`, name]} />
+            <Pie
+                data={graphData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={160}
+                label={({ name }) => name}
+            >
+                {graphData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+            </Pie>
+        </PieChart>
+    </ResponsiveContainer>
     );
 };
 
