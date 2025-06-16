@@ -30,16 +30,6 @@ interface Department {
     year: string;
     level: string;
 }
-interface Municipio {
-    name: string;
-    legend: string;
-    value: number;
-    year: string;
-    level: string;
-    department?: string;
-    municipio?: string;
-}
-
 
 interface Params {
     title: string;
@@ -70,162 +60,162 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
-    const exportExcel = async () =>{
-      
-      const nombre = "Departamentos"
-    
-      if(!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno"){
+    const exportExcel = async () => {
 
-        return
-      }
-      
-      const excelFile = new ExcelJS.Workbook();
-      const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
-      if(activeGraph !== 'line') {
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Color', key: 'color', width: 30 },
-                  
-        ]
-    }else{
-        excelSheet.columns = [
-            { header: nombre, key: 'name', width: 30 },
-            { header: 'Tasa', key : 'value', width: 15 },
-            { header: 'Leyenda', key: 'legend', width: 50 },
-            { header: 'Año', key: 'año', width: 15 },
-            { header: 'Color', key: 'color', width: 30 },
-            
-                  
-        ]
-    }
-      excelSheet.getRow(1).eachCell((cell) => {
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.font = {bold: true, size: 12};
-      
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid', 
-          fgColor: { argb: '4472C4' } 
+        const nombre = "Departamentos"
+
+        if (!departments || selectedYear == "Ninguno" || selectedLevel == "Ninguno") {
+
+            return
         }
-        
-        cell.border = {
-          left: {style:'thin'},
-          right: {style:'thin'}
+
+        const excelFile = new ExcelJS.Workbook();
+        const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
+        if (activeGraph !== 'line') {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Color', key: 'color', width: 30 },
+
+            ]
+        } else {
+            excelSheet.columns = [
+                { header: nombre, key: 'name', width: 30 },
+                { header: 'Tasa', key: 'value', width: 15 },
+                { header: 'Leyenda', key: 'legend', width: 50 },
+                { header: 'Año', key: 'año', width: 15 },
+                { header: 'Color', key: 'color', width: 30 },
+
+
+            ]
         }
-      })
-      let number = 1;
-      filteredData.forEach((dept) => {
-        if(activeGraph !== 'line') {
-            const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value + "%",
-            legend: dept.legend,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getDeptColor(dept.name).substring(1) },
+        excelSheet.getRow(1).eachCell((cell) => {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.font = { bold: true, size: 12 };
+
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '4472C4' }
             }
-        }else{
-             const tempRow = excelSheet.addRow({
-            name: capitalizeWords(dept.name),
-            value: dept.value + "%",
-            legend: dept.legend,
-            año: dept.year,
-            Color: ""
-            })
-        
-            const tempCell = tempRow.getCell('color')
-            
-            tempCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb:getDeptColor(dept.name, dept.year).substring(1) },
+
+            cell.border = {
+                left: { style: 'thin' },
+                right: { style: 'thin' }
             }
+        })
+        let number = 1;
+        filteredData.forEach((dept) => {
+            if (activeGraph !== 'line') {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getDeptColor(dept.name).substring(1) },
+                }
+            } else {
+                const tempRow = excelSheet.addRow({
+                    name: capitalizeWords(dept.name),
+                    value: dept.value + "%",
+                    legend: dept.legend,
+                    año: dept.year,
+                    Color: ""
+                })
+
+                const tempCell = tempRow.getCell('color')
+
+                tempCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: getDeptColor(dept.name, dept.year).substring(1) },
+                }
+            }
+            number++;
+        })
+        number += 2;
+        excelSheet.mergeCells(`A${number}:D${number}`);
+
+
+        const cell = excelSheet.getCell(`A${number}`);
+        excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
+        excelSheet.getRow(number).height = 100;
+        cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
+
+        const buffer = await excelFile.xlsx.writeBuffer();
+        let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
+        if (activeGraph === 'line') {
+            fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
         }
-        number++;
-      })
-      number+=2;
-      excelSheet.mergeCells(`A${number}:D${number}`);
-    
-    
-      const cell = excelSheet.getCell(`A${number}`);
-      excelSheet.getRow(number).alignment = {wrapText: true, horizontal:'center'}
-      excelSheet.getRow(number).height=100;
-      cell.value= "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
-    
-      const buffer = await excelFile.xlsx.writeBuffer();
-      let fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      if(activeGraph === 'line') {
-        fileName = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.xlsx`;
-      }
-      saveAs(new Blob([buffer]), fileName);
+        saveAs(new Blob([buffer]), fileName);
     }
     const fallback: Legend = {
-    level: "",
-    message: "",
-    lowerLimit: 0,
-    upperLimit: 0,
-    color: "#FFFFFF"
-  }
-    const getDeptColor = (deptName: string, year?: string): string => {
-    
-    let currentDep = filteredData?.find((item) =>
-      item.name.toLowerCase() == deptName.toLowerCase()
-    )
-    if(activeGraph === 'line') {
-        currentDep = filteredData?.find((item) =>
-            item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
-        );
+        level: "",
+        message: "",
+        lowerLimit: 0,
+        upperLimit: 0,
+        color: "#FFFFFF"
     }
-    const departmentsData: Department[] = departments.map((item: any) => ({
-        name: capitalizeWords(item.municipio?.toLowerCase() || item.departamento.toLowerCase()), // Usa municipio si existe
-        legend: item.leyenda,
-        value: parseFloat(item.tasa) || 0,
-        year: item.periodo_anual,
-        level: item.nivel,
-        department: capitalizeWords(item.departamento.toLowerCase()), // siempre incluimos el departamento
-        municipio: item.municipio ? capitalizeWords(item.municipio.toLowerCase()) : undefined // nuevo campo
-    }));
+    const getDeptColor = (deptName: string, year?: string): string => {
 
-   
-    const value = currentDep? currentDep.value : -1;
-    
-    const darkgreen: Legend = legends?.find((item) =>
-      item.message === "Mucho mejor que la meta" && item.level === selectedLevel
-    ) ?? fallback;
-    
-    const green: Legend = legends?.find((item) =>
-      item.message === "Dentro de la meta" && item.level === selectedLevel
-    ) ?? fallback;
+        let currentDep = filteredData?.find((item) =>
+            item.name.toLowerCase() == deptName.toLowerCase()
+        )
+        if (activeGraph === 'line') {
+            currentDep = filteredData?.find((item) =>
+                item.name.toLowerCase() === deptName.toLowerCase() && item.year === year
+            );
+        }
+        const departmentsData: Department[] = departments.map((item: any) => ({
+            name: capitalizeWords(item.municipio?.toLowerCase() || item.departamento.toLowerCase()), // Usa municipio si existe
+            legend: item.leyenda,
+            value: parseFloat(item.tasa) || 0,
+            year: item.periodo_anual,
+            level: item.nivel,
+            department: capitalizeWords(item.departamento.toLowerCase()), // siempre incluimos el departamento
+            municipio: item.municipio ? capitalizeWords(item.municipio.toLowerCase()) : undefined // nuevo campo
+        }));
 
-    const yellow: Legend = legends?.find((item) =>
-      item.message === "Lejos de la meta" && item.level === selectedLevel
-    ) ?? fallback;
 
-    const red: Legend = legends?.find((item) =>
-      item.message === "Muy lejos de la meta" && item.level === selectedLevel
-    ) ?? fallback;
+        const value = currentDep ? currentDep.value : -1;
 
-    console.log("yellow: "+ yellow.lowerLimit + " " + yellow.upperLimit)
+        const darkgreen: Legend = legends?.find((item) =>
+            item.message === "Mucho mejor que la meta" && item.level === selectedLevel
+        ) ?? fallback;
 
-    console.log("green: "+ green.lowerLimit + " " + green.upperLimit)
-    console.log("value: " +value)
-    if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
-    if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
-    if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
-    if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
-    if (value == -1) return '#808080'; //gris
-    return '#e41a1c'; //rojo 
-};
-    
-   useEffect(() => {
+        const green: Legend = legends?.find((item) =>
+            item.message === "Dentro de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        const yellow: Legend = legends?.find((item) =>
+            item.message === "Lejos de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        const red: Legend = legends?.find((item) =>
+            item.message === "Muy lejos de la meta" && item.level === selectedLevel
+        ) ?? fallback;
+
+        console.log("yellow: " + yellow.lowerLimit + " " + yellow.upperLimit)
+
+        console.log("green: " + green.lowerLimit + " " + green.upperLimit)
+        console.log("value: " + value)
+        if (selectedLevel == "Ninguno" || selectedYear == "Ninguno") return '#808080';
+        if (value >= darkgreen.lowerLimit && value <= darkgreen!.upperLimit) return '#008000'; //verde oscuro
+        if (value >= green!.lowerLimit && value <= green!.upperLimit) return '#27ae60'; //verde
+        if (value >= yellow!.lowerLimit && value <= yellow!.upperLimit) return '#FFC300'; //amarillo
+        if (value == -1) return '#808080'; //gris
+        return '#e41a1c'; //rojo 
+    };
+
+    useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
                 setShowGraph((selectedYear !== "Ninguno" || selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
@@ -302,8 +292,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-        const applyFilters = (data: Department[], year: string, level: string, department: string) => {
-        if ((year === "Ninguno" && level === "Ninguno") || 
+    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+        if ((year === "Ninguno" && level === "Ninguno") ||
             (department === "Ninguno" && level === "Ninguno" && activeGraph === 'line')) {
             setFilteredData([]);
             return;
@@ -379,7 +369,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     selectedYear={selectedYear}
                     legendKey="legend"
                     legends={legends}
-                     yAxisKey="value"
+                    yAxisKey="value"
                 />
             );
         }
@@ -390,10 +380,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                     data={lineData}
                     xAxisKey="year"
                     yAxisKey="value"
-                    extensionData={extensionData}               
+                    extensionData={extensionData}
                     selectedDepartment={selectedDepartment}
                     selectedLevel={selectedLevel}
-                     />
+                />
             );
         }
         if (activeGraph === 'pie') {
@@ -417,7 +407,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         }
     };
 
-        const renderFilter = () => {
+    const renderFilter = () => {
         return (
             <>
                 {activeGraph !== 'line' && (
@@ -439,7 +429,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                         </select>
                     </div>
                 )}
-                
+
                 <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
                         {activeGraph === 'line' ? t("Departamento") : t("Filtrar por Departamento")}:
@@ -586,7 +576,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             setActiveGraph('pie');
                                                             setActiveFilter('year');
                                                             setActiveFilter('department');
-                                                         
+
                                                         }}
                                                     >
 
@@ -634,7 +624,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                             Exportar a Excel
                                                         </Tooltip>
                                                     }
-                                                    
+
                                                 >
                                                     <ListGroup.Item
                                                         action
@@ -644,8 +634,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                                                         active={false}
                                                         onMouseEnter={() => setIsHovered(true)}
                                                         onMouseLeave={() => setIsHovered(false)}
-                                                        onClick={()=>exportExcel()}
-                                                    >   
+                                                        onClick={() => exportExcel()}
+                                                    >
                                                         <img
                                                             src={isHovered ? "images/excel1.png" : "images/excel2.png"}
                                                             alt="Excel"
