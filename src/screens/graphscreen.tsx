@@ -14,7 +14,6 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { isDataView } from 'node:util/types';
 
 //Departamentos
 const BarGraph = dynamic(() => import("@/graphs/BarGraph"), {
@@ -41,14 +40,6 @@ const LineGraphM = dynamic(() => import("@/graphs/LineGraphM"), {
 const PieGraphM = dynamic(() => import("@/graphs/PieGraphM"), {
     ssr: false
 });
-
-interface Department {
-    name: string;
-    legend: string;
-    value: number;
-    year: string;
-    level: string;
-}
 
 interface Params {
     title: string;
@@ -81,9 +72,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
-    const [departmentsData, setDepartmentsData] = useState<Department[]>([]);
+    const [departmentsData, setDepartmentsData] = useState<DataItem[]>([]);
     const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
-    const [filteredData, setFilteredData] = useState<Department[]>([]);
+    const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState<string[]>([]);
@@ -243,7 +234,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph(selectedYear !== "Ninguno" && selectedLevel !== "Ninguno");
+                setShowGraph((selectedYear !== "Ninguno" && selectedDepartment !== "Ninguno") && selectedLevel !== "Ninguno");
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
@@ -272,6 +263,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }));
     };
 
+    const filterData = (
+        data: DataItem[] = [],
+        year: string,
+        level: string,
+        department: string,
+        isMunicipio = false
+    ) => {
+        return data.filter(item =>
+            (year === "Ninguno" || item.year === year) &&
+            (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
+            (
+                isMunicipio
+                    ? (department === "Ninguno" || item.department?.toLowerCase() === department.toLowerCase())
+                    : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
+            )
+        );
+    };
+
+    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+    const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true);
+
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -282,37 +294,88 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 }
             };
 
-            const [data, legends] = await Promise.all([
+            const [departamentos, legends] = await Promise.all([
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
 
-            const departmentsData2: Department[] = data.data.map((item: any) => ({
-                name: capitalizeWords(item.departamento.toLowerCase()),
-                legend: item.leyenda,
+            const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
+                name: capitalizeWords(item.departamento?.toLowerCase() || ""),
+                legend: item.leyenda || "",
                 value: parseFloat(item.tasa) || 0,
-                year: item.periodo_anual,
-                level: item.nivel
+                year: item.periodo_anual?.toString() || "",
+                level: item.nivel?.toLowerCase() || "",
+                department: item.departamento?.toLowerCase() || ""
             }));
 
             const legendsData: Legend[] = legends.data.map((item: any) => ({
-                level: item.nivel,
-                message: item.leyenda,
-                lowerLimit: parseFloat(item.min),
-                upperLimit: parseFloat(item.max)
+                level: item.nivel || "",
+                message: item.mensaje || "",
+                lowerLimit: item.limite_inferior ?? 0,
+                upperLimit: item.limite_superior ?? 0,
+                color: item.color || "#808080"
             }));
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
             setDepartmentsData(departmentsData2);
-            setLegends(legendsWithColors);
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+            setLegends(legendsWithColors);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!comparison && !department && selectedDepartment !== "Ninguno") {
+            const fetchMunicipios = async () => {
+                setLoading(true);
+                try {
+                    const config = {
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        params: { departamento: selectedDepartment.toUpperCase() }
+                    };
+                    const [municipios, legends] = await Promise.all([
+                        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
+                        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
+                    ]);
+
+                    const legendsData: Legend[] = legends.data.map((item: any) => ({
+                        level: item.nivel,
+                        message: item.leyenda,
+                        lowerLimit: parseFloat(item.min),
+                        upperLimit: parseFloat(item.max)
+                    }));
+
+                    const municipiosData = municipios.data.map((item: any) => ({
+                        name: capitalizeWords(item.municipio.toLowerCase()) || capitalizeWords(item.departamento.toLowerCase()) || 'Sin nombre',
+                        value: parseFloat(item.tasa) || 0,
+                        legend: item.leyenda,
+                        year: item.periodo_anual?.toString() || '',
+                        level: item.nivel?.toLowerCase() || '',
+                        department: item.departamento?.toLowerCase() || ''
+                    }));
+
+                    const legendsWithColors = assignColorsToLegends(legendsData);
+                    setMunicipios(municipiosData);
+                    applyFilters(municipiosData, selectedYear, selectedLevel, selectedDepartment);
+                    setLegends(legendsWithColors);
+                } catch (error) {
+                    console.error("Error fetching municipios:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchMunicipios();
+        }
+
+        if (!comparison && !department && selectedDepartment === "Ninguno") {
+            setMunicipios([]);
+            setFilteredData([]);
+        }
+    }, [selectedDepartment, extensionData, comparison, department]);
 
     const postComparison = async () => {
         setLoading(true);
@@ -334,7 +397,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     }, config)
                 ]);
 
-                const departmentsData2: Department[] = data.data.map((item: any) => ({
+                const departmentsData2: DataItem[] = data.data.map((item: any) => ({
                     name: capitalizeWords(item.departamento.toLowerCase()),
                     legend: item.leyenda,
                     value: parseFloat(item.tasa) || 0,
@@ -368,7 +431,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const applyFilters = (data: Department[], year: string, level: string, department: string) => {
+    const applyFilters = (data: DataItem[], year: string, level: string, department: string) => {
         if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
             setFilteredData([]);
             return;
@@ -390,6 +453,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             result = result.filter(d => d.level === level);
         }
 
+        // Si es municipios, filtra por departamento también
+        if (!department && selectedDepartment !== "Ninguno") {
+            result = result.filter(d => d.department === selectedDepartment.toLowerCase());
+        }
+
         result.sort((a, b) => a.name.localeCompare(b.name));
         setFilteredData(result);
 
@@ -400,7 +468,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const formatDataForLineGraphD = (data: Department[]) => {
+    const formatDataForLineGraphD = (data: DataItem[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
             .map(({ year, value, name, legend }) => ({
@@ -411,7 +479,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }));
     };
 
-    const formatDataForLineGraphM = (data: Department[]) => {
+    const formatDataForLineGraphM = (data: DataItem[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
             .map(({ year, value, name, legend, level }) => ({
@@ -438,19 +506,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
 
+
     const renderGraphD = () => {
         if (activeGraph === 'bar') {
-            const barData = filteredData.map(d => ({
-                name: d.name,
-                value: d.value,
-                legend: d.legend,
-                year: d.year,
-                level: d.level,
-            }));
             return (
                 < BarGraph
-                    data={barData}
-                    xAxisKey="name"
+                    data={filteredDepartments}
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
@@ -484,31 +545,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     const renderGraphM = () => {
         if (activeGraph === 'bar') {
-            const barData = filteredData.map(d => ({
-                name: d.name,
-                value: d.value,
-                legend: d.legend,
-                year: d.year,
-                level: d.level,
-            }));
             return (
                 <BarGraphM
-                    initialData={barData}
-                    extensionData={extensionData}
-                    extensionLimits={extensionLimits}
-                    title={title}
-                    selectedDepartment={selectedDepartment}
-                    selectedLevel={selectedLevel}
-                    selectedYear={selectedYear}
+                    data={filteredMunicipios}
                     legendKey="legend"
                     legends={legends}
                     yAxisKey="value"
-                    setMunicipios={setMunicipios}
                 />
             );
         }
         if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraphM(filteredData);
+            const lineData = formatDataForLineGraphM(municipios ?? []);
             return (
                 <LineGraphM
                     data={lineData}
@@ -524,7 +571,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         if (activeGraph === 'pie') {
             return (
                 <PieGraphM
-                    data={filteredData.map(d => ({
+                    data={(municipios ?? []).map(d => ({
                         name: d.name,
                         value: d.value,
                         legend: d.legend,
@@ -752,6 +799,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         // 6) Limpiar
         document.body.removeChild(off);
     };
+
 
 
     return (
