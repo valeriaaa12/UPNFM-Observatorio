@@ -19,22 +19,10 @@ interface DataItem {
     department?: string;
     legend: string;
 }
-interface DataItem2 {
-    name: string;
-    value: number;
-    legend: string;
-    year: string;
-    level: string;
-    department?: string;
-}
-interface LineGraphProps {
+
+interface LineGraphMProps {
     data: DataItem[];
-    xAxisKey: string;
-    yAxisKey: string;
-    extensionData: string;
-    selectedLevel: string;
-    selectedDepartment: string;
-    setMunicipios: React.Dispatch<React.SetStateAction<DataItem2[] | null>>;
+    years: string[];
 }
 
 const defaultColors = [
@@ -45,108 +33,13 @@ const defaultColors = [
     '#58D68D', '#F5B041', '#AAB7B8'
 ];
 
-const LineGraph: React.FC<LineGraphProps> = ({
-    data,
-    xAxisKey,
-    yAxisKey,
-    extensionData,
-    selectedLevel,
-    selectedDepartment,
-    setMunicipios
-}) => {
+const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
     const { t } = useTranslation('common');
-    const [municipalData, setMunicipalData] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
 
-
-    const departmentData = useMemo(() => {
-        return data.map(item => ({
-            name: item.name,
-            value: item.value,
-            year: item.year,
-            level: item.level?.toLowerCase() || '',
-            department: item.department?.toLowerCase() || ''
-        }));
-    }, [data]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!selectedDepartment) {
-                setMunicipalData([]);
-                return;
-            }
-
-            setLoading(true);
-            try {
-                const config = {
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    params: { departamento: selectedDepartment.toUpperCase() }
-                };
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}Municipal`, config);
-
-                const processed = response.data.map((item: any) => ({
-                    name: item.municipio,
-                    value: parseFloat(item.tasa),
-                    year: item.periodo_anual.toString(),
-                    level: item.nivel?.toLowerCase() || '',
-                    department: item.departamento?.toLowerCase() || '',
-                    legend: item.leyenda || "default"
-                }));
-
-                console.log("✅ MUNICIPAL PROCESSED:", processed);
-                setMunicipalData(processed);
-            } catch (error) {
-                console.error("❌ Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [selectedDepartment, extensionData]);
-
-    useEffect(() => {
-        //filter and set
-        const filtered = municipalData?.filter(item => {
-            const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
-            const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();        
-            return matchesLevel && matchesDepartment;
-        });
-            
-        setMunicipios(filtered)
-    },[municipalData, selectedLevel, selectedDepartment])
-    const [years, setYears] = useState<string[]>([]); 
-        useEffect(() => {
-            const fetchYears = async () => {
-                try {
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`);
-                    
-                    const sortedYears = response.data.sort((a: string, b: string) => parseInt(a) - parseInt(b));
-                    setYears(sortedYears);
-                } catch (error) {
-                    console.error("Error fetching years:", error);
-                  
-                    setYears(['2018', '2019', '2020', '2021', '2022', '2023']);
-                }
-            };
-
-            fetchYears();
-        }, []);
-
-    const source = selectedDepartment && municipalData.length > 0 ? municipalData : departmentData;
-
-    const filteredSource = useMemo(() => {
-        return source.filter(item => {
-            const matchesLevel = !selectedLevel || item.level === selectedLevel.toLowerCase();
-            const matchesDepartment = !selectedDepartment || !municipalData.length || item.department === selectedDepartment.toLowerCase();
-            return matchesLevel && matchesDepartment;
-        });
-    }, [source, municipalData, selectedLevel, selectedDepartment]);
-
     const lineNames = useMemo(() => {
-        return Array.from(new Set(filteredSource.map(item => item.name)));
-    }, [filteredSource]);
+        return Array.from(new Set(data.map(item => item.name)));
+    }, [data]);
 
     const colorMap = useMemo(() => {
         return lineNames.reduce((acc, name, index) => {
@@ -155,25 +48,23 @@ const LineGraph: React.FC<LineGraphProps> = ({
         }, {} as Record<string, string>);
     }, [lineNames]);
 
-const graphData = useMemo(() => {
-
-    const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
-    
-    return sortedYears.map(year => {
-        const yearData: Record<string, string | number> = { year };
-        filteredSource.forEach(item => {
-            if (item.year === year) {
-                yearData[item.name] = item.value;
-            }
+    const graphData = useMemo(() => {
+        const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
+        return sortedYears.map(year => {
+            const yearData: Record<string, string | number> = { year };
+            data.forEach(item => {
+                if (item.year === year) {
+                    yearData[item.name] = item.value;
+                }
+            });
+            return yearData;
         });
-        return yearData;
-    });
-}, [filteredSource, years]);
+    }, [data, years]);
+
     return (
         <div style={{ display: 'flex', width: '100%' }}>
-            {/* Leyenda personalizada a la izquierda */}
             <div style={{ width: '25%', padding: '1rem', maxHeight: '500px', overflowY: 'auto' }}>
-                <h4 style={{ marginBottom: '0.5rem' }}>Municipios</h4>
+                <h4 style={{ marginBottom: '0.5rem' }}>{t("Municipios")}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {lineNames.map((name, index) => (
                         <li
@@ -182,8 +73,16 @@ const graphData = useMemo(() => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 marginBottom: '0.3rem',
-                                fontSize: '0.75rem'
+                                fontSize: '0.75rem',
+                                fontWeight: hoveredLine === name ? 700 : 400,
+                                color: hoveredLine === name ? colorMap[name] : undefined,
+                                cursor: 'pointer',
+                                background: hoveredLine === name ? 'rgba(0,0,0,0.04)' : undefined,
+                                borderRadius: 3,
+                                padding: '2px 4px'
                             }}
+                            onMouseEnter={() => setHoveredLine(name)}
+                            onMouseLeave={() => setHoveredLine(null)}
                         >
                             <span
                                 style={{
@@ -192,7 +91,9 @@ const graphData = useMemo(() => {
                                     height: 10,
                                     backgroundColor: colorMap[name],
                                     marginRight: 6,
-                                    borderRadius: 2
+                                    borderRadius: 2,
+                                    border: hoveredLine === name ? `2px solid ${colorMap[name]}` : 'none',
+                                    transition: 'border 0.2s'
                                 }}
                             />
                             <span>{name}</span>
@@ -201,21 +102,37 @@ const graphData = useMemo(() => {
                 </ul>
             </div>
 
-            {/* Gráfico a la derecha */}
             <div style={{ width: '75%', height: '400px' }}>
                 {graphData.length === 0 ? (
                     <p style={{ textAlign: "center", marginTop: "2rem" }}>
-                        No hay datos disponibles para los filtros seleccionados.
+                        {t("No hay datos disponibles para los filtros seleccionados.")}
                     </p>
                 ) : (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={390}>
                         <LineChart
                             data={graphData}
                             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" />
-                            <YAxis />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                label={{
+                                    value: t("Año"),
+                                    position: "insideBottom",
+                                    offset: -25,
+                                    fontSize: 14,
+                                }}
+                            />
+                            <YAxis
+                                tick={{ fontSize: 12 }}
+                                label={{
+                                    value: t("Valor"),
+                                    angle: -90,
+                                    position: "insideLeft",
+                                    fontSize: 14,
+                                }}
+                            />
                             <Tooltip
                                 content={({ active, payload, label }) => {
                                     if (active && payload && payload.length) {
@@ -224,11 +141,19 @@ const graphData = useMemo(() => {
                                             : payload;
 
                                         return (
-                                            <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '10px' }}>
-                                                <p><strong>Año: {label}</strong></p>
+                                            <div style={{
+                                                backgroundColor: 'white',
+                                                border: '1px solid #ccc',
+                                                padding: '10px',
+                                                borderRadius: 6,
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                                            }}>
+                                                <p style={{ margin: 0, fontWeight: 600 }}>
+                                                    {t("Año")}: {label}
+                                                </p>
                                                 {filteredPayload.map((entry: any, index: number) => (
-                                                    <div key={index} style={{ color: entry.color }}>
-                                                        {entry.name}: {entry.value?.toFixed(2)}
+                                                    <div key={index} style={{ color: entry.color, fontSize: 13 }}>
+                                                        <span style={{ fontWeight: 500 }}>{entry.name}:</span> {entry.value?.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                                                     </div>
                                                 ))}
                                             </div>
@@ -239,20 +164,21 @@ const graphData = useMemo(() => {
                             />
 
                             {lineNames.map((name, index) => (
-                                    <Line
-                                        key={index}
-                                        type="monotone"
-                                        dataKey={name}
-                                        name={name}
-                                        stroke={colorMap[name]}
-                                        dot={{ r: 2 }}
-                                        strokeWidth={2}
-                                        opacity={hoveredLine === null || hoveredLine === name ? 1 : 0.2}
-                                        onMouseEnter={() => setHoveredLine(name)}
-                                        onMouseLeave={() => setHoveredLine(null)}
-                                    />
-                                ))}
-
+                                <Line
+                                    key={name}
+                                    type="monotone"
+                                    dataKey={name}
+                                    name={name}
+                                    stroke={colorMap[name]}
+                                    dot={{ r: 3, stroke: colorMap[name], strokeWidth: 1, fill: "#fff" }}
+                                    activeDot={{ r: 6 }}
+                                    strokeWidth={hoveredLine === name ? 3 : 2}
+                                    opacity={hoveredLine === null || hoveredLine === name ? 1 : 0.25}
+                                    onMouseEnter={() => setHoveredLine(name)}
+                                    onMouseLeave={() => setHoveredLine(null)}
+                                    isAnimationActive={false}
+                                />
+                            ))}
                         </LineChart>
                     </ResponsiveContainer>
                 )}
@@ -261,4 +187,4 @@ const graphData = useMemo(() => {
     );
 };
 
-export default LineGraph;
+export default LineGraphM;

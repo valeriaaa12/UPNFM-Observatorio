@@ -157,10 +157,24 @@ export default function Dashboard() {
 
 
 
-    // Maneja el cambio de tab
-    const handleTabChange = (selectedKey: string | null) => {
+    // Para departamentos
+    const handleDepaTabChange = (selectedKey: string | null) => {
         if (selectedKey) {
             setDepaActiveTab(selectedKey);
+            setKey(prevKey => prevKey + 1);
+        }
+    };
+    // Para municipios
+    const handleMuniTabChange = (selectedKey: string | null) => {
+        if (selectedKey) {
+            setMuniActiveTab(selectedKey);
+            setKey(prevKey => prevKey + 1);
+        }
+    };
+    // Para comparación
+    const handleCompDepaTabChange = (selectedKey: string | null) => {
+        if (selectedKey) {
+            setCompDepaActiveTab(selectedKey);
             setKey(prevKey => prevKey + 1);
         }
     };
@@ -187,7 +201,7 @@ export default function Dashboard() {
                     <Nav
                         variant="tabs"
                         activeKey={activeDepaTab}
-                        onSelect={handleTabChange}
+                        onSelect={handleDepaTabChange}
 
                     >
                         {depaTabsConfig.map((tab) => (
@@ -233,7 +247,7 @@ export default function Dashboard() {
                     <Nav
                         variant="tabs"
                         activeKey={activeMuniTab}
-                        onSelect={handleTabChange}
+                        onSelect={handleMuniTabChange}
 
                     >
                         {depaTabsConfig.map((tab) => (
@@ -280,7 +294,7 @@ export default function Dashboard() {
                     <Nav
                         variant="tabs"
                         activeKey={activeCompDepaTab}
-                        onSelect={handleTabChange}
+                        onSelect={handleCompDepaTabChange}
 
                     >
                         {depaTabsConfig.map((tab) => (
