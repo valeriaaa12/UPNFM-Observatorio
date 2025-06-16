@@ -27,7 +27,7 @@ interface DataItem {
     legend: string;
     year: string;
     level: string;
-    department?: string; 
+    department?: string;
 }
 
 interface BarGraphProps {
