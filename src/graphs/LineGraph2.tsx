@@ -41,6 +41,8 @@ const colorMap: Record<string, string> = {
 
 const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
     const { t } = useTranslation('common');
+    
+    
 
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
