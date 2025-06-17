@@ -31,6 +31,7 @@ interface legend {
 //fin pruebas para exportar pdf
 
 interface params {
+  title: string;
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   selectedYear: string;
@@ -52,7 +53,7 @@ interface deptMaps {
 
 
 
-export default function MapFilters({ mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
+export default function MapFilters({ title, mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
@@ -88,82 +89,61 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       .join(' ');
   };
 
-  const exportPNG = async () => {
+  const exportPNG = async (title?: string) => {
     try {
-      const mapContainer = document.createElement("div");
-      mapContainer.id = "map-container";
+      if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+        setShow(true);
+        return;
+      }
+      const baseTitle = title?.trim() || "Indicador Educativo";
+      const includeLocation = !baseTitle.includes(mapaElegido) && mapaElegido !== "Honduras" && mapaElegido !== "Ninguno";
+      const extraLocation = includeLocation ? ` en ${mapaElegido}` : "";
 
-      const L = (await import('leaflet')).default;
-      const html2canvas = (await import('html2canvas')).default;
+      const titleText = `${baseTitle}${extraLocation}`;
 
-      const pngContainer = document.createElement('div');
-      pngContainer.style.position = 'fixed';
-      pngContainer.style.left = '-9999px';
-      pngContainer.style.width = '800px';
-      pngContainer.style.backgroundColor = 'white';
+      // Ocultar elementos con clase .no-print
+      const noPrintElements = document.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+      const L = (await import("leaflet")).default;
+      const html2canvas = (await import("html2canvas")).default;
+
+      // Crear contenedor principal oculto
+      const pngContainer = document.createElement("div");
+      pngContainer.style.position = "fixed";
+      pngContainer.style.left = "-9999px";
+      pngContainer.style.width = "850px";
+      pngContainer.style.height = 'auto';
+      pngContainer.style.backgroundColor = "white";
+      pngContainer.style.display = "flex";
+      pngContainer.style.flexDirection = "column";
+      pngContainer.style.alignItems = "center";
+      pngContainer.style.padding = "20px";
+      pngContainer.style.gap = "15px";
       document.body.appendChild(pngContainer);
 
-      const titleText = document.getElementById("Titulo")?.textContent || 'Tasa de Cobertura Bruta Escolar en Honduras';
+      // Título azul
+      const titleDIV = document.createElement("div");
+      titleDIV.style.backgroundColor = "#2c3e50";
+      titleDIV.style.color = "white";
+      titleDIV.style.textAlign = "center";
+      titleDIV.style.padding = "12px";
+      titleDIV.style.width = "100%";
+      titleDIV.style.fontSize = "20px";
+      titleDIV.style.fontWeight = "bold";
+      titleDIV.textContent = titleText;
+      pngContainer.appendChild(titleDIV);
 
-      const title = document.createElement('div');
-      title.style.backgroundColor = '#2c3e50';
-      title.style.color = 'white';
-      title.style.padding = '10px';
-      title.style.textAlign = 'center';
-      title.style.fontSize = '20px';
-      title.style.fontWeight = 'bold';
-      title.textContent = titleText;
+      // Mapa dinámico
+      const mapContainer = document.createElement("div");
+      mapContainer.id = "map-container";
+      mapContainer.style.width = "100%";
+      mapContainer.style.height = "500px";
+      mapContainer.style.backgroundColor = "white";
+      pngContainer.appendChild(mapContainer);
 
-      const subtitle = document.createElement('h3');
-      subtitle.textContent = `${level} ${selectedYear}`;
-      subtitle.style.textAlign = 'center';
-      subtitle.style.marginTop = '10px';
-
-      const footer = document.createElement('div');
-      footer.style.textAlign = "center";
-      footer.style.backgroundColor = "#e0e0e0";
-      footer.style.borderRadius = '10px';
-      footer.style.marginTop = '20px';
-      footer.style.padding = '12px';
-      footer.style.fontSize = '10px';
-      footer.innerText =
-        "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. " +
-        "La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). " +
-        "El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. " +
-        "El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
-
-      const legendContainer = document.getElementById('legends-container')?.cloneNode(true) as HTMLElement;
-      const limitsContainer = document.getElementById('limits-container')?.cloneNode(true) as HTMLElement;
-
-      const mapDiv = document.createElement("div");
-      mapDiv.style.display = 'flex';
-      mapDiv.style.justifyContent = 'center';
-      mapDiv.style.alignItems = 'center';
-      mapDiv.style.margin = '0 auto';
-      mapDiv.style.marginTop = '0';
-      mapDiv.style.marginBottom = '10px';
-      mapDiv.style.padding = '0';
-      mapDiv.style.height = '450px'; // un poco más compacto
-
-      mapContainer.style.height = '100%';
-      mapContainer.style.width = '100%';
-      mapContainer.style.maxWidth = '700px';
-      mapContainer.style.backgroundColor = 'white';
-
-      mapDiv.appendChild(mapContainer);
-      mapDiv.appendChild(limitsContainer);
-      mapDiv.appendChild(legendContainer);
-
-      const pngContent = document.createElement("div");
-      pngContent.style.padding = '20px';
-      pngContent.appendChild(title);
-      pngContent.appendChild(subtitle);
-      pngContent.appendChild(mapDiv);
-      pngContent.appendChild(footer);
-
-      pngContainer.appendChild(pngContent);
-
-      const cloneMap = L.map("map-container", {
+      const map = L.map("map-container", {
         zoomControl: false,
         zoom: 7,
         center: [14.8, -86.8],
@@ -176,9 +156,8 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
         return {
           fillColor: getDeptColor(deptName),
           weight: 1,
-          opacity: 1,
-          fillOpacity: 0.85,
-          color: 'black'
+          color: "black",
+          fillOpacity: 0.85
         };
       };
 
@@ -187,37 +166,88 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
         const data = await response.json();
         const geoJsonLayer = L.geoJSON(data, {
           style: styleFeature
-        }).addTo(cloneMap);
+        }).addTo(map);
 
-        cloneMap.fitBounds(geoJsonLayer.getBounds());
+        map.fitBounds(geoJsonLayer.getBounds());
       }
 
+      // Leyenda y límites (clonados)
+      const limitsClone = document.getElementById("limits-container")?.cloneNode(true) as HTMLElement;
+      const legendClone = document.getElementById("legends-container")?.cloneNode(true) as HTMLElement;
+
+      // Ajustar estilos para prevenir problemas de posición
+      limitsClone.style.position = "static";
+      legendClone.style.position = "static";
+      limitsClone.style.margin = '0 20px 0 0'; // espacio solo entre ellos
+      legendClone.style.margin = '0';
+
+      const legendRow = document.createElement("div");
+      legendRow.style.display = "flex";
+      legendRow.style.justifyContent = "space-between";
+      legendRow.style.alignItems = "start";
+      legendRow.style.marginTop = "4px"; // ⬅️ reduce espacio arriba
+      legendRow.style.width = "100%";
+      legendRow.style.gap = "30px";
+      legendRow.appendChild(limitsClone);
+      legendRow.appendChild(legendClone);
+
+      pngContainer.appendChild(legendRow);
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.style.textAlign = "center";
+      footer.style.backgroundColor = "#e0e0e0";
+      footer.style.borderRadius = "10px";
+      footer.style.marginTop = "30px";
+      footer.style.padding = "10px";
+      footer.style.width = "100%";
+      footer.style.fontSize = "10px";
+      footer.textContent =
+        "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. " +
+        "La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). " +
+        "El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. " +
+        "El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+      pngContainer.appendChild(footer);
+
+      // Esperar a que Leaflet cargue todo
       await new Promise(resolve => {
-        cloneMap.whenReady(() => {
-          setTimeout(resolve, 500); // espera un poco extra por seguridad
+        map.whenReady(() => {
+          setTimeout(resolve, 500);
         });
       });
 
-      const canvas = await html2canvas(pngContent, {
+      // Captura del contenedor
+      const canvas = await html2canvas(pngContainer, {
         allowTaint: true,
         useCORS: true,
         scale: 2
       });
 
       const link = document.createElement("a");
-      const fileName = `${titleText.replace(/\s+/g, "_")}_${level}_${selectedYear}.png`;
+      const fileName = `${titleText.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "")}.png`;
       link.download = fileName;
       link.href = canvas.toDataURL("image/png");
       link.click();
+      // Restaurar visibilidad
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
 
+      // Limpieza
       document.body.removeChild(pngContainer);
+      if (document.body.contains(limitsClone)) {
+        document.body.removeChild(limitsClone);
+      }
+      if (document.body.contains(legendClone)) {
+        document.body.removeChild(legendClone);
+      }
+
     } catch (error) {
       console.error("Error al exportar PNG:", error);
     }
   };
 
-
-  const exportPDF = async () => {
+  const exportPDF = async (titleText?: string) => {
     try {
       if (typeof window === 'undefined' || !document) return;
       if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
@@ -265,17 +295,19 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
       mapClone.style.height = '500px';
       legendClone.style.margin = '10px 0';
 
-      limitsClone.style.margin = '10px 0';
+      //      limitsClone.style.margin = '10px 0'; trying out stuff
 
-
+      const levelAndYear = `${level} ${selectedYear}`;
+      const cleanedTitle = (titleText ?? "").replace(levelAndYear, '').trim().replace(/[-–—]\s*$/, '').trim();
       const title = document.createElement('h2');
-      title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
-      const subtitle = document.createElement('h3');
-      subtitle.textContent = level + " " + selectedYear
+      title.textContent = cleanedTitle || 'Indicador Educativo';
       title.style.textAlign = 'center';
       title.style.marginBottom = '20px';
+
+      const subtitle = document.createElement('h3');
+      subtitle.textContent = `${level} ${selectedYear}`;
       subtitle.style.textAlign = 'center';
-      subtitle.style.marginBottom = '20px';
+      subtitle.style.marginBottom = '6px';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -589,6 +621,14 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
     return dept ? dept.deptName : "Honduras"
   }
   console.log('Current language:', i18n.language);
+
+  const baseTitle = title?.replace(/\s+en\s+Honduras/i, '').trim() || "Indicador Educativo";
+  const titleText =
+    baseTitle +
+    (mapaElegido !== "Ninguno" ? ` en ${mapaElegido}` : "") +
+    (level !== "Ninguno" ? ` - ${level}` : "") +
+    (selectedYear !== "Ninguno" ? ` ${selectedYear}` : "");
+
   return (
     <>
       {/* Menú*/}
@@ -658,12 +698,11 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
               borderRadius: '4px',
               cursor: 'pointer'
             }}
-            onClick={() => exportPDF()}>
+            onClick={() => exportPDF(titleText)}>
             {t("Descargar")}
           </button>
-
           <button
-            onClick={() => exportPNG()}
+            onClick={() => exportPNG(titleText)}
             style={{
               width: '100%',
               padding: '8px',

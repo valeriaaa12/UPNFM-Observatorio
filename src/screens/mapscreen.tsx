@@ -116,6 +116,23 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
     }
   }
 
+  const [showFilters, setShowFilters] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setShowFilters(false); // Ocultar por default
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+
+
   /*const filterData = async () => {
     const filtered = departments?.filter(
       (item) => item.year == selectedYear && item.level == level
@@ -151,21 +168,64 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
               </div>
             </div>
           ) : (
-            <div className="d-flex flex-column flex-md-row w-100 vh-100">
+            <div className="d-flex flex-column flex-md-row w-100" style={{ minHeight: '100vh' }}>
               {/* Menu */}
-              <MapFilters
-                mapaElegido={mapaElegido}
-                setMapaElegido={setMapaElegido}
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-                level={level}
-                setLevel={setLevel}
-                years={years}
-                mapa={mapa}
-                setMapa={setMapa}
-                departments={filteredDepartments}
-                legends={legends}
-              />
+              {isMobile ? (
+                showFilters && (
+                  <>
+                    {/* Mobile Filters */}
+                    <div
+                      onClick={() => setShowFilters(false)}
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
+                        zIndex: 998,
+                      }}
+                    />
+
+                    {/* Click go brrr */}
+                    <div className="floating-filters">
+                      <MapFilters
+                        title={title}
+                        mapaElegido={mapaElegido}
+                        setMapaElegido={setMapaElegido}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        level={level}
+                        setLevel={setLevel}
+                        years={years}
+                        mapa={mapa}
+                        setMapa={setMapa}
+                        departments={filteredDepartments}
+                        legends={legends}
+                      />
+                    </div>
+                  </>
+                )
+              ) : (
+                // Normie stuff
+                <div className="d-none d-md-block" style={{ minWidth: '250px' }}>
+                  <MapFilters
+                    title={title}
+                    mapaElegido={mapaElegido}
+                    setMapaElegido={setMapaElegido}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    level={level}
+                    setLevel={setLevel}
+                    years={years}
+                    mapa={mapa}
+                    setMapa={setMapa}
+                    departments={filteredDepartments}
+                    legends={legends}
+                  />
+                </div>
+              )}
+
 
               {/* Mapa */}
               <div className="flex-grow-1 position-relative">
@@ -182,6 +242,9 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
                   municipio={mapaElegido}
                   mapRef={leafletMapRef}
                   exportContainerRef={exportRef}
+                  isMobile={isMobile}
+                  showFilters={showFilters}
+                  setShowFilters={setShowFilters}
                 />
               </div>
             </div>

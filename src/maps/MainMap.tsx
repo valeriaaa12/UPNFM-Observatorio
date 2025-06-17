@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { FeatureCollection, GeoJsonObject, Geometry } from 'geojson';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 //mapeo de datos
 interface department {
@@ -49,6 +50,9 @@ interface MapParams {
   municipio: string
   mapRef: React.RefObject<L.Map | null>; // ref para controlar el mapa Leaflet
   exportContainerRef: React.RefObject<HTMLDivElement | null>;
+  isMobile: boolean;
+  showFilters: boolean;
+  setShowFilters: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
@@ -80,7 +84,7 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
   return null;
 };
 
-const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, filter, municipio, mapRef, exportContainerRef }: MapParams) => {
+const MainMap = ({ title, departments, setDepartments, legends, setLegends, year, map, level, filter, municipio, mapRef, exportContainerRef, isMobile, showFilters, setShowFilters }: MapParams) => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -288,19 +292,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
     ) ?? fallback;
 
     return (<>
-      <div
-        id="limits-container"
-        style={{
-          position: 'absolute',
-          bottom: '80px',
-          left: '20px',
-          backgroundColor: '#F0F0F0',
-          padding: '10px',
-          borderRadius: '5px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-          zIndex: 1000,
-          border: '1px solid #ccc'
-        }}>
+      <div id="limits-container" className="limits-box">
         <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
         <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
           <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
@@ -345,7 +337,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
 
   return (
     <div
-      ref={exportContainerRef} // ✅ este es el div que se exportará como PNG
+      ref={exportContainerRef}
       id="map-export-container"
       style={{
         position: 'relative',
@@ -375,20 +367,38 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       )}
 
       {/* Título*/}
-      <div style={{
+      <div id="Titulo" style={{
         padding: '12px 20px',
         backgroundColor: '#2c3e50',
         color: 'white',
-        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
-        <h2 style={{
-          margin: 0,
-          fontSize: '1.4rem',
-          fontWeight: '500'
-        }}>
+        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '500', flexGrow: 1 }}>
           {title}
+          {(level !== "Ninguno" && year !== "Ninguno") && ` - ${level} ${year}`}
         </h2>
+        {/* Botón solo visible en móvil */}
+        {isMobile && (
+          <button
+            className="no-print"
+            onClick={() => setShowFilters(!showFilters)}
+            style={{
+              backgroundColor: 'white',
+              color: '#2c3e50',
+              border: 'none',
+              borderRadius: '5px',
+              padding: '6px 10px',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              boxShadow: '0 1px 4px rgba(0, 0, 0, 0.15)',
+            }}
+          >
+            {showFilters ? '✖' : '☰'}
+          </button>
+        )}
       </div>
       <div style={{
         height: 'calc(100vh - 120px)',
@@ -423,121 +433,109 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           <FitBounds geoData={geoData} />
         </MapContainer>
 
-        {/* Limites */}
-        {limites()}
-        {/* Leyendas */}
-        <div
-          id="legends-container"
-          style={{
+        <div id="legends-limits-container" className="legends-limits-container">
+          {limites()}
+          <div id="legends-container" className="legend-box">
+            <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("NivelCumplimiento")}</div>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
+              <span>{t("l1")}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
+              <span>{t("l2")}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
+              <span>{t("l3")}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+              <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
+              <span>{t("l4")}</span>
+            </div>
+            {map !== '/others/hn.json' && (
+              <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+                <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+                <span>N/D</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
+      <div style={{
+        position: 'relative', // ya no fixed
+        marginTop: '20px',
+        padding: '12px',
+        textAlign: 'center',
+        fontSize: '0.8rem',
+        color: '#666',
+        backgroundColor: 'white',
+        borderTop: '1px solid #ccc'
+      }}>
+        Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
+        <br></br>
+        Elaborado por: Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) - Instituto de Investigación y Evaluación Educativas y Sociales (INIEES). UPNFM. {new Date().getFullYear()}
+      </div>
+
+      {/* Department Info */}
+      {selectedDept && (
+        <div
+          id="info-container"
+          style={{
             position: 'absolute',
-            bottom: '80px',
+            top: '20px',
             right: '20px',
             backgroundColor: 'white',
-            padding: '10px',
+            padding: '15px',
             borderRadius: '5px',
             boxShadow: '0 0 10px rgba(0,0,0,0.2)',
             zIndex: 1000,
+            maxWidth: '300px',
             border: '1px solid #ccc'
           }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{t("NivelCumplimiento")}</div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
-            <span>{t("l1")}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
-            <span>{t("l2")}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
-            <span>{t("l3")}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-            <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
-            <span>{t("l4")}</span>
-          </div>
-          {map != '/others/hn.json' &&
-            <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
-              <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
-              <span>N/D</span>
-            </div>}
-        </div>
+          <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
+          <p>
+            {t("Valor")}: {
+              (() => {
+                const dept = departments?.find(
+                  (item) => item.name === selectedDept.toLowerCase()
+                );
+                return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
+              })()
+            }
+          </p>
 
-        <div style={{
-          position: 'relative', // ya no fixed
-          marginTop: '20px',
-          padding: '12px',
-          textAlign: 'center',
-          fontSize: '0.8rem',
-          color: '#666',
-          backgroundColor: 'white',
-          borderTop: '1px solid #ccc'
-        }}>
-          Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
-          <br></br>
-          Elaborado por: Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) - Instituto de Investigación y Evaluación Educativas y Sociales (INIEES). UPNFM. {new Date().getFullYear()}
-        </div>
+          {(() => {
+            const dept = departments?.find(
+              (item) => item.name.toLowerCase() === selectedDept.toLowerCase()
+            );
 
-        {/* Department Info */}
-        {selectedDept && (
-          <div
-            id="info-container"
+            if (!dept?.legend) return <p> </p>;
+
+            if (dept.legend === 'Mucho mejor que la meta') return <p>{t("l1")}</p>;
+            if (dept.legend === 'Dentro de la meta') return <p>{t("l2")}</p>;
+            if (dept.legend === 'Lejos de la meta') return <p>{t("l3")}</p>;
+            if (dept.legend === 'Muy lejos de la meta') return <p>{t("l4")}</p>;
+            // Fallback
+            return <p>{dept.legend}</p>;
+          })()}
+
+          <button
+            onClick={() => setSelectedDept(null)}
             style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              backgroundColor: 'white',
-              padding: '15px',
-              borderRadius: '5px',
-              boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-              zIndex: 1000,
-              maxWidth: '300px',
-              border: '1px solid #ccc'
-            }}>
-            <h3 style={{ marginTop: 0 }}>{selectedDept}</h3>
-            <p>
-              {t("Valor")}: {
-                (() => {
-                  const dept = departments?.find(
-                    (item) => item.name === selectedDept.toLowerCase()
-                  );
-                  return dept && (dept.value !== 0 || hasZero()) ? `${dept.value}%` : 'N/D';
-                })()
-              }
-            </p>
-
-            {(() => {
-              const dept = departments?.find(
-                (item) => item.name.toLowerCase() === selectedDept.toLowerCase()
-              );
-
-              if (!dept?.legend) return <p> </p>;
-
-              if (dept.legend === 'Mucho mejor que la meta') return <p>{t("l1")}</p>;
-              if (dept.legend === 'Dentro de la meta') return <p>{t("l2")}</p>;
-              if (dept.legend === 'Lejos de la meta') return <p>{t("l3")}</p>;
-              if (dept.legend === 'Muy lejos de la meta') return <p>{t("l4")}</p>;
-              // Fallback
-              return <p>{dept.legend}</p>;
-            })()}
-
-            <button
-              onClick={() => setSelectedDept(null)}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#f0f0f0',
-                border: '1px solid #ccc',
-                borderRadius: '3px',
-                cursor: 'pointer'
-              }}
-            >
-              {t("Cerrar")}
-            </button>
-          </div>
-        )}
-      </div>
-    </div >
+              padding: '5px 10px',
+              backgroundColor: '#f0f0f0',
+              border: '1px solid #ccc',
+              borderRadius: '3px',
+              cursor: 'pointer'
+            }}
+          >
+            {t("Cerrar")}
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

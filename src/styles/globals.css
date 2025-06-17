@@ -76,9 +76,11 @@ a {
 .whiteText {
   color: white !important;
 }
-.redText{
+
+.redText {
   color: red !important;
 }
+
 .font {
   font-family: 'Montserrat' !important;
 }
@@ -299,3 +301,102 @@ a {
   outline: none !important;
 }
 
+/* === Leyendas y Límites del Mapa === */
+
+.legends-limits-container {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  right: 50px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  z-index: 200;
+}
+
+.legend-box,
+.limits-box {
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+  min-width: 180px;
+}
+
+/* Diseño responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .legends-limits-container {
+    flex-direction: column;
+    left: 10px;
+    right: 10px;
+    bottom: 20px;
+  }
+
+  .legend-box,
+  .limits-box {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-filters {
+    position: fixed !important;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    max-width: 300px;
+    height: calc(100vh - 70px);
+    background-color: #ffffff;
+    z-index: 9999;
+    padding: 20px;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    border-right: 1px solid #ccc;
+  }
+}
+
+/* Pie Graph stuff */
+.pie-chart-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.pie-legend {
+  width: 250px;
+  padding: 20px;
+}
+
+.pie-container {
+  flex: 1;
+  min-width: 250px;
+  max-width: 600px;
+  height: 400px;
+}
+
+@media (max-width: 900px) {
+  .pie-chart-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pie-container {
+    width: 100%;
+    min-width: 300px;
+    height: 300px !important;
+    max-width: 90vw;
+  }
+
+  .pie-legend {
+    width: 90%;
+    max-width: 400px;
+  }
+}
