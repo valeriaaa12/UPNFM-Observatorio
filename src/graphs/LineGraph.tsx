@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     LineChart,
     Line,
@@ -37,7 +37,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
     legendKey = 'legend',
     legends = []
 }) => {
-
+    
     // Agrupar datos por departamento
     const departments = Array.from(new Set(data.map(d => d.departamento)));
 
@@ -92,6 +92,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
         );
     };
 
+    
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>

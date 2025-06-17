@@ -96,7 +96,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
-
+    
+    //pruebas
+    useEffect(() => {
+        console.log("año: ", selectedYear)
+        console.log("nivel: ", selectedLevel)
+        console.log("departamento: ", selectedDepartment)
+        console.log("departamentos: ", selectedDepartments)
+        if(comparison){
+            postComparison();
+        }
+    },[selectedYear, selectedLevel, selectedDepartment])
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
 
@@ -213,7 +223,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
   
     useEffect(() => {
         const handleGraph = () => {
-            if (activeGraph === 'bar' || activeGraph === 'pie') {
+            if(comparison){
+                setShowGraph(selectedLevel !== "Ninguno" && selectedYear !== "Ninguno" && selectedDepartments.length > 0);
+            }else if (activeGraph === 'bar' || activeGraph === 'pie') {
                 setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !=="Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
                 console.log(showGraph)
             } else if (activeGraph === 'line') {
@@ -281,7 +293,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
-
+            console.log("legends1")
+            console.log(legends.data)
             const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento?.toLowerCase() || ""),
                 legend: item.leyenda || "",
@@ -294,16 +307,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             const legendsData: Legend[] = legends.data.map((item: any) => ({
                 level: item.nivel || "",
                 message: item.leyenda || "",
-                lowerLimit: item.limite_inferior ?? 0,
-                upperLimit: item.limite_superior ?? 0,
+                lowerLimit: item.limite_inferior || item.min || 0,
+                upperLimit: item.limite_superior || item.max ||  0,
                 color: item.color || "#808080"
             }));
 
             const legendsWithColors = assignColorsToLegends(legendsData);
-
+        
+            
+            
             setDepartmentsData(departmentsData2);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
             setLegends(legendsWithColors);
+            
+            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+            
+            
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -404,6 +422,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 setDepartmentsData(departmentsData2);
                 applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
 
+            }else{
+                setShowGraph(false);
             }
         } catch (error: any) {
             if (error.response) {
@@ -500,15 +520,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
+                    
                 />
             );
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphD(filteredDepartments);
+            const filteredLegends = legends.filter(item =>item.level == selectedLevel)
             return (
                 <LineGraph
                     data={lineData}
-                    legends={legends}
+                    legends={filteredLegends}
                     years={years}
                 />
             );
@@ -535,6 +557,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphM(filteredMunicipios);
+            
             return (
                 <LineGraphM
                     data={lineData}
@@ -731,7 +754,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
         if (!exportRef.current) return;
+        
         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            setDataSelectedPrint(true)
             return
         }
         if(comparison && selectedDepartments.length === 0) {
@@ -867,7 +892,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         onClick={postComparison}
                                                         type="button"
                                                     >
-                                                        Graficar
+                                                        {t("Graficar")}
                                                     </button>
                                                 </div>
                                             </Dropdown.Menu>
@@ -880,7 +905,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                         </div>
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph!="line" || comparison)) ? `(${selectedYear})` : ""}
                             </h2>
                             <div
                                 style={{
@@ -947,7 +972,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
                                                                 setActiveFilter('year');
-                                                                setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");    
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -968,7 +993,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('line');
                                                                 setActiveFilter('department');
-                                                                setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");    
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -988,9 +1013,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
-                                                                setActiveFilter('year');
-                                                                setSelectedDepartment("Ninguno");
-                                                            }}
+                                                                setActiveFilter('year'); 
+                                                                department && setSelectedDepartment("Ninguno");                                                           }}
                                                         >
 
                                                             <i className="bi bi-pie-chart"></i>
@@ -1086,7 +1110,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                         height: '100%',
                                         color: '#666'
                                     }}>
-                                        No hay datos disponibles para los filtros seleccionados
+                                        {t("No hay datos disponibles para los filtros seleccionados")}
                                     </div>
                                 )}
                             </div>

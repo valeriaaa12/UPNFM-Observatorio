@@ -88,7 +88,7 @@ export default function SmallNavBar() {
                         href="/dashboard"
                         style={{ whiteSpace: 'normal' }}
                       >
-                        {"Gráficos Estadísticos"}
+                        {t("Gráficos Estadísticos")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
                       
