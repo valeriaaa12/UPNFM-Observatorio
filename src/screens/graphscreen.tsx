@@ -558,6 +558,9 @@ const postComparisonDepa = async () => {
         setSelectedDepartmentsMuni(departamentosUnicos);
     }, [selectedMunicipios, municipiosList]);
 
+    useEffect(()=>{
+
+    }, [selectedDepartment, selectedMunicipios, selectedLevel])
     const postComparisonMuni = async () => {
         setLoading(true);
         try {
