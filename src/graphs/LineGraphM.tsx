@@ -47,7 +47,7 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
             return acc;
         }, {} as Record<string, string>);
     }, [lineNames]);
-
+    
     const graphData = useMemo(() => {
         const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
         return sortedYears.map(year => {

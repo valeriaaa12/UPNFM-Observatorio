@@ -73,11 +73,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
     const [departmentsData, setDepartmentsData] = useState<DataItem[]>([]);
+    const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
     const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState<string[]>([]);
+    
     const { t } = useTranslation('common');
     const levels2 = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
     const levels = [
@@ -89,7 +91,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
     const [isHovered, setIsHovered] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
-    
+
     //states para validaciones de menu
     const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
     const [dataSelectedPdf, setDataSelectedPdf] = useState<boolean>(false);
@@ -145,6 +147,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         })
         let number = 1;
         const filteredList = department ? filteredDepartments : filteredMunicipios;
+        
         filteredList.forEach((dept) => {
             if (activeGraph !== 'line') {
                 const tempRow = excelSheet.addRow({
@@ -214,14 +217,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !=="Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
-                console.log(showGraph)
+            setShowGraph(
+                (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || 
+                (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno")
+            );
             } else if (activeGraph === 'line') {
-                setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
+            setShowGraph(
+                selectedLevel !== "Ninguno" && 
+                (selectedDepartment !== "Ninguno" || selectedDepartments.length > 0)
+            );
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments]);
 
     const capitalizeWords = (str: string) => {
         return str.toLowerCase().split(' ')
@@ -251,20 +259,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         department: string,
         isMunicipio = false,
         activeGraph: string
-    ) => {
+        ) => {
         return data.filter(item =>
-            // Solo filtra por año si el gráfico NO es de línea
+           
             (activeGraph === 'line' || year === "Ninguno" || item.year === year) &&
             (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
             (
-                isMunicipio
-                    ? (department === "Ninguno" || item.department?.toLowerCase() === department.toLowerCase())
-                    : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
+            isMunicipio
+                ? (department === "Ninguno" || item.department?.toLowerCase() === department.toLowerCase())
+                : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
             )
         );
-    };
-
-    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
+};
+    const filteredDepartments = filterData(
+            departmentsData, 
+            selectedYear, 
+            selectedLevel, 
+            activeGraph === 'line' && selectedDepartments.length > 0 ? selectedDepartments.join(',') : selectedDepartment,
+            false, 
+            activeGraph
+    );
+     
     const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
 
     const fetchData = async () => {
@@ -292,16 +307,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }));
 
             const legendsData: Legend[] = legends.data.map((item: any) => ({
-                level: item.nivel || "",
-                message: item.leyenda || "",
-                lowerLimit: item.limite_inferior ?? 0,
-                upperLimit: item.limite_superior ?? 0,
-                color: item.color || "#808080"
+                    level: item.nivel,
+                    message: item.leyenda,
+                    lowerLimit: parseFloat(item.min),
+                    upperLimit: parseFloat(item.max)
             }));
+
+
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
             setDepartmentsData(departmentsData2);
+             console.log("Departamentos Data en fetch data:", departmentsDataLine);
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
             setLegends(legendsWithColors);
         } catch (error) {
@@ -364,57 +381,110 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedDepartment, extensionData, comparison, department]);
 
-    const postComparison = async () => {
-        setLoading(true);
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            };
+  const postComparison = async () => {
+    setLoading(true);
+    try {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        };
 
-            if (selectedDepartments.length > 0) {
-                const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
+        if (selectedDepartments.length > 0) {
+            const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
 
-                console.log("departmentsUpper", departmentsUpper);
-                const [data] = await Promise.all([
-                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
-                        nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
-                    }, config)
-                ]);
+            const allDataLine: DataItem[] = [];
+            const allDataStatic: DataItem[] = [];
+            const allLegends: Legend[] = [];
 
-                const departmentsData2: DataItem[] = data.data.map((item: any) => ({
+            // Datos para gráfico de líneas (todos los años)
+            for (const year of years) {
+                const response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`,
+                    {
+                        nivel: selectedLevel,
+                        periodo_anual: year,
+                        departamentos: departmentsUpper,
+                    },
+                    config
+                );
+
+                const yearData: DataItem[] = response.data.map((item: any) => ({
                     name: capitalizeWords(item.departamento.toLowerCase()),
                     legend: item.leyenda,
                     value: parseFloat(item.tasa) || 0,
-                    year: selectedYear,
+                    year: year,
                     level: selectedLevel
                 }));
 
-                const legendsData: Legend[] = data.data.map((item: any) => ({
+                const legendsData: Legend[] = response.data.map((item: any) => ({
                     level: item.nivel,
                     message: item.leyenda,
                     lowerLimit: parseFloat(item.min) || 0,
                     upperLimit: parseFloat(item.max) || 0
                 }));
 
-                const legendsWithColors = assignColorsToLegends(legendsData);
-                setLegends(legendsWithColors);
-                setDepartmentsData(departmentsData2);
-                applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
+                allDataLine.push(...yearData);
+                allLegends.push(...legendsData);
+            }
 
-            }
-        } catch (error: any) {
-            if (error.response) {
-                console.error("Backend error:", error.response.data);
-            } else {
-                console.error("Error:", error.message);
-            }
-        } finally {
-            setLoading(false);
+            // Datos para gráfico de barras o pastel (año específico)
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`,
+                {
+                    nivel: selectedLevel,
+                    periodo_anual: selectedYear,
+                    departamentos: departmentsUpper,
+                },
+                config
+            );
+
+            const yearData: DataItem[] = response.data.map((item: any) => ({
+                name: capitalizeWords(item.departamento.toLowerCase()),
+                legend: item.leyenda,
+                value: parseFloat(item.tasa) || 0,
+                year: selectedYear,
+                level: selectedLevel
+            }));
+
+            allDataStatic.push(...yearData);
+
+            const legendsData: Legend[] = response.data.map((item: any) => ({
+                level: item.nivel,
+                message: item.leyenda,
+                lowerLimit: parseFloat(item.min) || 0,
+                upperLimit: parseFloat(item.max) || 0
+            }));
+
+            allLegends.push(...legendsData);
+
+           setDepartmentsDataLine(allDataLine);
+
+           applyFilters(allDataLine, selectedYear, selectedLevel, selectedDepartment);
+
+
+            setDepartmentsData(allDataStatic);
+
+            const legendsWithColors = assignColorsToLegends(allLegends);
+            setLegends(legendsWithColors);
+
+            // Aplicar filtros si corresponde
+            applyFilters(
+                activeGraph === 'line' ? allDataLine : allDataStatic,
+                selectedYear,
+                selectedLevel,
+                selectedDepartment
+            );
         }
-    };
+    } catch (error: any) {
+        console.error("Error:", error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 
     const applyFilters = (data: DataItem[], year: string, level: string, department: string) => {
         if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
@@ -433,12 +503,15 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
             }
         }
-
+         if (activeGraph !== 'line' ) {
+        if (year !== "Ninguno") {
+            result = result.filter(d => d.year === year);
+        }
+        }
         if (level !== "Ninguno") {
             result = result.filter(d => d.level === level);
         }
 
-        // Si es municipios, filtra por departamento también
         if (!department && selectedDepartment !== "Ninguno") {
             result = result.filter(d => d.department === selectedDepartment.toLowerCase());
         }
@@ -449,21 +522,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         if (activeGraph === 'bar' || activeGraph === 'pie') {
             setShowGraph(year !== "Ninguno" && level !== "Ninguno");
         } else {
-            setShowGraph(department !== "Ninguno" && level !== "Ninguno");
+            if(comparison){
+                 const hasValidData = result.length > 0;
+                setShowGraph(hasValidData);
+            }else{   
+                setShowGraph(department !== "Ninguno" && level !== "Ninguno");
+            }
         }
     };
 
-    const formatDataForLineGraphD = (data: DataItem[]) => {
-        return data
-            .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-            .map(({ year, value, name, legend }) => ({
-                departamento: name,
-                year,
-                value,
-                legend,
-            }));
-    };
-
+      const formatDataForLineGraphD = (data: DataItem[]) => {
+    
+    return data
+        .filter(item => item.value !== undefined) 
+        .sort((a, b) => parseInt(a.year) - parseInt(b.year))
+        .map(({ year, value, name, legend }) => ({
+            departamento: name,
+            year,
+            value,
+            legend,
+        }));
+};
     const formatDataForLineGraphM = (data: DataItem[]) => {
         return data
             .sort((a, b) => parseInt(a.year) - parseInt(b.year))
@@ -486,41 +565,46 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     }, []);
 
     useEffect(() => {
-        if (departmentsData.length > 0) {
+        if (departmentsData.length > 0 ) {    
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
+   
 
-
-    const renderGraphD = () => {
-        if (activeGraph === 'bar') {
-            return (
-                < BarGraph
-                    data={filteredDepartments}
-                    yAxisKey="value"
-                    legendKey="legend"
-                    legends={legends}
-                />
-            );
-        }
-        if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraphD(filteredDepartments);
-            return (
-                <LineGraph
-                    data={lineData}
-                    legends={legends}
-                    years={years}
-                />
-            );
-        }
-        if (activeGraph === 'pie') {
-            return (
-                <PieGraph
-                    data={filteredDepartments}
-                />
-            );
-        }
-    };
+//grafico de departamentos
+   const renderGraphD = () => {
+  if (activeGraph === 'bar') {
+    return (
+      <BarGraph
+        data={filteredDepartments}
+        yAxisKey="value"
+        legendKey="legend"
+        legends={legends}
+      />
+    );
+  }
+  if (activeGraph === 'line') {
+    console.log("Departamentos Data:", departmentsDataLine);
+  const sourceData = comparison ? departmentsDataLine : filteredDepartments;
+  console.log("Datos para gráfico de líneas:", sourceData);
+  
+  const lineData = formatDataForLineGraphD(sourceData);
+  
+  return (
+    <LineGraph
+      data={lineData}
+      legends={legends}
+    />
+  );
+}
+  if (activeGraph === 'pie') {
+    return (
+      <PieGraph
+        data={filteredDepartments}
+      />
+    );
+  }
+};
 
     const renderGraphM = () => {
         if (activeGraph === 'bar') {
@@ -818,65 +902,65 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                             </div>
                             {/* Filtros de comparacion */}
                             {comparison ? (
-                                <>
-                                    {/* Año */}
-                                    <div style={{ flex: 1, minWidth: '220px' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                            {t("Año")}:
-                                        </label>
-                                        <select
-                                            value={selectedYear}
-                                            onChange={(e) => setSelectedYear(e.target.value)}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                                        >
-                                            <option value="Ninguno">{t("Ninguno")}</option>
-                                            {years.map(year => (
-                                                <option key={year} value={year}>
-                                                    {year}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {/* Departamento */}
-                                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                        <Dropdown autoClose={false}>
-                                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
-                                                {t("Departamento")}
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
-                                                {departments.map((dept) => (
-                                                    <Dropdown.Item
-                                                        key={dept}
-                                                        as="div"
-                                                        className="px-2"
-                                                        onClick={e => e.stopPropagation()}
-                                                    >
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            id={`dept-${dept}`}
-                                                            label={dept}
-                                                            checked={selectedDepartments.includes(dept)}
-                                                            onChange={() => handleCheck(dept)}
-                                                        />
-                                                    </Dropdown.Item>
-                                                ))}
-                                                <Dropdown.Divider />
-                                                <div className="d-flex px-2 py-1 justify-content-end ">
-                                                    <button
-                                                        className="btn btn-blue"
-                                                        onClick={postComparison}
-                                                        type="button"
-                                                    >
-                                                        Graficar
-                                                    </button>
-                                                </div>
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </div>
-                                </>
-                            ) : (
-                                renderFilter()
-                            )}
+                        <>
+                        {activeGraph !== 'line' && (
+                        <div style={{ flex: 1, minWidth: '220px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            {t("Año")}:
+                            </label>
+                            <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                            >
+                            <option value="Ninguno">{t("Ninguno")}</option>
+                            {years.map(year => (
+                                <option key={year} value={year}>
+                                {year}
+                                </option>
+                            ))}
+                            </select>
+                        </div>
+                        )}
+                        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                        <Dropdown autoClose={false}>
+                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                            {t("Departamento")}
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                            {departments.map((dept) => (
+                                <Dropdown.Item
+                                key={dept}
+                                as="div"
+                                className="px-2"
+                                onClick={e => e.stopPropagation()}
+                                >
+                                <Form.Check
+                                    type="checkbox"
+                                    id={`dept-${dept}`}
+                                    label={dept}
+                                    checked={selectedDepartments.includes(dept)}
+                                    onChange={() => handleCheck(dept)}
+                                />
+                                </Dropdown.Item>
+                            ))}
+                            <Dropdown.Divider />
+                            <div className="d-flex px-2 py-1 justify-content-end ">
+                                <button
+                                className="btn btn-blue"
+                                onClick={postComparison}
+                                type="button"
+                                >
+                                Graficar
+                                </button>
+                            </div>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                        </div>
+                    </>
+                    ) : (
+                    renderFilter()
+                    )}
                         </div>
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
@@ -948,6 +1032,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                                 setActiveGraph('bar');
                                                                 setActiveFilter('year');
                                                                 setSelectedDepartment("Ninguno");
+                                                                //if (comparison && activeGraph === 'line') {
+                                                                   // setSelectedYear("Ninguno");
+                                                                //}
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
