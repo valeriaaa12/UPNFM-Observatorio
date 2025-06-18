@@ -772,18 +772,6 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            marginBottom: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
-            {t("ReiniciarVista")}
-          </button>
-
           <button
             style={{
               width: '100%',

@@ -197,7 +197,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
         const cell = excelSheet.getCell(`A${number}`);
         excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
-        excelSheet.getRow(number).height = 100;
+        excelSheet.getRow(number).height = 150;
         cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
 
         const buffer = await excelFile.xlsx.writeBuffer();
