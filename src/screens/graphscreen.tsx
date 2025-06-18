@@ -317,13 +317,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
-
-
             setDepartmentsData(departmentsData2);
             setLegends(legendsWithColors);
-
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
-
 
         } catch (error) {
             console.error("Error fetching data:", error);
