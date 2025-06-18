@@ -32,6 +32,13 @@ const defaultColors = [
     '#A04000', '#DE3163', '#58D68D'
 ];
 
+const colorMapLegend: Record<string, string> = {
+    "Mucho mejor que la meta": "#008000",
+    "Dentro de la meta": "#27ae60",
+    "Lejos de la meta": "#FFC300",
+    "Muy lejos de la meta": "#e41a1c"
+};
+
 const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
     const { t } = useTranslation('common');
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
@@ -139,6 +146,17 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
                                             ? payload.filter(p => p.name === hoveredLine)
                                             : payload;
 
+                                        let legendValue: string | undefined;
+                                        let legendColor: string | undefined;
+                                        if (filteredPayload.length === 1) {
+                                            const entry = filteredPayload[0];
+                                            const original = data.find(
+                                                d => d.name === entry.name && d.year === label
+                                            );
+                                            legendValue = original?.legend;
+                                            legendColor = legendValue ? colorMapLegend[legendValue] : undefined;
+                                        }
+
                                         return (
                                             <div style={{
                                                 backgroundColor: 'white',
@@ -147,15 +165,34 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
                                                 borderRadius: 6,
                                                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                                             }}>
-                                                <p style={{ margin: 0, fontWeight: 600 }}>
+                                                <p style={{ fontWeight: 'bold', marginBottom: 8 }}>
                                                     {t("Año")}: {label}
                                                 </p>
                                                 {filteredPayload.map((entry: any, index: number) => (
-                                                    <div key={index} style={{ color: entry.color, fontSize: 13 }}>
+                                                    <div key={index} style={{ color: entry.color }}>
                                                         <span style={{ fontWeight: 500 }}>
-                                                            <strong>{entry.name}</strong>: {entry.value?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                                                            <strong>{entry.name}</strong>: {entry.value?.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                                        </span>
                                                     </div>
                                                 ))}
+                                                {legendValue && (
+                                                    <div style={{
+                                                        color: legendColor || '#666',
+                                                        fontSize: '0.95em',
+                                                        marginTop: 6,
+                                                        display: 'flex',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <div style={{
+                                                            width: 10,
+                                                            height: 10,
+                                                            backgroundColor: legendColor,
+                                                            marginRight: 8,
+                                                            borderRadius: 2
+                                                        }} />
+                                                        {legendValue}
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     }
