@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     LineChart,
     Line,
@@ -24,19 +24,27 @@ interface DataItem {
 
 interface LineGraphProps {
     data: DataItem[];
+    xAxisKey: string; // e.g., "year"
+    yAxisKey: string; // e.g., "value"
+    legendKey?: string; // e.g., "legend"
     legends?: LegendItem[];
-    years: string[]; 
 }
 
 const LineGraph: React.FC<LineGraphProps> = ({
     data,
-    legends = [],
-    years
+    xAxisKey,
+    yAxisKey,
+    legendKey = 'legend',
+    legends = []
 }) => {
-
-
+    
+    // Agrupar datos por departamento
     const departments = Array.from(new Set(data.map(d => d.departamento)));
 
+    // Años fijos en el eje X
+    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+
+    // Reorganizar los datos por año
     const transformedData = years.map(year => {
         const yearData: any = { year };
         data.forEach(item => {
@@ -47,6 +55,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
         return yearData;
     });
 
+    // Obtener color por departamento
     const getColor = (department: string) => {
         const deptLegend = data.find(d => d.departamento === department)?.legend;
         return legends.find(l => l.message === deptLegend)?.color || '#808080';
@@ -83,10 +92,11 @@ const LineGraph: React.FC<LineGraphProps> = ({
         );
     };
 
+    
 
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <h2>Indicadores por Departamento </h2>
+            <h2>Indicadores por Departamento (2018–2023)</h2>
             <ResponsiveContainer width="100%" height={500}>
                 <LineChart
                     data={transformedData}

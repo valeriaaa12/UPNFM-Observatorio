@@ -199,7 +199,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
         return "#808080"; // gris
     }
 
-    
+
     useEffect(() => {
         const handleGraph = () => {
 
@@ -367,7 +367,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 <LineGraphM
                     data={lineData}
                     years={years}
-                
                 />
             );
         }

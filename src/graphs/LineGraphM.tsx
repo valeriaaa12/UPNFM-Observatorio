@@ -26,11 +26,10 @@ interface LineGraphMProps {
 }
 
 const defaultColors = [
-    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-    '#C9CBCF', '#8E44AD', '#2ECC71', '#E67E22', '#3498DB', '#E74C3C',
-    '#1ABC9C', '#9B59B6', '#34495E', '#95A5A6', '#F39C12', '#D35400',
-    '#1F618D', '#7D3C98', '#117A65', '#A04000', '#5D6D7E', '#7FB3D5',
-    '#58D68D', '#F5B041', '#AAB7B8'
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56',
+    '#8E44AD', '#2ECC71', '#E67E22', '#3498DB', '#E74C3C', '#1ABC9C',
+    '#9B59B6', '#F39C12', '#D35400', '#1F618D', '#7D3C98', '#117A65',
+    '#A04000', '#DE3163', '#58D68D'
 ];
 
 const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
@@ -47,7 +46,7 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
             return acc;
         }, {} as Record<string, string>);
     }, [lineNames]);
-    
+
     const graphData = useMemo(() => {
         const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
         return sortedYears.map(year => {

@@ -324,6 +324,51 @@ export default function Dashboard() {
                         />
                     </div>
                 </div>
+            </div>
+            {/* Indicadores Educativos - Comparación Municipales */}
+            <div className="font container-fluid fondoGris" style={{ padding: "3%", paddingTop: "0" }}>
+                <div style={{
+                    backgroundColor: "white",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                    borderRadius: "8px",
+                    overflow: "hidden"
+                }}>
+                    <p className="p-3 form-text pb-0">
+                        Comparación entre Municipios
+                    </p>
+                    <Nav
+                        variant="tabs"
+                        activeKey={activeCompDepaTab}
+                        onSelect={handleTabChange}
+
+                    >
+                        {depaTabsConfig.map((tab) => (
+                            <Nav.Item key={tab.id} >
+                                <Nav.Link
+                                    eventKey={tab.id}
+                                    style={{
+                                        backgroundColor: activeCompDepaTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeCompDepaTab === tab.id ? "bold" : "normal"
+                                    }}
+                                    className="orangeText border-bottom"
+                                >
+                                    {tab.label}
+                                </Nav.Link>
+                            </Nav.Item>
+                            
+                        ))}
+                    </Nav>
+
+                    <div className="mt-3">
+                        <GraphScreenM
+                            key={key}
+                            title={t(activeCompDepaTabConfig.label)}
+                            extensionData={activeCompDepaTabConfig.dataEndpoint}
+                            extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
+                            comparison={true}
+                        />
+                    </div>
+                </div>
                 <div style={{
                     textAlign: 'center',
                     fontSize: '0.8rem',
