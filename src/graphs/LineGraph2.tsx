@@ -59,11 +59,10 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends, years }) => {
             return acc;
         }, {} as Record<string, string>);
     }, [departments]);
-    // Obtener leyendas únicas desde los datos
+
     const uniqueLegendNames = Array.from(new Set(data.map(d => d.legend)))
         .filter((legend): legend is string => legend !== undefined);
 
-    // Buscar detalles de leyendas desde la lista completa
     const filteredLegends = uniqueLegendNames.map(name => {
         const match = legends.find(
             l => l.message.toLowerCase() === name.toLowerCase()
@@ -93,34 +92,13 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends, years }) => {
         });
     }, [data]);
 
-    const capitalizeWords = (str: string) => {
-        return str.toLowerCase().split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-    };
-
     return (
-        <div style={{ width: "100%", maxWidth: 1200, margin: "0 auto", display: 'flex' }}>
-            <div style={{ width: 200, paddingRight: 20 }}>
-                <h4 style={{ marginBottom: 10 }}>Departamentos</h4>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                    {departments.map((dep, index) => (
-                        <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
-                            <div style={{
-                                width: 12, height: 12,
-                                backgroundColor: departmentColors[dep],
-                                marginRight: 8
-                            }}></div>
-                            <span>{capitalizeWords(dep)}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
+        <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
             <ResponsiveContainer width="100%" height={400}>
                 <LineChart
                     data={graphData}
-                    margin={{ top: 20, right: 40, left: 0, bottom: 40 }}
+                    margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
+
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="year"
