@@ -161,6 +161,7 @@ export default function Dashboard() {
             id: "coberturaBruta",
             label: "Cobertura (Tasa Bruta)",
             dataEndpoint: "/tasaBrutaComparacionMunicipal",
+            lineDataEndpoint: "/tasaBrutaComparacionMunicipalsf",
             limitsEndpoint: "/limitesTasaBruta",
             titleKey: "TasaBruta"
         },
@@ -168,6 +169,7 @@ export default function Dashboard() {
             id: "coberturaNeta",
             label: "Cobertura (Tasa Neta)",
             dataEndpoint: "/tasaNetaComparacionMunicipal",
+            lineDataEndpoint: "/tasaNetaComparacionMunicipalsf",
             limitsEndpoint: "/limitesTasaNeta",
             titleKey: "TasaNeta"
         },
@@ -175,6 +177,7 @@ export default function Dashboard() {
             id: "aprobacion",
             label: "Aprobación",
             dataEndpoint: "/aprobacionComparacionMunicipal",
+            lineDataEndpoint: "/aprobacionComparacionMunicipalsf",
             limitsEndpoint: "/limitesAprobacion",
             titleKey: "Aprobacion"
         },
@@ -182,6 +185,7 @@ export default function Dashboard() {
             id: "desercion",
             label: "Deserción",
             dataEndpoint: "/desercionComparacionMunicipal",
+            lineDataEndpoint: "/desercionComparacionMunicipalsf",
             limitsEndpoint: "/limitesDesercion",
             titleKey: "Desercion"
         },
@@ -189,6 +193,7 @@ export default function Dashboard() {
             id: "repitencia",
             label: "Repitencia",
             dataEndpoint: "/repitenciaComparacionMunicipal",
+            lineDataEndpoint: "/repitenciaComparacionMunicipalsf",
             limitsEndpoint: "/limitesRepitencia",
             titleKey: "Repitencia"
         },
@@ -196,6 +201,7 @@ export default function Dashboard() {
             id: "reprobacion",
             label: "Reprobación",
             dataEndpoint: "/reprobacionComparacionMunicipal",
+            lineDataEndpoint: "/reprobacionComparacionMunicipalsf",
             limitsEndpoint: "/limitesReprobacion",
             titleKey: "Reprobacion"
         }
@@ -418,6 +424,7 @@ export default function Dashboard() {
                             key={key}
                             title={t(activeCompMuniTabConfig.label)}
                             extensionData={activeCompMuniTabConfig.dataEndpoint}
+                            extensionLineData={activeCompMuniTabConfig.lineDataEndpoint}
                             extensionLimits={activeCompMuniTabConfig.limitsEndpoint}
                             comparison={true}
                             department={false}
