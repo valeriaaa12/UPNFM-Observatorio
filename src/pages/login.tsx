@@ -37,6 +37,12 @@ const Demo = () => {
         setError("");
         console.log("🔐 Se ejecutó handleLogin");
 
+        if (document.visibilityState !== 'visible') {
+            console.warn("La pestaña no está visible. Esperando...");
+            document.addEventListener('visibilitychange', handleLogin, { once: true });
+            return;
+        }
+
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -59,6 +65,11 @@ const Demo = () => {
         } catch (error: any) {
             console.error("❌ Error en login:", error);
             setError("Credenciales inválidas. Intenta nuevamente.");
+            if (error.code === "auth/visibility-check-was-unavailable") {
+                setError("Error de visibilidad. Intenta hacer login con la pestaña activa.");
+            } else {
+                setError("Credenciales inválidas. Intenta nuevamente.");
+            }
         };
     };
 
