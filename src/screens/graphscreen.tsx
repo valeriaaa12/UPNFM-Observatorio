@@ -106,7 +106,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
-
+    
+    //pruebas
+    useEffect(() => {
+        console.log("año: ", selectedYear)
+        console.log("nivel: ", selectedLevel)
+        console.log("departamento: ", selectedDepartment)
+        console.log("departamentos: ", selectedDepartments)
+        if(comparison){
+            postComparison();
+        }
+    },[selectedYear, selectedLevel, selectedDepartment])
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
 
@@ -225,19 +235,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-            setShowGraph(
-                (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || 
-                (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno")
-            );
+                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
             } else if (activeGraph === 'line') {
-            setShowGraph(
-                selectedLevel !== "Ninguno" && 
-                (selectedDepartment !== "Ninguno" || selectedDepartments.length > 0)
-            );
+                setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments]);
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
 
     const capitalizeWords = (str: string) => {
         if (!str) return '';
@@ -304,7 +308,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
-
+            console.log("legends1")
+            console.log(legends.data)
             const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento?.toLowerCase() || ""),
                 legend: item.leyenda || "",
@@ -315,20 +320,25 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }));
 
             const legendsData: Legend[] = legends.data.map((item: any) => ({
-                    level: item.nivel,
-                    message: item.leyenda,
-                    lowerLimit: parseFloat(item.min),
-                    upperLimit: parseFloat(item.max)
+                level: item.nivel || "",
+                message: item.leyenda || "",
+                lowerLimit: item.limite_inferior || item.min || 0,
+                upperLimit: item.limite_superior || item.max ||  0,
+                color: item.color || "#808080"
             }));
 
 
 
             const legendsWithColors = assignColorsToLegends(legendsData);
-
+        
+            
+            
             setDepartmentsData(departmentsData2);
-             console.log("Departamentos Data en fetch data:", departmentsDataLine);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
             setLegends(legendsWithColors);
+            
+            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+            
+            
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -783,6 +793,7 @@ const postComparisonDepa = async () => {
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphM(filteredMunicipios);
+            
             return (
                 <LineGraphM
                     data={lineData}
@@ -914,7 +925,9 @@ const postComparisonDepa = async () => {
     // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
         if (!exportRef.current) return;
+        
         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+            setDataSelectedPrint(true)
             return
         }
         if(comparison && selectedDepartments.length === 0) {
@@ -1170,7 +1183,7 @@ const postComparisonDepa = async () => {
                         </div >
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph!="line" || comparison)) ? `(${selectedYear})` : ""}
                             </h2>
                             <div
                                 style={{
@@ -1241,6 +1254,8 @@ const postComparisonDepa = async () => {
                                                                 //if (comparison && activeGraph === 'line') {
                                                                    // setSelectedYear("Ninguno");
                                                                 //}
+                                                               
+                                                                department && setSelectedDepartment("Ninguno");    
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -1262,6 +1277,8 @@ const postComparisonDepa = async () => {
                                                                 setActiveGraph('line');
                                                                 
                                                                 setSelectedDepartment("Ninguno");
+                                                              
+                                                                department && setSelectedDepartment("Ninguno");    
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1281,8 +1298,7 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
-                                                                
-                                                                setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
 
@@ -1379,7 +1395,7 @@ const postComparisonDepa = async () => {
                                         height: '100%',
                                         color: '#666'
                                     }}>
-                                        No hay datos disponibles para los filtros seleccionados
+                                        {t("No hay datos disponibles para los filtros seleccionados")}
                                     </div>
                                 )}
                             </div>

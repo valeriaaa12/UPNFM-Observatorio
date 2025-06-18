@@ -187,5 +187,11 @@
   "Guardar como imagen": "Save as Image",
   "Gráfico Circular": "Pie Chart",
   "Gráfico de Líneas": "Line graph",
-  "Gráfico de Barras": "Bar graph"
+  "Gráfico de Barras": "Bar graph",
+  "Indicadores Educativos por Municipio": "Educational Indicators by Municipality",
+  "Comparación entre Departamentos": "Comparison Between Departments",
+  "No hay datos disponibles para los filtros seleccionados": "No data for selected filters",
+  "Graficar": "Graph",
+  "Indicadores Educativos por Departamento": "Educational Indicators by Department",
+  "Gráficos Estadísticos" : "Statistical Graphs"
 }
