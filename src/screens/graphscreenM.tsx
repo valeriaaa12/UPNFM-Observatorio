@@ -352,12 +352,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits }: P
                 level: d.level,
             }));
             return (
-                <BarGraphM
+                /*<BarGraphM
                     data={filteredMunicipios}
                     legendKey="legend"
                     legends={legends}
                     yAxisKey="value"
-                />
+                />*/
+                <></>
             );
         }
         if (activeGraph === 'line') {
