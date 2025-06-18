@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,7 +18,7 @@ export default function SubirExcelPage() {
     const [excelData, setExcelData] = useState<(string | number | boolean | null)[][] | null>(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
-  
+
     const requiredColumns = [
         'PERIODO_ID', 'FECHA_ID', 'Departamento', 'MUNICIPIO', 'ALDEA', 'DIRECCION',
         'DOCENTES_GRADOS', 'CODIGOSEE', 'CODIGO', 'NOMBRE_CENTRO', 'DISTRITO', 'PERIODO_ESCOLAR',
@@ -75,6 +76,16 @@ export default function SubirExcelPage() {
         onDrop,
         disabled: !!fileName,
     });
+
+    const downloadTemplate = () => {
+        const ws = XLSX.utils.aoa_to_sheet([requiredColumns]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Plantilla");
+
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(blob, 'plantilla_subida.xlsx');
+    };
 
     type PayloadType = {
         ubicacion: { departamento: string; municipio: string; aldea: string }[];
@@ -246,6 +257,12 @@ export default function SubirExcelPage() {
                 body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+                const errorMsg = await response.text();
+                console.error("❌ Error del backend:", errorMsg);
+                throw new Error("Error al insertar los datos");
+            }
+
             if (!response.ok) throw new Error("Error al insertar los datos");
             toast.success(t("data_uploaded_successfully"));
             setFileName(null);
@@ -268,7 +285,9 @@ export default function SubirExcelPage() {
                     <ToastContainer position="bottom-right" autoClose={5000} />
 
                     <h2 className="mb-4 text-center">{t("upload_excel_file")}</h2>
-
+                    <button className="btn btn-outline-primary mb-4" onClick={downloadTemplate}>
+                        {t("Plantilla")}
+                    </button>
                     <div
                         {...getRootProps()}
                         className={`dropzone ${isDragActive ? 'dropzone-active' : ''} ${fileName ? 'dropzone-disabled' : ''}`}

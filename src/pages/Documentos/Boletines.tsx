@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
   Modal,
@@ -27,97 +27,129 @@ interface BoletinData {
   fecha: string;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function Boletines() {
-  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL!;
+  const { t } = useTranslation('common');
+  const { user } = useUser();
   const { data: boletines = [], mutate } = useSWR<BoletinData[]>(
     `${API_URL}/pdfs`,
     fetcher
   );
 
-  const [showModal, setShowModal] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [showModal, setShowModal]       = useState(false);
+  const [file, setFile]                 = useState<File | null>(null);
   const [boletinTitle, setBoletinTitle] = useState('');
-  const [infoModal, setInfoModal] = useState(false);
-  const [modalTitle, setModalTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [editingId, setEditingId]       = useState<string | null>(null);
 
-  const [isReversed, setIsReversed] = useState(false);
+  const [infoModal, setInfoModal]       = useState(false);
+  const [modalTitle, setModalTitle]     = useState('');
+  const [message, setMessage]           = useState('');
+
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [isUploading, setIsUploading]   = useState(false);
+  const [isReversed, setIsReversed]     = useState(false);
 
   const etiquetaFiltro = 'Boletín';
-  const { t } = useTranslation('common');
-  const { user } = useUser();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // nada especial
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'application/pdf': [] },
     multiple: false,
-    onDrop: (acceptedFiles) => {
-      const selected = acceptedFiles[0];
-      if (selected && selected.type === 'application/pdf') {
-        setFile(selected);
+    onDrop: acceptedFiles => {
+      const sel = acceptedFiles[0];
+      if (sel && sel.type === 'application/pdf') {
+        setFile(sel);
       } else {
         alert(t('SeleccionarValido'));
       }
     },
   });
 
+  const normalize = (str: string) =>
+    str.toLowerCase()
+       .normalize('NFD')
+       .replace(/[\u0300-\u036f]/g, '');
+
+  const boletinesFiltrados = boletines
+    .filter(b => b.etiqueta === etiquetaFiltro)
+    .filter(b => normalize(b.nombre).includes(normalize(searchTerm)));
+
+  const listaParaRender = isReversed
+    ? boletinesFiltrados.slice().reverse()
+    : boletinesFiltrados;
+
+  const openNewModal = () => {
+    setEditingId(null);
+    setBoletinTitle('');
+    setFile(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (b: BoletinData) => {
+    setEditingId(b.id);
+    setBoletinTitle(b.nombre);
+    setFile(null);
+    setShowModal(true);
+  };
+
   const handleGuardarBoletin = async () => {
-    if (!boletinTitle || !file || isUploading) {
-      if (!boletinTitle || !file) alert(t('CompletarTitulo'));
+    // Validamos que el título no esté vacío ni solo espacios
+    if (!boletinTitle.trim() || !file) {
+      alert(t('CompletarTitulo'));
       return;
     }
     setIsUploading(true);
 
     const formData = new FormData();
-    formData.append('nombre', boletinTitle);
+    formData.append('nombre', boletinTitle.trim());
     formData.append('etiqueta', etiquetaFiltro);
-    formData.append('pdf', file);
+    formData.append('pdf', file!);
 
     try {
-      await axios.post(`${API_URL}/subirPDF`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setModalTitle(t('BoletinCreado'));
-      setMessage(`${t('ElBoletin')} "${boletinTitle}" ${t('fueCreadoConExito')}`);
+      if (editingId) {
+        // editar existente
+        await axios.put(
+          `${API_URL}/pdfs/${editingId}`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setModalTitle(t('BoletinActualizado'));
+        setMessage(t('BoletinActualizadoConExito'));
+      } else {
+        // crear nuevo
+        await axios.post(
+          `${API_URL}/subirPDF`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setModalTitle(t('BoletinCreado'));
+        setMessage(`${t('ElBoletin')} "${boletinTitle.trim()}" ${t('fueCreadoConExito')}`);
+      }
+
       setInfoModal(true);
-      mutate();
+      await mutate();            // refresca lista SWR
     } catch (err) {
-      console.error(t('ErrorBoletin2'), err);
-      setModalTitle(t('ErrorBoletin'));
-      setMessage(t('ErrorBoletin3'));
+      console.error(err);
+      if (editingId) {
+        setModalTitle(t('ErrorActualizar'));
+        setMessage(t('ErrorActualizarTexto'));
+      } else {
+        setModalTitle(t('ErrorBoletin'));
+        setMessage(t('ErrorBoletin3'));
+      }
       setInfoModal(true);
     } finally {
       setIsUploading(false);
       setShowModal(false);
       setFile(null);
       setBoletinTitle('');
+      setEditingId(null);
     }
-  };
-
-  const normalize = (str: string) =>
-    str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-  const boletinesFiltrados = boletines
-    .filter((b) => b.etiqueta === etiquetaFiltro)
-    .filter((b) => normalize(b.nombre).includes(normalize(searchTerm)));
-
-  const listaParaRender = isReversed
-    ? boletinesFiltrados.slice().reverse()
-    : boletinesFiltrados;
-
-  const toggleReverse = () => {
-    setIsReversed((prev) => !prev);
   };
 
   return (
@@ -128,21 +160,17 @@ export default function Boletines() {
           <div className="font">
             <div className="blue blueNavbar">
               <NavBar />
-              <div
-                className="orange d-none d-md-block"
-                style={{ height: '0.5rem' }}
-              />
+              <div className="orange d-none d-md-block" style={{ height: '0.5rem' }} />
             </div>
-
             <SmallNavBar />
 
             <div className="px-5 py-4">
               <div className="d-flex justify-content-between align-items-center">
                 <h2>{t('Boletines')}</h2>
-                {mounted && user?.admin && (
+                {user?.admin && (
                   <Button
                     variant="btn btn-orange"
-                    onClick={() => setShowModal(true)}
+                    onClick={openNewModal}
                     disabled={isUploading}
                   >
                     {t('Nuevo Boletin')}
@@ -150,30 +178,20 @@ export default function Boletines() {
                 )}
               </div>
 
-              {/* Contenedor flex para buscar + botón a la derecha */}
-              <div
-                className="d-flex align-items-center"
-                style={{ marginTop: '1rem', width: '100%' }}
-              >
-                {/* Barra de búsqueda al 50% */}
+              <div className="d-flex align-items-center" style={{ marginTop: '1rem', width: '100%' }}>
                 <div style={{ width: '50%' }}>
                   <InputGroup size="sm">
-                    <InputGroup.Text>
-                      <i className="bi bi-search"></i>
-                    </InputGroup.Text>
+                    <InputGroup.Text><i className="bi bi-search" /></InputGroup.Text>
                     <FormControl
                       placeholder={t('Buscar Boletines')}
-                      aria-label="Buscar boletines"
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={e => setSearchTerm(e.target.value)}
                     />
                   </InputGroup>
                 </div>
-
-                {/* Se empuja a la derecha con ms-auto */}
                 <div className="ms-auto">
-                  <Button variant="outline-secondary" size="sm" onClick={toggleReverse}>
-                    {isReversed ? t('Orden Ascendente') : t('Orden Descendente')}
+                  <Button variant="outline-secondary" size="sm" onClick={() => setIsReversed(r => !r)}>
+                    {isReversed ? t('Mas Reciente') : t('Mas Antiguo')}
                   </Button>
                 </div>
               </div>
@@ -192,14 +210,18 @@ export default function Boletines() {
                     title={b.nombre}
                     pdf={`${API_URL}/traerPDF/${b.id}`}
                     mutateList={mutate}
+                    onEdit={() => openEditModal(b)}
                   />
                 ))
               )}
             </div>
 
+            {/* Modal de crear / editar */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
               <Modal.Header closeButton>
-                <Modal.Title>{t('Agregar Boletín')}</Modal.Title>
+                <Modal.Title>
+                  {editingId ? t('EditarBoletin') : t('AgregarBoletin')}
+                </Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 <Form>
@@ -208,7 +230,7 @@ export default function Boletines() {
                     <Form.Control
                       type="text"
                       value={boletinTitle}
-                      onChange={(e) => setBoletinTitle(e.target.value)}
+                      onChange={e => setBoletinTitle(e.target.value)}
                       placeholder="Ej: Boletín #"
                       disabled={isUploading}
                     />
@@ -217,57 +239,41 @@ export default function Boletines() {
                     <Form.Label>PDF</Form.Label>
                     <div
                       {...getRootProps()}
-                      className={`border rounded p-4 text-center ${
-                        isDragActive ? 'bg-light' : ''
-                      }`}
+                      className={`border rounded p-4 text-center ${isDragActive ? 'bg-light' : ''}`}
                       style={{ cursor: 'pointer', minHeight: '120px' }}
                     >
                       <input {...getInputProps()} disabled={isUploading} />
-                      {isDragActive ? (
-                        <p>{t('Suelta el archivo aquí')}</p>
-                      ) : file ? (
-                        <p>{file.name}</p>
-                      ) : (
-                        <p>
-                          {t(
-                            'Arrastra y suelta un archivo PDF aquí o haz clic para seleccionarlo'
-                          )}
-                        </p>
-                      )}
+                      {isDragActive
+                        ? <p>{t('Suelta el archivo aquí')}</p>
+                        : file
+                          ? <p>{file.name}</p>
+                          : <p>{t('Arrastra y suelta un archivo PDF aquí o haz clic para seleccionarlo')}</p>
+                      }
                     </div>
                   </Form.Group>
                 </Form>
               </Modal.Body>
               <Modal.Footer>
-                <Button
-                  variant="btn btn-outline-blue"
-                  onClick={() => setShowModal(false)}
-                  disabled={isUploading}
-                >
+                <Button variant="btn btn-outline-blue" onClick={() => setShowModal(false)} disabled={isUploading}>
                   {t('Cerrar')}
                 </Button>
-                <Button
-                  variant="btn btn-orange"
-                  onClick={handleGuardarBoletin}
-                  disabled={isUploading}
-                >
-                  {isUploading ? (
-                    <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />{' '}
-                      {t('Subiendo')}
-                    </>
-                  ) : (
-                    t('Guardar Boletín')
-                  )}
+                <Button variant="btn btn-orange" onClick={handleGuardarBoletin} disabled={isUploading}>
+                  {isUploading
+                    ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                    : editingId ? t('Actualizar') : t('Guardar Boletín')
+                  }
                 </Button>
               </Modal.Footer>
             </Modal>
+
+            {/* Modal informativo */}
+            <InfoModal
+              show={infoModal}
+              onHide={() => setInfoModal(false)}
+              title={modalTitle}
+              message={message}
+            />
+
           </div>
         </div>
         <Footer />

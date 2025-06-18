@@ -1,12 +1,16 @@
 import NavBar from "@/navigation/NavBar";
 import dynamic from 'next/dynamic';
-import React, { useState, useEffect } from 'react';
+import ComboBox from "@/components/combobox";
+import React, { useState, useEffect, useRef } from 'react';
 import MapFilters from "@/sections/mapfilters";
 import axios from 'axios'
 import LanguageSelector from "@/buttons/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import Client from '@/components/client';
 import SmallNavBar from "@/navigation/SmallNavBar";
+import html2canvas from 'html2canvas';
+
+
 const MainMap = dynamic(() => import("@/maps/MainMap"), {
   ssr: false
 });
@@ -42,10 +46,10 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<string[]>([]);
   const [mapaElegido, setMapaElegido] = useState("Honduras");
-
   const [mapa, setMapa] = useState("/others/hn.json");
+  const leafletMapRef = useRef<L.Map | null>(null); // para Leaflet
+  const exportRef = useRef<HTMLDivElement | null>(null); // para html2canvas  
 
-  {/*mapeo*/ }
   //metodo de mapeo
   const mapData = async () => {
     setLoading(true);
@@ -88,7 +92,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
       ]);
       let tempoDepartments: department[] | null = null;
 
-      
+
 
 
       const tempoLegends: legend[] = response2.data.map((item: any) => ({
@@ -105,12 +109,29 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
       filterData()*/;
       setLoading(false);
     } catch (error) {
-       setTimeout(() => {
-          mapData();
-        }, 3000);
-        
+      setTimeout(() => {
+        mapData();
+      }, 3000);
+
     }
   }
+
+  const [showFilters, setShowFilters] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setShowFilters(false); // Ocultar por default
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+
 
   /*const filterData = async () => {
     const filtered = departments?.filter(
@@ -132,33 +153,105 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
   const { t } = useTranslation('common');
 
   return (
-    <Client>
-      <>
+    <div className="d-flex flex-column flex-md-row w-100" style={{ minHeight: '100vh' }}>
+      <Client>
         <div className="font">
           <div className="blue blueNavbar">
             <NavBar />
             <div className="orange d-none d-md-block" style={{ height: "0.5rem" }} />
           </div>
-          <SmallNavBar></SmallNavBar>
-          {loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
+          <SmallNavBar />
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
             </div>
-          </div> :
-            <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+          ) : (
+            <div className="d-flex flex-column flex-md-row w-100" style={{ minHeight: '100vh' }}>
               {/* Menu */}
-              <MapFilters mapaElegido={mapaElegido} setMapaElegido={setMapaElegido} selectedYear={selectedYear} setSelectedYear={setSelectedYear} level={level} 
-              setLevel={setLevel} years={years} mapa={mapa} setMapa={setMapa} 
-              departments={filteredDepartments}  legends={legends}/>
+              {isMobile ? (
+                showFilters && (
+                  <>
+                    {/* Mobile Filters */}
+                    <div
+                      onClick={() => setShowFilters(false)}
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
+                        zIndex: 998,
+                      }}
+                    />
+
+                    {/* Click go brrr */}
+                    <div className="floating-filters">
+                      <MapFilters
+                        title={title}
+                        mapaElegido={mapaElegido}
+                        setMapaElegido={setMapaElegido}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        level={level}
+                        setLevel={setLevel}
+                        years={years}
+                        mapa={mapa}
+                        setMapa={setMapa}
+                        departments={filteredDepartments}
+                        legends={legends}
+                      />
+                    </div>
+                  </>
+                )
+              ) : (
+                // Normie stuff
+                <div className="d-none d-md-block" style={{ minWidth: '250px' }}>
+                  <MapFilters
+                    title={title}
+                    mapaElegido={mapaElegido}
+                    setMapaElegido={setMapaElegido}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    level={level}
+                    setLevel={setLevel}
+                    years={years}
+                    mapa={mapa}
+                    setMapa={setMapa}
+                    departments={filteredDepartments}
+                    legends={legends}
+                  />
+                </div>
+              )}
+
 
               {/* Mapa */}
-              <div style={{ flex: 1, position: 'relative' }}>
-                <MainMap level={level} map={mapa} title={title} year={selectedYear} departments={filteredDepartments} setDepartments={setFilteredDepartments} legends={legends} setLegends={setLegends} filter={extensionData} municipio={mapaElegido}/>
+              <div className="flex-grow-1 position-relative">
+                <MainMap
+                  level={level}
+                  map={mapa}
+                  title={title}
+                  year={selectedYear}
+                  departments={filteredDepartments}
+                  setDepartments={setFilteredDepartments}
+                  legends={legends}
+                  setLegends={setLegends}
+                  filter={extensionData}
+                  municipio={mapaElegido}
+                  mapRef={leafletMapRef}
+                  exportContainerRef={exportRef}
+                  isMobile={isMobile}
+                  showFilters={showFilters}
+                  setShowFilters={setShowFilters}
+                />
               </div>
-            </div>}
+            </div>
+          )}
           <LanguageSelector />
-        </div >
-      </>
-    </Client>
+        </div>
+      </Client>
+    </div>
   );
 }

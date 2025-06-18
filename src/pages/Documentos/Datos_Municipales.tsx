@@ -301,6 +301,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function TablasTasas() {
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL!;
+  const { t } = useTranslation('common');
   const tableRef = useRef<HTMLTableElement>(null);
 
   const levelOptions = [
@@ -332,11 +333,11 @@ export default function TablasTasas() {
     `${API_URL}/${selectedMetric.path}?nivel=${encodeURIComponent(selectedLevel)}`,
     fetcher
   );
-  if (error) return <div className="p-5">Error cargando datos.</div>;
-  if (!data || data.length === 0) return <div className="p-5">Cargando…</div>;
-
-  const keys     = Object.keys(data[0]);
+ 
+ // Si data[0] existe tomo sus keys; si no, arreglo vacío.
+  const keys: string[] = data.length > 0 ? Object.keys(data[0]) : [];
   const yearKeys = keys.filter(k => k !== 'Departamento' && k !== 'Municipio').sort();
+
   const normalize = (s: string) =>
     s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const term     = normalize(searchTerm);
@@ -346,7 +347,6 @@ export default function TablasTasas() {
     return dept.includes(term) || muni.includes(term);
   });
 
-  const { t } = useTranslation('common');
 
   // Imprimir
   const handlePrint = () => {
@@ -509,15 +509,36 @@ export default function TablasTasas() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((item,i) => (
-                  <tr key={i}>
-                    <td>{item.Departamento}</td>
-                    <td>{item.Municipio}</td>
-                    {yearKeys.map(y => <td key={y}>{item[y] ?? '-'}</td>)}
+                {error ? (
+                  <tr>
+                    <td colSpan={2 + yearKeys.length} className="text-center text-danger">
+                      {t('Error cargando datos')}
+                    </td>
                   </tr>
-                ))}
+                ) : !data ? (
+                  <tr>
+                    <td colSpan={2 + yearKeys.length} className="text-center">
+                      {t('Cargando…')}
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={2 + yearKeys.length} className="text-center">
+                      {t('NoDatosMunicipales')}
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.Departamento}</td>
+                      <td>{item.Municipio}</td>
+                      {yearKeys.map(y => <td key={y}>{item[y] ?? '-'}</td>)}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </Table>
+
           </div>
         </div>
       </div>
