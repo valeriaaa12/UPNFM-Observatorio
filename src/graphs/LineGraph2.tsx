@@ -41,8 +41,8 @@ const colorMap: Record<string, string> = {
 
 const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
     const { t } = useTranslation('common');
-    
-    
+
+
 
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
@@ -100,7 +100,49 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => 
                             position: "insideLeft",
                             fontSize: 14,
                         }} />
-                    <Tooltip />
+                    <Tooltip
+                        content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                                return (
+                                    <div
+                                        style={{
+                                            background: "#fff",
+                                            border: "1px solid #ccc",
+                                            borderRadius: 6,
+                                            padding: "12px 16px",
+                                            minWidth: 200,
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.07)"
+                                        }}
+                                    >
+                                        {payload.map((entry, idx) => {
+                                            const original = data.find(
+                                                d => d.departamento === entry.name && d.year === label
+                                            );
+                                            const legendColor = legends.find(
+                                                l => l.message === original?.legend
+                                            )?.color || "#666";
+                                            return (
+                                                <div key={idx}>
+                                                    <div style={{ fontSize: 18 }}>
+                                                        <strong>{entry.name}</strong>: {entry.value}
+                                                    </div>
+                                                    <div style={{ fontSize: 14, marginBottom: 6 }}>
+                                                        <strong>{t("Año")}:</strong>  {label}
+                                                    </div>
+                                                    {original?.legend && (
+                                                        <div style={{ color: legendColor, fontSize: 13, fontWeight: 600 }}>
+                                                            {original.legend}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            }
+                            return null;
+                        }}
+                    />
                     {legends.map((legend, index) => (
                         <ReferenceLine
                             key={`lower-limit-${index}`}

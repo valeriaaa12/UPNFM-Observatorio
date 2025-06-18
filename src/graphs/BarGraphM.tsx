@@ -18,7 +18,7 @@ interface DataItem {
     legend: string;
     year: string;
     level: string;
-    department?: string;
+    department: string;
 }
 interface LegendItem {
     message: string;
@@ -80,6 +80,10 @@ const BarGraphM: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends
         const item = payload[0].payload;
 
         const rows = [
+            {
+                label: t("Departamento"),
+                value: item.department
+            },
             {
                 label: item.department ? t("Municipio") : t("Departamento"),
                 value: item.name
