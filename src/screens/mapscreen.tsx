@@ -202,6 +202,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
                         setMapa={setMapa}
                         departments={filteredDepartments}
                         legends={legends}
+                        shadow={false}
                       />
                     </div>
                   </>
@@ -222,6 +223,7 @@ export default function MapScreen({ title, extensionData, extensionLimits }: par
                     setMapa={setMapa}
                     departments={filteredDepartments}
                     legends={legends}
+                    shadow={true}
                   />
                 </div>
               )}

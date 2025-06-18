@@ -43,6 +43,7 @@ interface params {
   setMapaElegido: React.Dispatch<React.SetStateAction<string>>;
   departments: department[] | null;
   legends: legend[] | null;
+  shadow: boolean
 }
 
 interface deptMaps {
@@ -53,7 +54,7 @@ interface deptMaps {
 
 
 
-export default function MapFilters({ title, mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
+export default function MapFilters({ title, mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends, shadow }: params) {
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
@@ -363,7 +364,7 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       footer.style.textAlign = "center";
       footer.style.backgroundColor = "#e0e0e0";
       footer.style.borderRadius = "10px";
-      footer.style.marginTop = "30px";
+      footer.style.marginTop = "50px";
       footer.style.padding = "10px";
       footer.style.width = "100%";
       footer.style.fontSize = "10px";
@@ -487,10 +488,15 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
 
       // limpiar estilos que podrían causar apilamiento vertical
       legendClone.style.margin = '0';
+      legendClone.style.marginTop = '20px';
+      legendClone.style.marginBottom = '20px';
       legendClone.style.position = 'static';
+   
       limitsClone.style.margin = '0';
+      limitsClone.style.marginTop = '20px';
+      limitsClone.style.marginBottom = '20px';
       limitsClone.style.position = 'static';
-
+      
       legendRow.appendChild(limitsClone);
       legendRow.appendChild(legendClone);
 
@@ -833,8 +839,9 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
         width: '250px',
         backgroundColor: '#f8f9fa',
         padding: '20px',
-        borderRight: '1px solid #dee2e6',
-        boxShadow: '2px 0 5px rgba(0,0,0,0.1)'
+        borderRight:  shadow ? '1px solid #dee2e6': undefined,
+        boxShadow: shadow ? '2px 0 5px rgba(0,0,0,0.1)': undefined,
+        height: '100%'
       }}>
         <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>{t("OpcionesMapa")}</h2>
 

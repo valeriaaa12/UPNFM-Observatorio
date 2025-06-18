@@ -321,6 +321,50 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       </div>
     </>);
   }
+
+  const responsiveLimites = () => {
+    const darkgreen: legend = legends?.find((item) =>
+      item.message === "Mucho mejor que la meta" && item.level === level
+    ) ?? fallback;
+
+    const green: legend = legends?.find((item) =>
+      item.message === "Dentro de la meta" && item.level === level
+    ) ?? fallback;
+
+    const yellow: legend = legends?.find((item) =>
+      item.message === "Lejos de la meta" && item.level === level
+    ) ?? fallback;
+
+    const red: legend = legends?.find((item) =>
+      item.message === "Muy lejos de la meta" && item.level === level
+    ) ?? fallback;
+
+    return (<>
+      <div id="limits-container" className="limits-box">
+        <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Límites</div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#008000', marginRight: '5px' }}></div>
+          <span>{t("l1")} ({darkgreen.lowerLimit} - {darkgreen.upperLimit})</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#27ae60', marginRight: '5px' }}></div>
+          <span>{t("l2")} ({green.lowerLimit} - {green.upperLimit})</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#FFC300', marginRight: '5px' }}></div>
+          <span>{t("l3")} ({yellow.lowerLimit} - {yellow.upperLimit})</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#e41a1c', marginRight: '5px' }}></div>
+          <span>{t("l4")} ({red.lowerLimit} - {red.upperLimit})</span>
+        </div>
+        {map != '/others/hn.json' && <div style={{ display: 'flex', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ width: '15px', height: '15px', backgroundColor: '#808080', marginRight: '5px' }}></div>
+          <span>N/D</span>
+        </div>}
+      </div>
+    </>);
+  }
   // Event handlers
   const onEachDepartment = (feature: DepartmentFeature, layer: L.Layer) => {
     const deptName = feature.properties.name ?? feature.properties.NOMBRE;
@@ -468,17 +512,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
           </div>
         </div>
       </div>
-
-      <div style={{
-        position: 'relative', // ya no fixed
-        marginTop: '20px',
-        padding: '12px',
-        textAlign: 'center',
-        fontSize: '0.8rem',
-        color: '#666',
-        backgroundColor: 'white',
-        borderTop: '1px solid #ccc'
-      }}>
+      <div id="legends-limits-container2" className="legends-limits-container2">
+            {responsiveLimites()}
+        </div>   
+      <div className="footerMap">
         Fuente: Secretaría de Educación, Sistema de Administración de Centros Educativos (SACE, 2018-2023)
         <br></br>
         Elaborado por: Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) - Instituto de Investigación y Evaluación Educativas y Sociales (INIEES). UPNFM. {new Date().getFullYear()}
