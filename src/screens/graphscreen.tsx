@@ -74,9 +74,6 @@ interface Municipios {
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
     const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
 
-
-export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
-
     const { t } = useTranslation('common');
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
@@ -290,12 +287,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             activeGraph
     );
      
-    const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
-
-    };
-
-    // Si está en modo comparación y no es departamento, usar departmentsData para municipios comparados
-    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
     const filteredMunicipios = comparison && !department
         ? filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, true, activeGraph)
         : filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
@@ -506,16 +497,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
 const postComparisonDepa = async () => {
 
-    const postComparisonDepa = async () => {
-
-        setLoading(true);
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            };
+    setLoading(true);
+    try {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        };
 
             if (selectedDepartments.length > 0) {
                 const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
@@ -620,6 +609,8 @@ const postComparisonDepa = async () => {
         }
     };
 
+  
+
     const applyFilters = (data: DataItem[], year: string, level: string, department: string) => {
         if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
             setFilteredData([]);
@@ -633,10 +624,8 @@ const postComparisonDepa = async () => {
                 result = result.filter(d => d.year === year);
             }
         } else if (activeGraph === 'line') {
-            if (activeGraph === 'line' && department !== "Ninguno") {
-                result = result.filter(d => 
-                    d.name.toLowerCase() === department.toLowerCase() 
-                );
+            if (department !== "Ninguno") {
+                result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
             }
         }
          if (activeGraph !== 'line' ) {
@@ -723,12 +712,11 @@ const postComparisonDepa = async () => {
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
 
-   
-   const fetchMunicipios = async (departamentos: string[]) => {
-        setSelectedDepartmentsMuni([]);
-        if (!departamentos|| departamentos.length === 0) {
-            setMuniList([]);
-            return;
+   useEffect(() => {
+        if (activeGraph === 'line' && filteredData.length > 0) {
+            setShowGraph(true);
+        }
+    }, [filteredData, activeGraph]);
 
 
     const fetchMunicipios = async (departamentos: string[]) => {
@@ -759,51 +747,7 @@ const postComparisonDepa = async () => {
         }
     };
 
-    const renderGraphD = () => {
-        if (activeGraph === 'bar') {
-            return (
-                < BarGraph
-                    data={filteredDepartments}
-                    yAxisKey="value"
-                    legendKey="legend"
-                    legends={legends}
-
-                />
-            );
-        }
-        if (activeGraph === 'line') {
-            const lineData = formatDataForLineGraphD(filteredDepartments);
-            const filteredLegends = legends.filter(item => item.level == selectedLevel)
-            return (
-                <LineGraph
-                    data={lineData}
-                    legends={filteredLegends}
-                    years={years}
-                />
-            );
-
-        }
-        try {
-            let allMunicipios: Municipios[] = [];
-            for (const dept of departamentos) {
-                const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/getMunicipios`,
-                    { params: { departamento: dept.toUpperCase() } }
-                );
-                const municipiosDept = response.data.map((item: any) => ({
-                    nombre: capitalizeWords(item.municipio) || capitalizeWords(item.nombre),
-                    departamento: dept
-                }));
-                allMunicipios = allMunicipios.concat(municipiosDept);
-            }
-            setMuniList(allMunicipios);
-            setSelectedMunicipios(prev =>
-                prev.filter(nombre => allMunicipios.some(muni => muni.nombre === nombre))
-            );
-        } catch (error) {
-            console.error("Error fetching municipios:", error);
-        }
-    }; 
+  
 //grafico de departamentos
    const renderGraphD = () => {
   if (activeGraph === 'bar') {
@@ -1100,7 +1044,7 @@ const postComparisonDepa = async () => {
     window.dispatchEvent(new Event('resize'));
     };
 
-    return (
+   return (
         <Client>
             <div className="font" >
                 {loading ? (
@@ -1110,7 +1054,7 @@ const postComparisonDepa = async () => {
                         </div>
                     </div>
                 ) : (
-                   <div style={{ width: '100%', height: '100%', padding: '20px' }}>
+                    <div style={{ width: '100%', height: '100%', padding: '20px' }}>
 
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
                             {/* Nivel */}
@@ -1130,13 +1074,8 @@ const postComparisonDepa = async () => {
                                     ))}
                                 </select>
                             </div>
-
-
-                          {(activeGraph !== 'line') && (
-
                             {/* Filtros */}
                             {(activeGraph !== 'line') && (
-
                                 <>
                                     {/* Año */}
                                     <div style={{ flex: 1, minWidth: '200px' }}>
@@ -1201,7 +1140,7 @@ const postComparisonDepa = async () => {
                                                         <div className="d-flex px-2 py-1 justify-content-end ">
                                                             <button
                                                                 className="btn btn-blue"
-                                                                onClick={postComparisonDepa}
+                                                                onClick={postComparison}
                                                                 type="button"
                                                             >
                                                                 Graficar
@@ -1372,18 +1311,7 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
-
-                                                               
-                                                                setSelectedDepartment("Ninguno");
-                                                                //if (comparison && activeGraph === 'line') {
-                                                                   // setSelectedYear("Ninguno");
-                                                                //}
-                                                               
-                                                                department && setSelectedDepartment("Ninguno");    
-
-                                                                setSelectedDepartment("Ninguno");
                                                                 department && setSelectedDepartment("Ninguno");
-
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -1403,15 +1331,7 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
-
-                                                                
-                                                                setSelectedDepartment("Ninguno");
-                                                              
-                                                                department && setSelectedDepartment("Ninguno");    
-
-                                                                setSelectedDepartment("Ninguno");
                                                                 department && setSelectedDepartment("Ninguno");
-
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1431,10 +1351,6 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
-
-
-                                                                setSelectedDepartment("Ninguno");
-
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >

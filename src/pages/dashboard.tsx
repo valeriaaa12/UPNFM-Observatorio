@@ -380,6 +380,7 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            {/* Indicadores Educativos - Comparación Municipios */}
             <div className="font container-fluid fondoGris" style={{ padding: "3%", paddingTop: "0" }}>
                 <div style={{
                     backgroundColor: "white",
@@ -392,49 +393,27 @@ export default function Dashboard() {
                     </p>
                     <Nav
                         variant="tabs"
-
-                        activeKey={activeCompDepaTab}
-                        onSelect={handleTabChange}
-
-                    >
-                        {depaTabsConfig.map((tab) => (
-
                         activeKey={activeCompMuniTab}
                         onSelect={handleCompMuniTabChange}
 
                     >
                         {compMuniTabsConfig.map((tab) => (
-
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
                                     style={{
-
-                                        backgroundColor: activeCompDepaTab === tab.id ? "#f8f9fa" : "white",
-                                        fontWeight: activeCompDepaTab === tab.id ? "bold" : "normal"
-
                                         backgroundColor: activeCompMuniTab === tab.id ? "#f8f9fa" : "white",
                                         fontWeight: activeCompMuniTab === tab.id ? "bold" : "normal"
-
                                     }}
                                     className="orangeText border-bottom"
                                 >
                                     {tab.label}
                                 </Nav.Link>
                             </Nav.Item>
-
                         ))}
                     </Nav>
 
                     <div className="mt-3">
-
-                        <GraphScreenM
-                            key={key}
-                            title={t(activeCompDepaTabConfig.label)}
-                            extensionData={activeCompDepaTabConfig.dataEndpoint}
-                            extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
-                            comparison={true}
-
                         <GraphScreen
                             key={key}
                             title={t(activeCompMuniTabConfig.label)}
@@ -442,7 +421,6 @@ export default function Dashboard() {
                             extensionLimits={activeCompMuniTabConfig.limitsEndpoint}
                             comparison={true}
                             department={false}
-
                         />
                     </div>
                 </div>
