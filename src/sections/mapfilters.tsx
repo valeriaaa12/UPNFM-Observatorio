@@ -386,7 +386,17 @@ const exportPDF = async () => {
       const controls = document.querySelectorAll('.leaflet-control-container');
       controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
 
-      // pdf container creation
+    
+    const title = document.createElement('h2');
+    title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
+    //const subtitle = document.createElement('h3');
+    //subtitle.textContent = level +" " + selectedYear
+    title.style.textAlign = 'center';
+    title.style.marginBottom = '20px';
+    //subtitle.style.textAlign = 'center';
+    //subtitle.style.marginBottom = '20px';
+
+    // pdf container creation
       const pdfContainer = document.createElement('div');
 
       pdfContainer.style.position = 'fixed';
@@ -412,19 +422,8 @@ const exportPDF = async () => {
       mapClone.style.height = '500px';
       legendClone.style.margin = '10px 0';
 
-      //      limitsClone.style.margin = '10px 0'; trying out stuff
+      limitsClone.style.margin = '10px 0';
 
-      const levelAndYear = `${level} ${selectedYear}`;
-      const cleanedTitle = (titleText ?? "").replace(levelAndYear, '').trim().replace(/[-–—]\s*$/, '').trim();
-      const title = document.createElement('h2');
-      title.textContent = cleanedTitle || 'Indicador Educativo';
-      title.style.textAlign = 'center';
-      title.style.marginBottom = '20px';
-
-      const subtitle = document.createElement('h3');
-      subtitle.textContent = `${level} ${selectedYear}`;
-      subtitle.style.textAlign = 'center';
-      subtitle.style.marginBottom = '6px';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -499,31 +498,32 @@ const exportPDF = async () => {
           tBody.appendChild(row)
 
         });
-        table.appendChild(tBody)
-        tableDiv.appendChild(table)
-        //appends al contenedor
-        pdfContainer.appendChild(title);
-        //pdfContainer.appendChild(subtitle);
-        pdfContainer.appendChild(mapDiv);
-        document.body.appendChild(pdfContainer2);
-        pdfContainer2.appendChild(tableDiv);
-        pdfContainer2.appendChild(footer);
-      } else {
-        pdfContainer.appendChild(title);
-        //pdfContainer.appendChild(subtitle);
-        pdfContainer.appendChild(mapDiv);
-        pdfContainer.appendChild(footer);
-      }
 
-      //map clone for resizing (so it prints the same size regardless of any user zoom in)
-      const cloneMap = L.map("map-container", {
-        zoomControl: false,
-        zoom: 7,
-        center: [14.8, -86.8],
-        renderer: L.canvas(),
-        attributionControl: false
-
-      });
+      table.appendChild(tBody)
+      tableDiv.appendChild(table)
+      //appends al contenedor
+      pdfContainer.appendChild(title);
+      //pdfContainer.appendChild(subtitle);
+      pdfContainer.appendChild(mapDiv);
+      document.body.appendChild(pdfContainer2);
+      pdfContainer2.appendChild(tableDiv);
+      pdfContainer2.appendChild(footer); 
+    }else{
+      pdfContainer.appendChild(title);
+      //pdfContainer.appendChild(subtitle);
+      pdfContainer.appendChild(mapDiv);
+      pdfContainer.appendChild(footer); 
+    }
+    
+    //map clone for resizing (so it prints the same size regardless of any user zoom in)
+    const cloneMap = L.map("map-container", {
+      zoomControl: false,
+      zoom: 7,
+      center: [14.8, -86.8],
+      renderer: L.canvas(), 
+      attributionControl: false
+      
+    });
 
       // Set white background
       const container = document.getElementById('map-container');
@@ -792,17 +792,6 @@ const exportPDF = async () => {
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            marginBottom: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
-            {t("ReiniciarVista")}
-          </button>
 
           <button
             style={{
@@ -829,6 +818,21 @@ const exportPDF = async () => {
             }}
           >
             Descargar Mapa
+          </button>
+
+          <button
+            onClick={() => handlePrintMapa()}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '8px'
+            }}
+          >
+            Imprimir Mapa
           </button>
 
           <Form>
