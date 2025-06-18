@@ -1,4 +1,4 @@
-
+import html2canvas from "html2canvas";
 import ComboBox from "@/components/combobox";
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,7 +58,13 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
   const [show, setShow] = useState(false);
-
+  const [menuName, setMenuName] = useState(t("Ninguno"));
+  const changeLevel = (value: string) => {
+    const levels = [
+      { name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
+    setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
+    setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
+  }
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
     { deptName: "Atlántida", geojson: "/others/hn-municipios-01-atlantida.geo.json" },
@@ -88,6 +94,97 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
+
+
+  // 0) Función de estilo reutilizable (ya tenías algo parecido)
+  const styleFeature = (feature: any) => {
+    const deptName = feature.properties.NOMBRE || feature.properties.name;
+    return {
+      fillColor: getDeptColor(deptName),
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.85,
+      color: 'black'
+    };
+  };
+
+  // 1) Función para imprimir sólo el mapa + encabezados
+  const handlePrintMapa = async () => {
+    if (typeof window === 'undefined') return;
+
+    // crear contenedor oculto
+    const printContainer = document.createElement('div');
+    Object.assign(printContainer.style, {
+      position: 'fixed',
+      top: '0',
+      left: '-9999px',
+      width: '800px',
+      height: '600px',
+      background: 'white',
+      overflow: 'hidden'
+    });
+    document.body.appendChild(printContainer);
+
+    // clonar mapa en Leaflet
+    const L = (await import('leaflet')).default;
+    const mapClone = L.map(printContainer, {
+      zoomControl: false,
+      attributionControl: false,
+      center: [14.8, -86.8],
+      zoom: 7,
+      renderer: L.canvas()
+    });
+    const resp = await fetch(mapa);
+    const geoData = await resp.json();
+    const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
+    mapClone.fitBounds((layer as any).getBounds());
+
+    // clonar títulos, límites, leyendas e info
+    (['Titulo', 'limits-container', 'legends-container', 'info-container'] as const)
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) printContainer.appendChild(el.cloneNode(true));
+      });
+
+    // Agrega la fuente al final del printContainer
+    const fuente = document.createElement('div');
+    fuente.style.textAlign = "center";
+    fuente.style.width = '100%';
+    fuente.style.backgroundColor = "#e0e0e0";
+    fuente.style.marginTop = '40px';
+    fuente.style.padding = '10px';
+    fuente.style.fontSize = '13px';
+    fuente.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+    printContainer.appendChild(fuente);
+
+    // esperar render Leaflet
+    await new Promise(r => setTimeout(r, 500));
+
+    // capturar con html2canvas
+    const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // abrir ventana de impresión
+    const pw = window.open('', '_blank', 'width=900,height=650');
+    if (pw) {
+      pw.document.write(`
+      <html>
+        <head><title>Imprimir Mapa</title></head>
+        <body style="margin:0;padding:0;text-align:center;">
+          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+        </body>
+      </html>
+    `);
+      pw.document.close();
+      pw.focus();
+      pw.print();
+      pw.close();
+    }
+
+    // limpiar
+    document.body.removeChild(printContainer);
+  };
+
 
   const exportPNG = async (title?: string) => {
     try {
@@ -386,14 +483,14 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
         tableDiv.appendChild(table)
         //appends al contenedor
         pdfContainer.appendChild(title);
-        pdfContainer.appendChild(subtitle);
+        //pdfContainer.appendChild(subtitle);
         pdfContainer.appendChild(mapDiv);
         document.body.appendChild(pdfContainer2);
         pdfContainer2.appendChild(tableDiv);
         pdfContainer2.appendChild(footer);
       } else {
         pdfContainer.appendChild(title);
-        pdfContainer.appendChild(subtitle);
+        //pdfContainer.appendChild(subtitle);
         pdfContainer.appendChild(mapDiv);
         pdfContainer.appendChild(footer);
       }
@@ -499,9 +596,7 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
   }
 
   const exportExcel = async () => {
-
     const nombre = (mapaElegido == "Honduras") ? "Departamento" : "Municipio"
-
     if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
       setShow(true);
       return
@@ -648,8 +743,8 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
             <ComboBox
               title={t("Nivel Educativo")}
               options={[t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")]}
-              value={level}
-              onChange={setLevel}
+              value={menuName}
+              onChange={changeLevel}
             >
             </ComboBox>
           </div>

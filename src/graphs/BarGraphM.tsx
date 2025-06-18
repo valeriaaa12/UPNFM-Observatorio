@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    Cell
 } from 'recharts';
 import { useTranslation } from "react-i18next";
-
-interface LegendItem {
-    message: string;
-    color: string;
-    level: string;
-    lowerLimit: number;
-    upperLimit: number;
-}
 
 interface DataItem {
     name: string;
@@ -20,6 +20,13 @@ interface DataItem {
     level: string;
     department?: string;
 }
+interface LegendItem {
+    message: string;
+    color: string;
+    level: string;
+    lowerLimit: number;
+    upperLimit: number;
+}
 
 interface BarGraphProps {
     data: DataItem[];
@@ -28,29 +35,22 @@ interface BarGraphProps {
     legends: LegendItem[];
 }
 
-const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends = [] }) => {
+const BarGraphM: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends = [] }) => {
     const { t } = useTranslation('common');
 
-    const processedData = data.map(item => {
-        const legendValue = (item as any)[legendKey] ?? '';
-        const legendColor = legends.find(
-            l => (l.message ?? '').toString().toLowerCase() === legendValue.toString().toLowerCase()
-        )?.color || '#808080';
-
-        return {
-            ...item,
-            color: legendColor,
-            displayName: item.name
-        };
-    });
+    const processedData = data.map(item => ({
+        ...item,
+        color: legends.find(
+            l => l.message.toLowerCase() === (item as any)[legendKey].toLowerCase()
+        )?.color || '#808080',
+        displayName: item.name
+    }));
 
     const renderLegend = () => {
         const uniqueLegends = Array.from(new Set(data.map(item => item.legend)))
             .filter((legend): legend is string => legend !== undefined)
             .map(legend => {
-                const legendItem = legends.find(
-                    l => (l.message ?? '').toString().toLowerCase() === (legend ?? '').toString().toLowerCase()
-                );
+                const legendItem = legends.find(l => l.message.toLowerCase() === legend.toLowerCase());
                 return {
                     value: legend,
                     color: legendItem?.color || '#808080'
@@ -76,40 +76,45 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends 
     };
 
     const customTooltip = ({ active, payload }: any) => {
-        if (active && payload && payload.length > 0) {
-            const item = payload[0].payload;
-            return (
-                <div style={{
-                    background: "#fff",
-                    padding: "12px 16px",
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    minWidth: 220
-                }}>
-                    <div style={{ marginBottom: 6 }}>
-                        <strong>
-                            {item.department ? t("Municipio") : t("Departamento")}:
-                        </strong> {item.name}
+        if (!active || !payload || payload.length === 0) return null;
+        const item = payload[0].payload;
+
+        const rows = [
+            {
+                label: item.department ? t("Municipio") : t("Departamento"),
+                value: item.name
+            },
+            {
+                label: t("Valor"),
+                value: item.value
+            },
+            {
+                label: t("Leyenda"),
+                value: item.legend
+            },
+            {
+                label: t("Año"),
+                value: item.year
+            }
+        ].filter(Boolean);
+
+        return (
+            <div style={{
+                background: "#fff",
+                padding: 12,
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                minWidth: 180
+            }}>
+                {rows.map((row, idx) => (
+                    <div key={idx} style={{ marginBottom: 4 }}>
+                        <span style={{ fontWeight: 600 }}>{row.label}:</span>{" "}
+                        <span>{row.value}</span>
                     </div>
-                    {item.department && (
-                        <div style={{ marginBottom: 6 }}>
-                            <strong>{t("Departamento")}:</strong> {item.department}
-                        </div>
-                    )}
-                    <div style={{ marginBottom: 6 }}>
-                        <strong>{t("Valor")}:</strong> {item.value}
-                    </div>
-                    <div style={{ marginBottom: 6 }}>
-                        <strong>{t("Leyenda")}:</strong> {item.legend}
-                    </div>
-                    <div>
-                        <strong>{t("Año")}:</strong> {item.year}
-                    </div>
-                </div>
-            );
-        }
-        return null;
+                ))}
+            </div>
+        );
     };
 
     return (
@@ -139,4 +144,4 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends 
     );
 };
 
-export default BarGraph;
+export default BarGraphM;

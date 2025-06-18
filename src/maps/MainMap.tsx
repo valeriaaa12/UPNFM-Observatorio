@@ -68,11 +68,13 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
     if (geoData && !fittedRef.current) {
       const bounds = L.geoJSON(geoData).getBounds();
       map.fitBounds(bounds, { padding: [50, 50], animate: true });
+      map.fitBounds(bounds, { padding: [50, 50], animate: true });
       setTimeout(() => {
         if (map.getZoom() < 7) {
-          map.setZoom(7);
-        }
-      }, 500);
+          if (map.getZoom() < 7) {
+            map.setZoom(7);
+          }
+        }, 500);
       fittedRef.current = true;
 
       return () => {
@@ -88,6 +90,10 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [hoveredDept, setHoveredDept] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t, i18n } = useTranslation('common');
+  const levelsList = [
+    { name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
+  const mapRef = useRef<L.Map | null>(null);
 
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
@@ -112,7 +118,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       if (municipio != "Honduras") {
         url += "Municipal";
       }
-      console.log(url);
+
       const config = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -376,9 +382,12 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
         alignItems: 'center',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
-        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '500', flexGrow: 1 }}>
-          {title}
-          {(level !== "Ninguno" && year !== "Ninguno") && ` - ${level} ${year}`}
+        <h2 id="Titulo" style={{
+          margin: 0,
+          fontSize: '1.4rem',
+          fontWeight: '500'
+        }}>
+          {title} {level !== "Ninguno" ? `- ${levelsList.find(l => l.value === level)?.name}` : ""} {year !== "Ninguno" ? `(${year})` : ""}
         </h2>
         {/* Botón solo visible en móvil */}
         {isMobile && (
@@ -407,7 +416,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       }}>
 
         <MapContainer
-          center={[14.8, -86.8]}
+          className='map-container'
+          center={mapCenter}
           zoom={7}
           ref={mapRef}
           style={{
@@ -416,10 +426,8 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
             backgroundColor: 'white'
           }}
           minZoom={6}
-          maxBounds={L.latLngBounds(
-            L.latLng(12.98, -89.36),
-            L.latLng(16.51, -83.12)
-          )}
+          maxBounds={L.geoJSON(geoData).getBounds()}
+
         >
           {geoData && (
             <GeoJSON
@@ -427,6 +435,7 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
               style={deptStyle}
               onEachFeature={onEachDepartment}
               ref={geoJsonLayerRef}
+              key={JSON.stringify(geoData)}
             />
           )}
 

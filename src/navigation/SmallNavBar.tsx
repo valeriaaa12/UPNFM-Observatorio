@@ -83,19 +83,15 @@ export default function SmallNavBar() {
                     >
                       {t("Reprobacion")}
                     </NavDropdown.Item>
+                    <NavDropdown.Divider />
                      <NavDropdown.Item
                         href="/dashboard"
                         style={{ whiteSpace: 'normal' }}
                       >
-                        {"Gráficos Estadísticos"}
+                        {t("Gráficos Estadísticos")}
                       </NavDropdown.Item>
                       <NavDropdown.Divider />
-                      <NavDropdown.Item
-                        href="/Graficas/lineGraphScreen"
-                        style={{ whiteSpace: 'normal' }}
-                      >
-                        {"Line Graph"}
-                      </NavDropdown.Item>
+                      
                     {user?.admin && (
                       <>
                         <NavDropdown.Divider />

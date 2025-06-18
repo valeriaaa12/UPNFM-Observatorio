@@ -65,7 +65,7 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={window.innerWidth < 768 ? 120 : 180}
-                                label={false}
+                                label={({ name }) => name}
                             >
                                 {processedData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />

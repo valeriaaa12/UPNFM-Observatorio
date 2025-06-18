@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+{/*import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
   Modal,
@@ -272,5 +272,256 @@ export default function Datos_Municipales() {
         <Footer />
       </div>
     </Client>
+  );
+}*/}
+import React, { useState, useRef } from 'react';
+import useSWR from 'swr';
+import LanguageSelector from '@/buttons/LanguageSelector';
+import NavBar from '@/navigation/NavBar';
+import SmallNavBar from '@/navigation/SmallNavBar';
+import Footer from '@/sections/footer';
+import Table from 'react-bootstrap/Table';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import { useTranslation } from 'react-i18next';
+
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+
+interface DataItem {
+  Departamento: string;
+  Municipio: string;
+  [year: string]: string | undefined;
+}
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+export default function TablasTasas() {
+  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL!;
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const levelOptions = [
+    'Básica I Ciclo',
+    'Básica II Ciclo',
+    'Básica I-II Ciclo',
+    'Básica III Ciclo',
+    'Básica I-II-III Ciclo',
+    'Media',
+    'Pre-básica',
+  ] as const;
+  type LevelOption = typeof levelOptions[number];
+
+  const metricOptions = [
+    { label: 'Tasa de Deserción',      path: 'desercionMunicipios' },
+    { label: 'Tasa de Repitencia',     path: 'repitenciaMunicipios' },
+    { label: 'Tasa de Aprobación',     path: 'aprobacionMunicipios' },
+    { label: 'Tasa de Reprobación',    path: 'reprobacionMunicipios' },
+    { label: 'Tasa Bruta de Matrícula', path: 'tasabrutaMunicipios' },
+    { label: 'Tasa Neta de Matrícula',  path: 'tasaNetaMunicipios' },
+  ] as const;
+  type MetricOption = typeof metricOptions[number];
+
+  const [selectedLevel,  setSelectedLevel]  = useState<LevelOption>(levelOptions[0]);
+  const [selectedMetric, setSelectedMetric] = useState<MetricOption>(metricOptions[0]);
+  const [searchTerm,     setSearchTerm]     = useState('');
+
+  const { data = [], error } = useSWR<DataItem[]>(
+    `${API_URL}/${selectedMetric.path}?nivel=${encodeURIComponent(selectedLevel)}`,
+    fetcher
+  );
+  if (error) return <div className="p-5">Error cargando datos.</div>;
+  if (!data || data.length === 0) return <div className="p-5">Cargando…</div>;
+
+  const keys     = Object.keys(data[0]);
+  const yearKeys = keys.filter(k => k !== 'Departamento' && k !== 'Municipio').sort();
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const term     = normalize(searchTerm);
+  const filtered = data.filter(item => {
+    const dept = normalize(item.Departamento || '');
+    const muni = normalize(item.Municipio   || '');
+    return dept.includes(term) || muni.includes(term);
+  });
+
+  const { t } = useTranslation('common');
+
+  // Imprimir
+  const handlePrint = () => {
+    if (!tableRef.current) return;
+    const pw = window.open('', '_blank', 'width=800,height=600');
+    if (!pw) return;
+    pw.document.write(`
+      <html><head><title>${selectedMetric.label} - ${selectedLevel}</title></head>
+      <body>${tableRef.current.outerHTML}</body></html>
+    `);
+    pw.document.close(); pw.focus(); pw.print(); pw.close();
+  };
+
+  // Exportar a Excel
+  const handleExportExcel = async () => {
+    if (!filtered.length) return;
+    const headers = ['Departamento','Municipio', ...yearKeys];
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Datos');
+    sheet.columns = headers.map(h => ({ header: h, key: h, width: h.length + 2 }));
+    // Cabecera coloreada
+    sheet.getRow(1).eachCell(cell => {
+      cell.font = { bold: true };
+      cell.alignment = { horizontal: 'center' };
+      cell.fill = { type:'pattern',pattern:'solid',fgColor:{argb:'FF4472C4'} };
+    });
+    // Datos
+    filtered.forEach(item => {
+      sheet.addRow([
+        item.Departamento,
+        item.Municipio,
+        ...yearKeys.map(y => item[y] ?? '')
+      ]);
+    });
+    // Ajuste ancho
+    sheet.columns.forEach(col => {
+      let max = 0;
+      if (typeof col.eachCell === 'function') {
+        col.eachCell({ includeEmpty: false }, cell => {
+          const txt = cell.value?.toString()||'';
+          if (txt.length > max) max = txt.length;
+        });
+      }
+      col.width = max + 2;
+    });
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), `${selectedMetric.label}-${selectedLevel}.xlsx`);
+  };
+
+  // Exportar a PDF
+  const handleExportPDF = () => {
+    if (!filtered.length) return;
+    const doc = new jsPDF('landscape');
+    const pageW = doc.internal.pageSize.getWidth();
+    doc.setFontSize(14);
+    doc.text(`${selectedMetric.label} - ${selectedLevel}`, pageW/2, 15, { align: 'center' });
+    autoTable(doc, {
+      startY: 25,
+      head: [['Departamento','Municipio',...yearKeys]],
+      body: filtered.map(item => [
+        item.Departamento,
+        item.Municipio,
+        ...yearKeys.map(y => item[y] ?? '-')
+      ]),
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [22,160,133] },
+      alternateRowStyles: { fillColor: [238,238,238] },
+      margin: { left:15, right:15 },
+    });
+    doc.save(`${selectedMetric.label}-${selectedLevel}.pdf`);
+  };
+
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      <div className="flex-grow-1">
+        <LanguageSelector />
+        <div className="font">
+          <div className="blue blueNavbar">
+            <NavBar />
+            <div className="orange d-none d-md-block" style={{ height:'0.5rem' }} />
+          </div>
+          <SmallNavBar />
+
+          <div className="px-5 py-4">
+            {/* Responsive: comboboxes + search */}
+            <Form className="row g-2 mb-3">
+              <h2>{t('DatosMunicipales')}</h2>
+              <div className="col-12 col-md-auto">
+                <Form.Select
+                  value={selectedMetric.path}
+                  onChange={e => {
+                    const sel = metricOptions.find(m => m.path === e.target.value);
+                    if (sel) setSelectedMetric(sel);
+                  }}
+                  className="w-100"
+                  style={{ maxWidth:240 }}
+                >
+                  {metricOptions.map(m => (
+                    <option key={m.path} value={m.path}>{m.label}</option>
+                  ))}
+                </Form.Select>
+              </div>
+              <div className="col-12 col-md-auto">
+                <Form.Select
+                  value={selectedLevel}
+                  onChange={e => setSelectedLevel(e.target.value as LevelOption)}
+                  className="w-100"
+                  style={{ maxWidth:300 }}
+                >
+                  {levelOptions.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </Form.Select>
+              </div>
+              <div className="col-12 col-md">
+                <Form.Control
+                  type="search"
+                  placeholder="Buscar departamento o municipio…"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-100"
+                />
+              </div>
+            </Form>
+
+            {/* Responsive: botones */}
+            <div className="row g-2 mb-3">
+              <div className="col-12 col-md-auto">
+                <Button
+                  variant="btn btn-orange w-100"
+                  onClick={handlePrint}
+                >
+                  Imprimir Tabla
+                </Button>
+              </div>
+              <div className="col-12 col-md-auto">
+                <Button
+                  variant="btn btn-orange w-100"
+                  onClick={handleExportExcel}
+                >
+                  Exportar a Excel
+                </Button>
+              </div>
+              <div className="col-12 col-md-auto">
+                <Button
+                  variant="btn btn-orange w-100"
+                  onClick={handleExportPDF}
+                >
+                  Exportar a PDF
+                </Button>
+              </div>
+            </div>
+
+            <Table striped bordered hover responsive ref={tableRef}>
+              <thead>
+                <tr>
+                  <th>Departamento</th>
+                  <th>Municipio</th>
+                  {yearKeys.map(y => <th key={y}>{y}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item,i) => (
+                  <tr key={i}>
+                    <td>{item.Departamento}</td>
+                    <td>{item.Municipio}</td>
+                    {yearKeys.map(y => <td key={y}>{item[y] ?? '-'}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
   );
 }
