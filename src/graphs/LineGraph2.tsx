@@ -1,8 +1,9 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import axios from "axios";
 import { useTranslation } from "react-i18next";
-import axios from 'axios';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+    ResponsiveContainer, ReferenceLine,
 } from "recharts";
 
 interface LegendItem {
@@ -16,7 +17,7 @@ interface DataItem {
     departamento: string;
     year: string;
     value: number;
-    legend: string;
+    legend?: string;
 }
 
 interface LineGraphProps {
@@ -32,29 +33,33 @@ const ALL_LEVELS = [
     "Mucho mejor que la meta"
 ];
 
-const colorMap: Record<string, string> = {
+const colorMapLegend: Record<string, string> = {
     "Mucho mejor que la meta": "#008000",
     "Dentro de la meta": "#27ae60",
     "Lejos de la meta": "#FFC300",
     "Muy lejos de la meta": "#e41a1c"
 };
 
+const defaultColors = [
+    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+    "#ff69b4", "#00ced1", "#ffa07a", "#20b2aa", "#9370db",
+    "#3cb371", "#f4a460", "#778899"
+];
+
+
 const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => {
     const { t } = useTranslation('common');
-    
-    
-
     const normalize = (str: string | undefined | null) =>
         typeof str === "string"
             ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             : "";
 
-    const departments = useMemo(
-        () => Array.from(new Set(data.map(d => d.departamento))),
-        [data]
-    );
+    const departments = useMemo(() => {
+        return Array.from(new Set(data.map(d => d.departamento)));
+    }, [data]);
 
-    const transformedData = useMemo(() => {
+const transformedData = useMemo(() => {
         const sortedYears = [...years].sort((a, b) => parseInt(a) - parseInt(b));
         return sortedYears.map(year => {
             const yearData: Record<string, string | number> = { year };
@@ -75,7 +80,6 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends = [], years }) => 
         );
         return legendItem?.color || "#808080";
     };
-
     return (
         <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
             <ResponsiveContainer width="100%" height={390}>
