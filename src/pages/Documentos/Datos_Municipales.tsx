@@ -284,7 +284,7 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
-
+import Client from '@/components/client';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -420,6 +420,7 @@ export default function TablasTasas() {
   };
 
   return (
+    <Client>
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
         <LanguageSelector />
@@ -544,5 +545,6 @@ export default function TablasTasas() {
       </div>
       <Footer />
     </div>
+    </Client>
   );
 }
