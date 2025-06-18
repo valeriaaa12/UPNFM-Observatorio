@@ -71,10 +71,9 @@ const FitBounds = ({ geoData }: { geoData: FeatureCollection | null }) => {
       map.fitBounds(bounds, { padding: [50, 50], animate: true });
       setTimeout(() => {
         if (map.getZoom() < 7) {
-          if (map.getZoom() < 7) {
-            map.setZoom(7);
-          }
-        }, 500);
+          map.setZoom(7);
+        }
+      }, 500);
       fittedRef.current = true;
 
       return () => {
@@ -93,7 +92,6 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
   const { t, i18n } = useTranslation('common');
   const levelsList = [
     { name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
-  const mapRef = useRef<L.Map | null>(null);
 
 
   const geoJsonLayerRef = useRef<L.GeoJSON>(null);
