@@ -473,6 +473,7 @@ export default function TablasTasas() {
               </div>
             </Form>
 
+
             {/* Responsive: botones */}
             <div className="row g-2 mb-3">
               <div className="col-12 col-md-auto">
