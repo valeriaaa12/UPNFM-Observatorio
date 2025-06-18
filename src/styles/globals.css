@@ -326,7 +326,7 @@ a {
   min-width: 180px;
 }
 
-/* Diseño responsive para pantallas pequeñas */
+/* Responsive Mapas */
 @media (max-width: 768px) {
   .legends-limits-container {
     flex-direction: column;
@@ -359,7 +359,7 @@ a {
   }
 }
 
-/* Pie Graph stuff */
+/* Pie Graph Styles */
 .pie-chart-wrapper {
   display: flex;
   flex-direction: row;
@@ -370,16 +370,30 @@ a {
   width: 100%;
 }
 
-.pie-legend {
-  width: 250px;
-  padding: 20px;
-}
-
 .pie-container {
   flex: 1;
   min-width: 250px;
   max-width: 600px;
   height: 400px;
+  overflow: hidden;
+}
+
+.pie-legend {
+  width: 250px;
+  padding: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  min-width: 140px;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
 }
 
 @media (max-width: 900px) {
@@ -390,13 +404,36 @@ a {
 
   .pie-container {
     width: 100%;
-    min-width: 300px;
-    height: 300px !important;
-    max-width: 90vw;
+    height: 320px !important;
+    max-width: 100% !important;
+    padding: 0 10px;
   }
 
   .pie-legend {
-    width: 90%;
-    max-width: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pie-container {
+    height: 320px !important;
+    min-height: 320px !important;
+  }
+
+  .legend-item {
+    font-size: 12px;
+    min-width: 100px;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
   }
 }

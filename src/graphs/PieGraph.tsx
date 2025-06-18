@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // ya importado
+import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +21,8 @@ interface PieGraphProps {
 
 const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     const { t } = useTranslation('common');
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [radius, setRadius] = useState(180);
 
     const departmentColors: Record<string, string> = {};
     data.forEach((item, index) => {
@@ -35,23 +37,59 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
         color: departmentColors[item.name]
     }));
 
+    useLayoutEffect(() => {
+        const element = containerRef.current;
+        if (!element) {
+            console.log('Yikes');
+            return;
+        }
+
+        console.log('Noice');
+
+        const observer = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const newRadius = Math.max(60, Math.min(180, width / 3));
+                console.log('container width:', width, ' → radius:', newRadius);
+                setRadius(newRadius);
+            }
+        });
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            const width = containerRef.current?.offsetWidth ?? 0;
+            const fallbackRadius = 40;
+            console.log('⏱ setTimeout fallback width:', width, ' → radius:', fallbackRadius);
+            setRadius(fallbackRadius);
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, []);
+
+    console.log('Usando radius:', radius);
     return (
         <div className="pie-chart-wrapper">
             <div className="pie-legend">
                 {processedData.map((entry, index) => (
-                    <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <div style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: entry.color,
-                            marginRight: '8px',
-                            display: 'inline-block'
-                        }} />
+                    <div key={`legend-${index}`} className="legend-item">
+                        <div
+                            className="legend-color"
+                            style={{ backgroundColor: entry.color }}
+                        />
                         <span>{entry.name}</span>
                     </div>
                 ))}
             </div>
-            <div className="pie-container" style={{ minHeight: '300px' }}>
+            <div
+                ref={containerRef}
+                className="pie-container"
+                style={{ minHeight: '300px', overflow: 'hidden' }}
+            >
                 {processedData.length === 0 ? (
                     <p>No hay datos</p>
                 ) : (
@@ -64,8 +102,8 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={window.innerWidth < 768 ? 120 : 180}
-                                label={({ name }) => name}
+                                outerRadius={radius}
+                                label={false}
                             >
                                 {processedData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
