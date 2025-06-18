@@ -109,29 +109,49 @@ const styleFeature = (feature: any) => {
 
 const handlePrintMapa = async () => {
   if (typeof window === 'undefined') return;
-
-  // 1) Validación idéntica a exportPDF
   if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
     setShow(true);
     return;
   }
 
-  // 2) Crear contenedor oculto
+  // 2) Crear contenedor oculto con espacio arriba
   const printContainer = document.createElement('div');
   Object.assign(printContainer.style, {
     position: 'fixed',
     top: '0',
     left: '-9999px',
     width: '800px',
-    height: '600px',
+    // aquí agregamos padding para que el título no se corte
+    paddingTop: '40px',
     background: 'white',
     overflow: 'hidden',
   });
   document.body.appendChild(printContainer);
 
-  // 3) Clonar el mapa
+  // 3) CLONAR EL TÍTULO ANTES DEL MAPA
+  const titulo = document.getElementById('Titulo');
+  if (titulo) {
+    const tituloClone = titulo.cloneNode(true) as HTMLElement;
+    // Opcional: un pequeño margin-bottom
+    tituloClone.style.marginBottom = '20px';
+    printContainer.appendChild(tituloClone);
+  }
+
+  // 4) Clonar límites, leyenda e info
+  (['limits-container','legends-container','info-container'] as const).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) printContainer.appendChild(el.cloneNode(true));
+  });
+
+  // 5) Clonar el mapa en fondo blanco
+  const mapDiv = document.createElement('div');
+  mapDiv.style.width  = '100%';
+  mapDiv.style.height = '500px';
+  mapDiv.style.backgroundColor = 'white';    // fondo blanco
+  printContainer.appendChild(mapDiv);
+
   const L = (await import('leaflet')).default;
-  const mapClone = L.map(printContainer, {
+  const mapClone = L.map(mapDiv, {
     zoomControl: false,
     attributionControl: false,
     center: [14.8, -86.8],
@@ -143,36 +163,23 @@ const handlePrintMapa = async () => {
   const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
   mapClone.fitBounds((layer as any).getBounds());
 
-  // 4) Esperar render Leaflet
   await new Promise(r => setTimeout(r, 500));
 
-  // 5) Clonar Título, Límites, Leyenda e Info exactamente como antes
-  (['Titulo','limits-container','legends-container','info-container'] as const)
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) printContainer.appendChild(el.cloneNode(true));
-    });
-
-  // ←——── CAMBIO AQUÍ: Añadir la caja de la fuente justo debajo
+  // 6) Fuente (igual que antes)
   const fuenteDiv = document.createElement('div');
-  // **Se mantienen tus estilos originales**:
   fuenteDiv.style.textAlign = "center";
   fuenteDiv.style.width = '100%';
   fuenteDiv.style.backgroundColor = "#e0e0e0";
   fuenteDiv.style.borderRadius = '20px';
-  fuenteDiv.style.height = 'auto';
   fuenteDiv.style.padding = '10px';
   fuenteDiv.style.marginTop = '20px';
   fuenteDiv.textContent =
-    "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+    "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados…";
   printContainer.appendChild(fuenteDiv);
-  // ——CAMBIO FIN
 
-  // 6) Capturar con html2canvas
+  // 7) Capturar e imprimir
   const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL('image/png');
-
-  // 7) Abrir ventana de impresión
   const pw = window.open('', '_blank', 'width=900,height=650');
   if (pw) {
     pw.document.write(`
@@ -188,10 +195,10 @@ const handlePrintMapa = async () => {
     pw.print();
     pw.close();
   }
-
-  // 8) Limpiar
   document.body.removeChild(printContainer);
 };
+
+
 
 
 
