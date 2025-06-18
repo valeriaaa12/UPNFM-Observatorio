@@ -112,20 +112,30 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
-
+    const [dataSelectedMunicipal, setDataSelectedMunicipal] = useState<boolean>(false)
     //pruebas
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
-
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedExcel(true);
-            return
+        if(!comparison){
+            if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+                setDataSelectedExcel(true);
+                return
+            }
+        }else{
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }
         }
 
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
+        
         const excelFile = new ExcelJS.Workbook();
         const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
         if (activeGraph !== 'line') {
@@ -239,12 +249,20 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     showClick
                 );
             }else if(comparison && !department){
-                setShowGraph(
-                    selectedLevel !== "Ninguno" &&
-                    selectedYear !== "Ninguno" &&
-                    selectedMunicipios.length != 0 && 
-                    showClick
-                );
+                if(activeGraph != 'line'){
+                    setShowGraph(
+                        selectedLevel !== "Ninguno" &&
+                        selectedYear !== "Ninguno" &&
+                        selectedMunicipios.length != 0 && 
+                        showClick
+                    );
+                }else{
+                    setShowGraph(
+                        selectedLevel !== "Ninguno" &&
+                        selectedMunicipios.length != 0 && 
+                        showClick
+                    );
+                }
             } else if (activeGraph === 'bar' || activeGraph === 'pie') {
                 setShowGraph(
                     (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") ||
@@ -431,10 +449,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     
 
     const postComparisonDepa = async () => {
-        if (selectedLevel === "Ninguno" || (activeGraph != 'line' && selectedYear === "Ninguno")) {
-            setDataSelectedFilters(true);
-            return;
-        }
+        
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedMunicipal(true);
+                    return
+                }
+            }
+        
         setLoading(true);
     
         try {
@@ -501,10 +528,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     }, [selectedMunicipios, municipiosList]);
 
     const postComparisonMuni = async () => {
-        if (selectedLevel === "Ninguno" || selectedYear === "Ninguno") {
-            setDataSelectedFilters(true);
-            return;
-        }
+       
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedMunicipal(true);
+                    return
+                }
+            }
+        
         setLoading(true);
         try {
             const config = {
@@ -741,18 +777,23 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const handleDownloadImage = async () => {
         if (!exportRef.current) return;
 
-        if (
-            !departments ||
-            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
-            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
-            (!department && selectedDepartment === "Ninguno")
-        ) {
-            setDataSelectedImg(true);
-            return;
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
+        if(!comparison){
+            if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+                setDataSelectedImg(true);
+                return
+            }
+        }else{
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedMunicipal(true);
+                    return
+                }
+            }
         }
 
         const el = exportRef.current;
@@ -805,18 +846,23 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const handleDownloadPDF = async () => {
         if (!exportRef.current) return;
 
-        if (
-            !departments ||
-            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
-            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
-            (!department && selectedDepartment === "Ninguno")
-        ) {
-            setDataSelectedPdf(true);
-            return;
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
+        if(!comparison){
+            if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+                setDataSelectedPdf(true);
+                return
+            }
+        }else{
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedMunicipal(true);
+                    return
+                }
+            }
         }
 
         const el = exportRef.current;
@@ -860,18 +906,24 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
     if (!exportRef.current) return;
-    if (!departments ||
-        ((selectedYear  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
-        ((selectedDepartment  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
-        (!department && selectedDepartment === "Ninguno")) {
-        setDataSelectedPrint(true);
-        return;
+    if(!comparison){
+            if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+                setDataSelectedPrint(true);
+                return
+            }
+        }else{
+            if(department){
+                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                    setDataSelectedComparison(true);
+                    return
+                }
+            }else{
+                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+                   setDataSelectedMunicipal(true);
+                    return
+                }
+            }
     }
-    if (comparison && selectedDepartments.length === 0) {
-        setDataSelectedComparison(true);
-        return;
-    }
-
     const el = exportRef.current;
 
     const menu = el.querySelector<HTMLElement>('.chart-menu');
@@ -1346,7 +1398,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 <MessageModal title='Error' message={t('select_filters_download_excel')} footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
                 <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
                 <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
-                <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
+                <MessageModal title='Error' message={t('select_municipal_compare')} footer="" show={dataSelectedMunicipal} onHide={() => setDataSelectedMunicipal(false)} />
                 <MessageModal
                     title='Error'
                     message={t('Debe seleccionar un nivel y un año para graficar municipios')}
