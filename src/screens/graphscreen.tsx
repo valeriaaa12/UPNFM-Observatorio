@@ -108,6 +108,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
 
+    //pruebas
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
 
@@ -295,7 +296,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
-
+            console.log("legends1")
+            console.log(legends.data)
             const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento?.toLowerCase() || ""),
                 legend: item.leyenda || "",
@@ -308,16 +310,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             const legendsData: Legend[] = legends.data.map((item: any) => ({
                 level: item.nivel || "",
                 message: item.leyenda || "",
-                lowerLimit: item.limite_inferior ?? 0,
-                upperLimit: item.limite_superior ?? 0,
+                lowerLimit: item.limite_inferior || item.min || 0,
+                upperLimit: item.limite_superior || item.max || 0,
                 color: item.color || "#808080"
             }));
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
+
+
             setDepartmentsData(departmentsData2);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
             setLegends(legendsWithColors);
+
+            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -417,6 +424,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 setDepartmentsData(departmentsData2);
                 applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
 
+            } else {
+                setShowGraph(false);
             }
         } catch (error: any) {
             if (error.response) {
@@ -617,15 +626,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
+
                 />
             );
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphD(filteredDepartments);
+            const filteredLegends = legends.filter(item => item.level == selectedLevel)
             return (
                 <LineGraph
                     data={lineData}
-                    legends={legends}
+                    legends={filteredLegends}
                     years={years}
                 />
             );
@@ -652,6 +663,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphM(filteredMunicipios);
+
             return (
                 <LineGraphM
                     data={lineData}
@@ -764,7 +776,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     // Imprimir el gráfico
     const handlePrintGraph = async () => {
         if (!exportRef.current) return;
+
         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+            setDataSelectedPrint(true)
             return
         }
         if (comparison && selectedDepartments.length === 0) {
@@ -908,111 +922,117 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                     </Dropdown.Item>
                                                 ))}
                                                 <Dropdown.Divider />
-                                                {department ? (
-                                                    <div className="d-flex px-2 py-1 justify-content-end ">
-                                                        <button
-                                                            className="btn btn-blue"
-                                                            onClick={postComparisonDepa}
-                                                            type="button"
-                                                        >
-                                                            Graficar
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="d-flex px-2 py-1 justify-content-end ">
-                                                        <button
-                                                            className="btn btn-blue"
-                                                            onClick={() => {
-                                                                fetchMunicipios(selectedDepartmentsMuni);
-                                                                setShowMunicipiosDropdown(true);
-                                                            }}
-                                                            type="button"
-                                                        >
-                                                            Listar Municipios
-                                                        </button>
-                                                    </div>)
-                                                }
-
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </div>
-                                </>
-                            )}
-
-                            {(!comparison) && (
-                                <div style={{ flex: 1, minWidth: '200px' }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                        {t("Departamento")}:
-                                    </label>
-                                    <select
-                                        value={selectedDepartment}
-                                        onChange={(e) => setSelectedDepartment(e.target.value)}
-                                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                                    >
-                                        <option value="Ninguno">{t("Ninguno")}</option>
-                                        {departments.map((department, index) => (
-                                            <option key={index} value={department}>
-                                                {department}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div >
-                            )}
-                            {(comparison && !department) && (
-                                <>
-                                    {/* Municipios */}
-                                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                        <Dropdown autoClose={false} show={showMunicipiosDropdown} onToggle={setShowMunicipiosDropdown}>
-                                            <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
-                                                {t("Municipios")}
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
-                                                {municipiosList.length === 0 ? (
-                                                    <div className="px-2 py-1 text-center text-muted">
-                                                        {t("Seleccione un departamento y luego haga click en 'Listar Municipios'")}
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        {municipiosList.map((muni: Municipios) => (
-                                                            <Dropdown.Item
-                                                                key={muni.nombre}
-                                                                as="div"
-                                                                className="px-2"
-                                                                onClick={e => e.stopPropagation()}
-                                                            >
-                                                                <Form.Check
-                                                                    type="checkbox"
-                                                                    id={`muni-${muni.nombre}`}
-                                                                    label={muni.nombre}
-                                                                    checked={selectedMunicipios.includes(muni.nombre)}
-                                                                    onChange={() => handleCheck(undefined, muni.nombre)}
-                                                                />
-                                                            </Dropdown.Item>
-                                                        ))}
-                                                        <Dropdown.Divider />
+                                                {
+                                                    department ? (
                                                         <div className="d-flex px-2 py-1 justify-content-end ">
                                                             <button
                                                                 className="btn btn-blue"
-                                                                onClick={() => {
-                                                                    postComparisonMuni();
-                                                                    setShowMunicipiosDropdown(false);
-                                                                }}
+                                                                onClick={postComparisonDepa}
                                                                 type="button"
                                                             >
                                                                 Graficar
                                                             </button>
                                                         </div>
-                                                    </>
-                                                )}
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </div>
+                                                    ) : (
+                                                        <div className="d-flex px-2 py-1 justify-content-end ">
+                                                            <button
+                                                                className="btn btn-blue"
+                                                                onClick={() => {
+                                                                    fetchMunicipios(selectedDepartmentsMuni);
+                                                                    setShowMunicipiosDropdown(true);
+                                                                }}
+                                                                type="button"
+                                                            >
+                                                                Listar Municipios
+                                                            </button>
+                                                        </div>)
+                                                }
+
+                                            </Dropdown.Menu >
+                                        </Dropdown >
+                                    </div >
                                 </>
-                            )}
-                        </div>
+                            )
+                            }
+
+                            {
+                                (!comparison) && (
+                                    <div style={{ flex: 1, minWidth: '200px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                            {t("Departamento")}:
+                                        </label>
+                                        <select
+                                            value={selectedDepartment}
+                                            onChange={(e) => setSelectedDepartment(e.target.value)}
+                                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                        >
+                                            <option value="Ninguno">{t("Ninguno")}</option>
+                                            {departments.map((department, index) => (
+                                                <option key={index} value={department}>
+                                                    {department}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div >
+                                )
+                            }
+                            {
+                                (comparison && !department) && (
+                                    <>
+                                        {/* Municipios */}
+                                        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                            <Dropdown autoClose={false} show={showMunicipiosDropdown} onToggle={setShowMunicipiosDropdown}>
+                                                <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                                                    {t("Municipios")}
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                                                    {municipiosList.length === 0 ? (
+                                                        <div className="px-2 py-1 text-center text-muted">
+                                                            {t("Seleccione un departamento y luego haga click en 'Listar Municipios'")}
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {municipiosList.map((muni: Municipios) => (
+                                                                <Dropdown.Item
+                                                                    key={muni.nombre}
+                                                                    as="div"
+                                                                    className="px-2"
+                                                                    onClick={e => e.stopPropagation()}
+                                                                >
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        id={`muni-${muni.nombre}`}
+                                                                        label={muni.nombre}
+                                                                        checked={selectedMunicipios.includes(muni.nombre)}
+                                                                        onChange={() => handleCheck(undefined, muni.nombre)}
+                                                                    />
+                                                                </Dropdown.Item>
+                                                            ))}
+                                                            <Dropdown.Divider />
+                                                            <div className="d-flex px-2 py-1 justify-content-end ">
+                                                                <button
+                                                                    className="btn btn-blue"
+                                                                    onClick={() => {
+                                                                        postComparisonMuni();
+                                                                        setShowMunicipiosDropdown(false);
+                                                                    }}
+                                                                    type="button"
+                                                                >
+                                                                    Graficar
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
+                                    </>
+                                )
+                            }
+                        </div >
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph != "line" || comparison)) ? `(${selectedYear})` : ""}
                             </h2>
                             <div
                                 style={{
@@ -1079,6 +1099,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -1099,6 +1120,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('line');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1119,6 +1141,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
 
@@ -1215,12 +1238,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                         height: '100%',
                                         color: '#666'
                                     }}>
-                                        No hay datos disponibles para los filtros seleccionados
+                                        {t("No hay datos disponibles para los filtros seleccionados")}
                                     </div>
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </div >
                 )}
 
 
@@ -1230,7 +1253,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
                 <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
 
-            </div>
+            </div >
         </Client >
     );
 }

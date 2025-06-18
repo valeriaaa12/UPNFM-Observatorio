@@ -94,8 +94,8 @@ export default function Dashboard() {
         },
         {
             id: "repitencia",
-            label: "RepitenciaMunicipal",
-            dataEndpoint: "/repitencia",
+            label: "Repitencia Municipal",
+            dataEndpoint: "/repitenciaMunicipal",
             limitsEndpoint: "/limitesRepitencia",
             titleKey: "Repitencia"
         },
@@ -250,7 +250,7 @@ export default function Dashboard() {
                     overflow: "hidden"
                 }}>
                     <p className="p-3 form-text pb-0">
-                        Indicadores Educativos por Departamento
+                        {t("Indicadores Educativos por Departamento")}
                     </p>
                     <Nav
                         variant="tabs"
@@ -296,7 +296,7 @@ export default function Dashboard() {
                     overflow: "hidden"
                 }}>
                     <p className="p-3 form-text pb-0">
-                        Indicadores Educativos por Municipio
+                        {t("Indicadores Educativos por Municipio")}
                     </p>
                     <Nav
                         variant="tabs"
@@ -343,7 +343,7 @@ export default function Dashboard() {
                     overflow: "hidden"
                 }}>
                     <p className="p-3 form-text pb-0">
-                        Comparación entre Departamentos
+                        {t("Comparación entre Departamentos")}
                     </p>
                     <Nav
                         variant="tabs"
