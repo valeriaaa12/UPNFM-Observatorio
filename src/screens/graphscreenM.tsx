@@ -7,7 +7,6 @@ import Client from '@/components/client';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import FuenteDeDatos from '@/components/FuenteDeDatos';
-import LineGraphScreen from "../screens/linegraphscreen2";
 import ExcelJS from "exceljs";
 import MessageModal from '@/modals/modal';
 import { saveAs } from "file-saver";

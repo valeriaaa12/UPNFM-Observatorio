@@ -31,6 +31,7 @@ interface legend {
 //fin pruebas para exportar pdf
 
 interface params {
+  title: string;
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   selectedYear: string;
@@ -52,7 +53,7 @@ interface deptMaps {
 
 
 
-export default function MapFilters({ mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
+export default function MapFilters({ title, mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
@@ -60,9 +61,9 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const [menuName, setMenuName] = useState(t("Ninguno"));
   const changeLevel = (value: string) => {
     const levels = [
-        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
-        setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
-        setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
+      { name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
+    setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
+    setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
   }
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
@@ -95,82 +96,98 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   };
 
 
-// 0) Función de estilo reutilizable (ya tenías algo parecido)
-const styleFeature = (feature: any) => {
-  const deptName = feature.properties.NOMBRE || feature.properties.name;
-  return {
-    fillColor: getDeptColor(deptName),
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.85,
-    color: 'black'
+  // 0) Función de estilo reutilizable (ya tenías algo parecido)
+  const styleFeature = (feature: any) => {
+    const deptName = feature.properties.NOMBRE || feature.properties.name;
+    return {
+      fillColor: getDeptColor(deptName),
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.85,
+      color: 'black'
+    };
   };
-};
 
-// 1) Función para imprimir sólo el mapa + encabezados
 const handlePrintMapa = async () => {
   if (typeof window === 'undefined') return;
+  if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+    setShow(true);
+    return;
+  }
 
-  // crear contenedor oculto
+  // 2) Crear contenedor oculto con espacio arriba
   const printContainer = document.createElement('div');
   Object.assign(printContainer.style, {
     position: 'fixed',
     top: '0',
     left: '-9999px',
     width: '800px',
-    height: '600px',
+    // aquí agregamos padding para que el título no se corte
+    paddingTop: '40px',
     background: 'white',
-    overflow: 'hidden'
+    overflow: 'hidden',
   });
   document.body.appendChild(printContainer);
 
-  // clonar mapa en Leaflet
+  // 3) CLONAR EL TÍTULO ANTES DEL MAPA
+  const titulo = document.getElementById('Titulo');
+  if (titulo) {
+    const tituloClone = titulo.cloneNode(true) as HTMLElement;
+    // Opcional: un pequeño margin-bottom
+    tituloClone.style.marginBottom = '20px';
+    printContainer.appendChild(tituloClone);
+  }
+
+  // 4) Clonar límites, leyenda e info
+  (['limits-container','legends-container','info-container'] as const).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) printContainer.appendChild(el.cloneNode(true));
+  });
+
+  // 5) Clonar el mapa en fondo blanco
+  const mapDiv = document.createElement('div');
+  mapDiv.style.width  = '100%';
+  mapDiv.style.height = '500px';
+  mapDiv.style.backgroundColor = 'white';    // fondo blanco
+  printContainer.appendChild(mapDiv);
+
   const L = (await import('leaflet')).default;
-  const mapClone = L.map(printContainer, {
+  const mapClone = L.map(mapDiv, {
     zoomControl: false,
     attributionControl: false,
     center: [14.8, -86.8],
     zoom: 7,
     renderer: L.canvas()
   });
-  const resp    = await fetch(mapa);
+  const resp = await fetch(mapa);
   const geoData = await resp.json();
-  const layer   = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
+  const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
   mapClone.fitBounds((layer as any).getBounds());
 
-  // clonar títulos, límites, leyendas e info
-  (['Titulo','limits-container','legends-container','info-container'] as const)
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) printContainer.appendChild(el.cloneNode(true));
-    });
-
-  // Agrega la fuente al final del printContainer
-  const fuente = document.createElement('div');
-  fuente.style.textAlign = "center";
-  fuente.style.width = '100%';
-  fuente.style.backgroundColor = "#e0e0e0";
-  fuente.style.marginTop = '40px';
-  fuente.style.padding = '10px';
-  fuente.style.fontSize = '13px';
-  fuente.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
-  printContainer.appendChild(fuente);
-
-  // esperar render Leaflet
   await new Promise(r => setTimeout(r, 500));
 
-  // capturar con html2canvas
-  const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
-  const dataUrl = canvas.toDataURL('image/png');
+  // 6) Fuente (igual que antes)
+  const fuenteDiv = document.createElement('div');
+  fuenteDiv.style.textAlign = "center";
+  fuenteDiv.style.width = '100%';
+  fuenteDiv.style.backgroundColor = "#e0e0e0";
+  fuenteDiv.style.borderRadius = '20px';
+  fuenteDiv.style.padding = '10px';
+  fuenteDiv.style.marginTop = '20px';
+  fuenteDiv.textContent =
+    "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados…";
+  printContainer.appendChild(fuenteDiv);
 
-  // abrir ventana de impresión
+  // 7) Capturar e imprimir
+  const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
+  const imgData = canvas.toDataURL('image/png');
   const pw = window.open('', '_blank', 'width=900,height=650');
   if (pw) {
     pw.document.write(`
       <html>
         <head><title>Imprimir Mapa</title></head>
         <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+          <img src="${imgData}" style="width:100%;height:auto;"/>
         </body>
       </html>
     `);
@@ -179,10 +196,172 @@ const handlePrintMapa = async () => {
     pw.print();
     pw.close();
   }
-
-  // limpiar
   document.body.removeChild(printContainer);
 };
+
+
+
+
+const exportPNG = async (title?: string) => {
+    try {
+      if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+        setShow(true);
+        return;
+      }
+      const baseTitle = title?.trim() || "Indicador Educativo";
+      const includeLocation = !baseTitle.includes(mapaElegido) && mapaElegido !== "Honduras" && mapaElegido !== "Ninguno";
+      const extraLocation = includeLocation ? ` en ${mapaElegido}` : "";
+
+      const titleText = `${baseTitle}${extraLocation}`;
+
+      // Ocultar elementos con clase .no-print
+      const noPrintElements = document.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+      const L = (await import("leaflet")).default;
+      const html2canvas = (await import("html2canvas")).default;
+
+      // Crear contenedor principal oculto
+      const pngContainer = document.createElement("div");
+      pngContainer.style.position = "fixed";
+      pngContainer.style.left = "-9999px";
+      pngContainer.style.width = "850px";
+      pngContainer.style.height = 'auto';
+      pngContainer.style.backgroundColor = "white";
+      pngContainer.style.display = "flex";
+      pngContainer.style.flexDirection = "column";
+      pngContainer.style.alignItems = "center";
+      pngContainer.style.padding = "20px";
+      pngContainer.style.gap = "15px";
+      document.body.appendChild(pngContainer);
+
+      // Título azul
+      const titleDIV = document.createElement("div");
+      titleDIV.style.backgroundColor = "#2c3e50";
+      titleDIV.style.color = "white";
+      titleDIV.style.textAlign = "center";
+      titleDIV.style.padding = "12px";
+      titleDIV.style.width = "100%";
+      titleDIV.style.fontSize = "20px";
+      titleDIV.style.fontWeight = "bold";
+      titleDIV.textContent = titleText;
+      pngContainer.appendChild(titleDIV);
+
+      // Mapa dinámico
+      const mapContainer = document.createElement("div");
+      mapContainer.id = "map-container";
+      mapContainer.style.width = "100%";
+      mapContainer.style.height = "500px";
+      mapContainer.style.backgroundColor = "white";
+      pngContainer.appendChild(mapContainer);
+
+      const map = L.map("map-container", {
+        zoomControl: false,
+        zoom: 7,
+        center: [14.8, -86.8],
+        renderer: L.canvas(),
+        attributionControl: false
+      });
+
+      const styleFeature = (feature: any) => {
+        const deptName = feature.properties.NOMBRE || feature.properties.name;
+        return {
+          fillColor: getDeptColor(deptName),
+          weight: 1,
+          color: "black",
+          fillOpacity: 0.85
+        };
+      };
+
+      if (mapa) {
+        const response = await fetch(mapa);
+        const data = await response.json();
+        const geoJsonLayer = L.geoJSON(data, {
+          style: styleFeature
+        }).addTo(map);
+
+        map.fitBounds(geoJsonLayer.getBounds());
+      }
+
+      // Leyenda y límites (clonados)
+      const limitsClone = document.getElementById("limits-container")?.cloneNode(true) as HTMLElement;
+      const legendClone = document.getElementById("legends-container")?.cloneNode(true) as HTMLElement;
+
+      // Ajustar estilos para prevenir problemas de posición
+      limitsClone.style.position = "static";
+      legendClone.style.position = "static";
+      limitsClone.style.margin = '0 20px 0 0'; // espacio solo entre ellos
+      legendClone.style.margin = '0';
+
+      const legendRow = document.createElement("div");
+      legendRow.style.display = "flex";
+      legendRow.style.justifyContent = "space-between";
+      legendRow.style.alignItems = "start";
+      legendRow.style.marginTop = "4px"; // ⬅️ reduce espacio arriba
+      legendRow.style.width = "100%";
+      legendRow.style.gap = "30px";
+      legendRow.appendChild(limitsClone);
+      legendRow.appendChild(legendClone);
+
+      pngContainer.appendChild(legendRow);
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.style.textAlign = "center";
+      footer.style.backgroundColor = "#e0e0e0";
+      footer.style.borderRadius = "10px";
+      footer.style.marginTop = "30px";
+      footer.style.padding = "10px";
+      footer.style.width = "100%";
+      footer.style.fontSize = "10px";
+      footer.textContent =
+        "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. " +
+        "La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). " +
+        "El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. " +
+        "El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+      pngContainer.appendChild(footer);
+
+      // Esperar a que Leaflet cargue todo
+      await new Promise(resolve => {
+        map.whenReady(() => {
+          setTimeout(resolve, 500);
+        });
+      });
+
+      // Captura del contenedor
+      const canvas = await html2canvas(pngContainer, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2
+      });
+
+      const link = document.createElement("a");
+      const fileName = `${titleText.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "")}.png`;
+      link.download = fileName;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      // Restaurar visibilidad
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+
+      // Limpieza
+      document.body.removeChild(pngContainer);
+      if (document.body.contains(limitsClone)) {
+        document.body.removeChild(limitsClone);
+      }
+      if (document.body.contains(legendClone)) {
+        document.body.removeChild(legendClone);
+      }
+
+    } catch (error) {
+      console.error("Error al exportar PNG:", error);
+    }
+  };
+
+
+
 
 
 const exportPDF = async () => {
@@ -437,9 +616,7 @@ const exportPDF = async () => {
   }
 
   const exportExcel = async () => {
-
     const nombre = (mapaElegido == "Honduras") ? "Departamento" : "Municipio"
-
     if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
       setShow(true);
       return
@@ -559,6 +736,14 @@ const exportPDF = async () => {
     return dept ? dept.deptName : "Honduras"
   }
   console.log('Current language:', i18n.language);
+
+  const baseTitle = title?.replace(/\s+en\s+Honduras/i, '').trim() || "Indicador Educativo";
+  const titleText =
+    baseTitle +
+    (mapaElegido !== "Ninguno" ? ` en ${mapaElegido}` : "") +
+    (level !== "Ninguno" ? ` - ${level}` : "") +
+    (selectedYear !== "Ninguno" ? ` ${selectedYear}` : "");
+
   return (
     <>
       {/* Menú*/}
@@ -607,40 +792,47 @@ const exportPDF = async () => {
         {/* Visualización */}
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ marginBottom: '10px' }}>{t("Visualizacion")}</h4>
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            marginBottom: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
-            {t("ReiniciarVista")}
-          </button>
-
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-          
-          onClick={()=>exportPDF()}>
-            {t("Descargar PDF")}
-          </button>
 
           <button
             style={{
-              width:'100%', padding:'8px', backgroundColor:'#e9ecef',
-              border:'1px solid #ced4da', borderRadius:'4px', cursor:'pointer',
-              marginTop:'8px'
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer'
             }}
-            onClick={handlePrintMapa}
+            onClick={() => exportPDF()}>
+            {t("Descargar")}
+          </button>
+          <button
+            onClick={() => exportPNG(titleText)}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '8px'
+            }}
           >
-            {t("Imprimir Mapa")}
+            Descargar Mapa
+          </button>
+
+          <button
+            onClick={() => handlePrintMapa()}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '8px'
+            }}
+          >
+            Imprimir Mapa
           </button>
 
           <Form>

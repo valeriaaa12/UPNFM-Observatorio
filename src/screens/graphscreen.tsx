@@ -65,12 +65,18 @@ interface DataItem {
     level: string;
     department?: string;
 }
+
 interface Municipios {
     nombre: string;
     departamento: string;
 }
+
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
     const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
+
+
+export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
+
     const { t } = useTranslation('common');
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
@@ -106,26 +112,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedExcel, setDataSelectedExcel] = useState<boolean>(false);
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
-    
+
     //pruebas
-    useEffect(() => {
-        console.log("año: ", selectedYear)
-        console.log("nivel: ", selectedLevel)
-        console.log("departamento: ", selectedDepartment)
-        console.log("departamentos: ", selectedDepartments)
-        if(comparison){
-            postComparison();
-        }
-    },[selectedYear, selectedLevel, selectedDepartment])
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
 
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
             setDataSelectedExcel(true);
             return
         }
-        
-        if(comparison && selectedDepartments.length === 0) {
+
+        if (comparison && selectedDepartments.length === 0) {
             setDataSelectedComparison(true);
             return;
         }
@@ -231,7 +228,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         color: "#FFFFFF"
     }
 
-  
+
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
@@ -282,6 +279,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
             )
         );
+
 };
     const filteredDepartments = filterData(
             departmentsData, 
@@ -293,6 +291,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     );
      
     const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
+
+    };
+
+    // Si está en modo comparación y no es departamento, usar departmentsData para municipios comparados
+    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
+    const filteredMunicipios = comparison && !department
+        ? filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, true, activeGraph)
+        : filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
 
     const fetchData = async () => {
         setLoading(true);
@@ -323,22 +329,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 level: item.nivel || "",
                 message: item.leyenda || "",
                 lowerLimit: item.limite_inferior || item.min || 0,
-                upperLimit: item.limite_superior || item.max ||  0,
+                upperLimit: item.limite_superior || item.max || 0,
                 color: item.color || "#808080"
             }));
 
 
 
             const legendsWithColors = assignColorsToLegends(legendsData);
-        
-            
-            
+
             setDepartmentsData(departmentsData2);
             setLegends(legendsWithColors);
-            
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
-            
-            
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -369,9 +371,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
                     const municipiosData = municipios.data.map((item: any) => ({
                         name: item.municipio
-                            ? capitalizeWords(item.municipio.toString().toLowerCase())
+                            ? capitalizeWords(item.municipio.toString())
                             : item.departamento
-                                ? capitalizeWords(item.departamento.toString().toLowerCase())
+                                ? capitalizeWords(item.departamento.toString())
                                 : 'Sin nombre',
                         value: parseFloat(item.tasa) || 0,
                         legend: item.leyenda,
@@ -503,6 +505,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 };
 
 const postComparisonDepa = async () => {
+
+    const postComparisonDepa = async () => {
+
         setLoading(true);
         try {
             const config = {
@@ -717,12 +722,66 @@ const postComparisonDepa = async () => {
             applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
+
    
    const fetchMunicipios = async (departamentos: string[]) => {
         setSelectedDepartmentsMuni([]);
         if (!departamentos|| departamentos.length === 0) {
             setMuniList([]);
             return;
+
+
+    const fetchMunicipios = async (departamentos: string[]) => {
+        setSelectedDepartmentsMuni([]);
+        if (!departamentos || departamentos.length === 0) {
+            setMuniList([]);
+            return;
+        }
+        try {
+            let allMunicipios: Municipios[] = [];
+            for (const dept of departamentos) {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/getMunicipios`,
+                    { params: { departamento: dept.toUpperCase() } }
+                );
+                const municipiosDept = response.data.map((item: any) => ({
+                    nombre: capitalizeWords(item.municipio) || capitalizeWords(item.nombre),
+                    departamento: dept
+                }));
+                allMunicipios = allMunicipios.concat(municipiosDept);
+            }
+            setMuniList(allMunicipios);
+            setSelectedMunicipios(prev =>
+                prev.filter(nombre => allMunicipios.some(muni => muni.nombre === nombre))
+            );
+        } catch (error) {
+            console.error("Error fetching municipios:", error);
+        }
+    };
+
+    const renderGraphD = () => {
+        if (activeGraph === 'bar') {
+            return (
+                < BarGraph
+                    data={filteredDepartments}
+                    yAxisKey="value"
+                    legendKey="legend"
+                    legends={legends}
+
+                />
+            );
+        }
+        if (activeGraph === 'line') {
+            const lineData = formatDataForLineGraphD(filteredDepartments);
+            const filteredLegends = legends.filter(item => item.level == selectedLevel)
+            return (
+                <LineGraph
+                    data={lineData}
+                    legends={filteredLegends}
+                    years={years}
+                />
+            );
+
         }
         try {
             let allMunicipios: Municipios[] = [];
@@ -794,7 +853,7 @@ const postComparisonDepa = async () => {
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphM(filteredMunicipios);
-            
+
             return (
                 <LineGraphM
                     data={lineData}
@@ -803,7 +862,6 @@ const postComparisonDepa = async () => {
             );
         }
         if (activeGraph === 'pie') {
-            console.log("filteredMunicipios", filteredMunicipios)
             return (
                 <PieGraphM
                     data={filteredMunicipios}
@@ -812,7 +870,6 @@ const postComparisonDepa = async () => {
         }
     };
 
-  
 
     const handleCheck = (dept?: string, muni?: string) => {
         if (department) {
@@ -841,147 +898,207 @@ const postComparisonDepa = async () => {
         }
     };
 
-    const getYears = async () => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
-                }
-            };
+    const handleDownloadImage = async () => {
+    if (!exportRef.current) return;
 
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config);
-            setYears(response.data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
+    // 1) Misma validación que en print
+    if (
+        !departments ||
+        ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")
+    ) {
+        setDataSelectedImg(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
     }
 
-    const handleDownloadImage = async () => {
-        if (!exportRef.current) return;
-         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
-            setDataSelectedImg(true);
-            return
-        }
-        if(comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    const el = exportRef.current;
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    // 2) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const prevDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
 
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const link = document.createElement('a');
-        link.download = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        document.body.removeChild(off);
+    // 3) Calculamos tamaño A4 en px (pt→px a 96dpi)
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();    // en pt
+    const pdfH = pdf.internal.pageSize.getHeight();   // en pt
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
+
+    // 4) Guardamos estilos y forzamos nuevo tamaño
+    const prevW = el.style.width;
+    const prevH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+    // dejamos que re-renderice
+    await new Promise(res => setTimeout(res, 2500));
+
+    // 5) Capturamos con html2canvas
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff'
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // 6) Disparamos la descarga
+    const link = document.createElement('a');
+    const filename = `${title}${
+        selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""
+    }${
+        selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""
+    }.png`;
+    link.download = filename;
+    link.href = dataUrl;
+    link.click();
+
+    // 7) Restauramos todo
+    el.style.width  = prevW;
+    el.style.height = prevH;
+    if (menu) menu.style.display = prevDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
+
 
     const handleDownloadPDF = async () => {
-        if (!exportRef.current) return;
-         if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
-            setDataSelectedPdf(true);
-            return
-        }
-        if(comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    if (!exportRef.current) return;
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    // --- 0) Tus validaciones anteriores ---
+    if (
+        !departments ||
+        ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")
+    ) {
+        setDataSelectedPdf(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const img = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('landscape', 'pt', 'a4');
-        const w = pdf.internal.pageSize.getWidth();
-        const h = (canvas.height * w) / canvas.width;
-        pdf.addImage(img, 'PNG', 0, 0, w, h);
-        pdf.save(`${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`);
-        document.body.removeChild(off);
+    const el = exportRef.current;
+
+    // 1) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const menuDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
+
+    // 2) Calculamos tamaño A4 landscape en px
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
+
+    // 3) Ponemos el contenedor al tamaño A4
+    const origW = el.style.width;
+    const origH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+
+    // 4) Esperamos un poco a que Leaflet / Chart se re-renderice
+    await new Promise(r => setTimeout(r, 2500));
+
+    // 5) Capturamos con html2canvas
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff',
+    });
+    const imgData = canvas.toDataURL('image/png');
+
+    // 6) Añadimos la imagen al PDF y descargamos
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    const filename = `${title}${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`;
+    pdf.save(filename);
+
+    // 7) Restauramos todo
+    el.style.width  = origW;
+    el.style.height = origH;
+    if (menu) menu.style.display = menuDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
 
-    // Imprimir el gráfico (fija tamaño y evita distorsión)
+        // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
-        if (!exportRef.current) return;
-        
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
-            setDataSelectedPrint(true)
-            return
-        }
-        if(comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        // 1) Crear contenedor off-screen de tamaño fijo
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed',
-            left: '-9999px',
-            width: '800px',
-            height: '600px',
-            background: 'white',
-            overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    if (!exportRef.current) return;
+    // misma validación que ya tenías
+    if (!departments ||
+        ((selectedYear  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")) {
+        setDataSelectedPrint(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        // 2) Clonar el nodo real dentro de él
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    const el = exportRef.current;
 
-        // 3) Esperar renderizado
-        await new Promise(r => setTimeout(r, 300));
+    // 1) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const menuDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
 
-        // 4) Capturar con html2canvas
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const dataUrl = canvas.toDataURL('image/png');
+    // 2) Calculamos tamaño A4 en px
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
 
-        // 5) Abrir ventana nueva y escribir la imagen
-        const pw = window.open('', '_blank', 'width=900,height=650');
-        if (pw) {
-            pw.document.write(`
-      <html>
-        <head><title>${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}</title></head>
-        <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
-        </body>
-      </html>
-    `);
-            pw.document.close();
-            pw.focus();
-            pw.print();
-            pw.close();
-        }
+    // 3) Guardamos estilos originales y forzamos nuevo tamaño
+    const origW = el.style.width;
+    const origH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
 
-        // 6) Limpiar
-        document.body.removeChild(off);
+    // 4) Capturamos
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff',
+    });
+    const img = canvas.toDataURL('image/png');
+
+    // 5) Abrimos ventana de impresión
+    const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
+    if (pw) {
+        pw.document.write(`
+        <html><head><title>
+            ${title}
+            ${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}
+            ${selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""}
+        </title></head>
+        <body style="margin:0;padding:0;text-align:center;background:#fff">
+            <img src="${img}" style="width:100%;height:auto;display:block;margin:0 auto"/>
+        </body></html>
+        `);
+        pw.document.close();
+        pw.focus();
+        pw.print();
+        pw.close();
+    }
+
+    // 6) Restauramos todo
+    el.style.width  = origW;
+    el.style.height = origH;
+    if (menu) menu.style.display = menuDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
-
-
 
     return (
         <Client>
@@ -1014,7 +1131,12 @@ const postComparisonDepa = async () => {
                                 </select>
                             </div>
 
+
                           {(activeGraph !== 'line') && (
+
+                            {/* Filtros */}
+                            {(activeGraph !== 'line') && (
+
                                 <>
                                     {/* Año */}
                                     <div style={{ flex: 1, minWidth: '200px' }}>
@@ -1184,7 +1306,7 @@ const postComparisonDepa = async () => {
                         </div >
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph!="line" || comparison)) ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph != "line" || comparison)) ? `(${selectedYear})` : ""}
                             </h2>
                             <div
                                 style={{
@@ -1219,20 +1341,20 @@ const postComparisonDepa = async () => {
                                             >
                                                 {department ? renderGraphD() : renderGraphM()}
                                             </div> :
-                                            <div
-                                                style={{
-                                                    flex: 1,
-                                                    minWidth: '300px',
-                                                    position: 'relative',
-                                                    overflow: 'hidden',
-                                                    background: '#fff'
-                                                }}
-                                            >
-                                                
-                                            </div>}
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: '300px',
+                                                        position: 'relative',
+                                                        overflow: 'hidden',
+                                                        background: '#fff'
+                                                    }}
+                                                >
+
+                                                </div>}
 
                                             {/* Menú derecho */}
-                                            <div style={{
+                                            <div className='chart-menu' style={{
                                                 width: '50px',
                                                 display: 'flex',
                                                 flexDirection: 'column',
@@ -1250,6 +1372,7 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
+
                                                                
                                                                 setSelectedDepartment("Ninguno");
                                                                 //if (comparison && activeGraph === 'line') {
@@ -1257,6 +1380,10 @@ const postComparisonDepa = async () => {
                                                                 //}
                                                                
                                                                 department && setSelectedDepartment("Ninguno");    
+
+                                                                setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
+
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -1276,10 +1403,15 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
+
                                                                 
                                                                 setSelectedDepartment("Ninguno");
                                                               
                                                                 department && setSelectedDepartment("Ninguno");    
+
+                                                                setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
+
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1299,6 +1431,10 @@ const postComparisonDepa = async () => {
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
+
+
+                                                                setSelectedDepartment("Ninguno");
+
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
@@ -1401,17 +1537,17 @@ const postComparisonDepa = async () => {
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </div >
                 )}
 
-                
+
                 <MessageModal title='Error' message={t('select_filters_download_images')} footer="" show={dataSelectedImg} onHide={() => setDataSelectedImg(false)} />
                 <MessageModal title='Error' message={t('select_filters_download_pdf')} footer="" show={dataSelectedPdf} onHide={() => setDataSelectedPdf(false)} />
                 <MessageModal title='Error' message={t('select_filters_download_excel')} footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
                 <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
                 <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
-                
-            </div>
+
+            </div >
         </Client >
     );
 }

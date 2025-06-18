@@ -13,6 +13,7 @@ export default function Dashboard() {
     const [activeDepaTab, setDepaActiveTab] = useState("coberturaBruta");
     const [activeMuniTab, setMuniActiveTab] = useState("coberturaBruta");
     const [activeCompDepaTab, setCompDepaActiveTab] = useState("coberturaBruta");
+    const [activeCompMuniTab, setCompMuniActiveTab] = useState("coberturaBruta");
     const [key, setKey] = useState(0);
 
     const depaTabsConfig = [
@@ -155,7 +156,52 @@ export default function Dashboard() {
 
     const activeCompDepaTabConfig = compDepaTabsConfig.find(tab => tab.id === activeCompDepaTab) || compDepaTabsConfig[0];
 
+    const compMuniTabsConfig = [
+        {
+            id: "coberturaBruta",
+            label: "Cobertura (Tasa Bruta)",
+            dataEndpoint: "/tasaBrutaComparacionMunicipal",
+            limitsEndpoint: "/limitesTasaBruta",
+            titleKey: "TasaBruta"
+        },
+        {
+            id: "coberturaNeta",
+            label: "Cobertura (Tasa Neta)",
+            dataEndpoint: "/tasaNetaComparacionMunicipal",
+            limitsEndpoint: "/limitesTasaNeta",
+            titleKey: "TasaNeta"
+        },
+        {
+            id: "aprobacion",
+            label: "Aprobación",
+            dataEndpoint: "/aprobacionComparacionMunicipal",
+            limitsEndpoint: "/limitesAprobacion",
+            titleKey: "Aprobacion"
+        },
+        {
+            id: "desercion",
+            label: "Deserción",
+            dataEndpoint: "/desercionComparacionMunicipal",
+            limitsEndpoint: "/limitesDesercion",
+            titleKey: "Desercion"
+        },
+        {
+            id: "repitencia",
+            label: "Repitencia",
+            dataEndpoint: "/repitenciaComparacionMunicipal",
+            limitsEndpoint: "/limitesRepitencia",
+            titleKey: "Repitencia"
+        },
+        {
+            id: "reprobacion",
+            label: "Reprobación",
+            dataEndpoint: "/reprobacionComparacionMunicipal",
+            limitsEndpoint: "/limitesReprobacion",
+            titleKey: "Reprobacion"
+        }
+    ];
 
+    const activeCompMuniTabConfig = compMuniTabsConfig.find(tab => tab.id === activeCompMuniTab) || compMuniTabsConfig[0];
 
     // Para departamentos
     const handleDepaTabChange = (selectedKey: string | null) => {
@@ -171,10 +217,18 @@ export default function Dashboard() {
             setKey(prevKey => prevKey + 1);
         }
     };
-    // Para comparación
+    // Para comparación entre departamentos
     const handleCompDepaTabChange = (selectedKey: string | null) => {
         if (selectedKey) {
             setCompDepaActiveTab(selectedKey);
+            setKey(prevKey => prevKey + 1);
+        }
+    };
+
+    // Para comparación entre municipios
+    const handleCompMuniTabChange = (selectedKey: string | null) => {
+        if (selectedKey) {
+            setCompMuniActiveTab(selectedKey);
             setKey(prevKey => prevKey + 1);
         }
     };
@@ -250,7 +304,7 @@ export default function Dashboard() {
                         onSelect={handleMuniTabChange}
 
                     >
-                        {depaTabsConfig.map((tab) => (
+                        {muniTabsConfig.map((tab) => (
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
@@ -297,7 +351,7 @@ export default function Dashboard() {
                         onSelect={handleCompDepaTabChange}
 
                     >
-                        {depaTabsConfig.map((tab) => (
+                        {compDepaTabsConfig.map((tab) => (
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
@@ -325,7 +379,7 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-            {/* Indicadores Educativos - Comparación Municipales */}
+
             <div className="font container-fluid fondoGris" style={{ padding: "3%", paddingTop: "0" }}>
                 <div style={{
                     backgroundColor: "white",
@@ -338,34 +392,57 @@ export default function Dashboard() {
                     </p>
                     <Nav
                         variant="tabs"
+
                         activeKey={activeCompDepaTab}
                         onSelect={handleTabChange}
 
                     >
                         {depaTabsConfig.map((tab) => (
+
+                        activeKey={activeCompMuniTab}
+                        onSelect={handleCompMuniTabChange}
+
+                    >
+                        {compMuniTabsConfig.map((tab) => (
+
                             <Nav.Item key={tab.id} >
                                 <Nav.Link
                                     eventKey={tab.id}
                                     style={{
+
                                         backgroundColor: activeCompDepaTab === tab.id ? "#f8f9fa" : "white",
                                         fontWeight: activeCompDepaTab === tab.id ? "bold" : "normal"
+
+                                        backgroundColor: activeCompMuniTab === tab.id ? "#f8f9fa" : "white",
+                                        fontWeight: activeCompMuniTab === tab.id ? "bold" : "normal"
+
                                     }}
                                     className="orangeText border-bottom"
                                 >
                                     {tab.label}
                                 </Nav.Link>
                             </Nav.Item>
-                            
+
                         ))}
                     </Nav>
 
                     <div className="mt-3">
+
                         <GraphScreenM
                             key={key}
                             title={t(activeCompDepaTabConfig.label)}
                             extensionData={activeCompDepaTabConfig.dataEndpoint}
                             extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
                             comparison={true}
+
+                        <GraphScreen
+                            key={key}
+                            title={t(activeCompMuniTabConfig.label)}
+                            extensionData={activeCompMuniTabConfig.dataEndpoint}
+                            extensionLimits={activeCompMuniTabConfig.limitsEndpoint}
+                            comparison={true}
+                            department={false}
+
                         />
                     </div>
                 </div>

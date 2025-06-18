@@ -89,14 +89,9 @@ const BarGraph: React.FC<BarGraphProps> = ({ data, yAxisKey, legendKey, legends 
                 }}>
                     <div style={{ marginBottom: 6 }}>
                         <strong>
-                            {item.department ? t("Municipio") : t("Departamento")}:
+                            {item.department ? t("Departamento") : t("Municipio")}:
                         </strong> {item.name}
                     </div>
-                    {item.department && (
-                        <div style={{ marginBottom: 6 }}>
-                            <strong>{t("Departamento")}:</strong> {item.department}
-                        </div>
-                    )}
                     <div style={{ marginBottom: 6 }}>
                         <strong>{t("Valor")}:</strong> {item.value}
                     </div>
