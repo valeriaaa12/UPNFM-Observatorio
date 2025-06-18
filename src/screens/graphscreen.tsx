@@ -768,6 +768,7 @@ const postComparisonDepa = async () => {
     <LineGraph
       data={lineData}
       legends={legends}
+      years={years}
     />
   );
 }
