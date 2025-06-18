@@ -339,7 +339,6 @@ const MainMap = ({ title, departments, setDepartments, legends, setLegends, year
       className: 'dept-tooltip'
     });
   };
-  const { t, i18n } = useTranslation('common');
 
   return (
     <div
