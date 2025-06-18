@@ -73,6 +73,8 @@ interface Municipios {
 }
 
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
+    const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
+
     const { t } = useTranslation('common');
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
@@ -160,6 +162,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         })
         let number = 1;
         const filteredList = department ? filteredDepartments : filteredMunicipios;
+
         filteredList.forEach((dept) => {
             if (activeGraph !== 'line') {
                 const tempRow = excelSheet.addRow({
@@ -251,7 +254,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
-
     const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
         const colorMap: Record<string, string> = {
             "Mucho mejor que la meta": "#008000",  // Verde oscuro
@@ -276,7 +278,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         activeGraph: string
     ) => {
         return data.filter(item =>
-
             (activeGraph === 'line' || year === "Ninguno" || item.year === year) &&
             (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
             (
@@ -285,7 +286,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
             )
         );
-
     };
 
     const filteredDepartments = filterData(
@@ -336,6 +336,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 upperLimit: item.limite_superior || item.max || 0,
                 color: item.color || "#808080"
             }));
+
+
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
@@ -672,6 +674,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
     };
+
 
     const handleCheck = (dept?: string, muni?: string) => {
         if (department) {
