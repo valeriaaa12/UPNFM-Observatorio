@@ -911,9 +911,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         </body></html>
         `);
         pw.document.close();
-        pw.focus();
-        pw.print();
-        pw.close();
+        pw.onload = () => {
+            pw.focus();
+            pw.print();
+            pw.close();
+        }
+        
     }
 
     el.style.width  = origW;
