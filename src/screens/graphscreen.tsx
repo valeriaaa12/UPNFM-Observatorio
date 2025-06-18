@@ -69,9 +69,12 @@ interface DataItem {
 interface Municipios {
     nombre: string;
     departamento: string;
+    id: string;
 }
 
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
+    const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
+
     const { t } = useTranslation('common');
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
@@ -83,7 +86,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     const [departmentsData, setDepartmentsData] = useState<DataItem[]>([]);
     const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
-    const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
 
     const [years, setYears] = useState<string[]>([]);
@@ -96,10 +98,13 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     //comparacion
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+
     //comparacion municipios
     const [selectedDepartmentsMuni, setSelectedDepartmentsMuni] = useState<string[]>([]);
     const [selectedMunicipios, setSelectedMunicipios] = useState<string[]>([]);
     const [showMunicipiosDropdown, setShowMunicipiosDropdown] = useState(false);
+
+    const [dataSelectedFilters, setDataSelectedFilters] = useState<boolean>(false);
 
     //states para validaciones de menu
     const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
@@ -157,6 +162,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         })
         let number = 1;
         const filteredList = department ? filteredDepartments : filteredMunicipios;
+
         filteredList.forEach((dept) => {
             if (activeGraph !== 'line') {
                 const tempRow = excelSheet.addRow({
@@ -197,7 +203,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
         const cell = excelSheet.getCell(`A${number}`);
         excelSheet.getRow(number).alignment = { wrapText: true, horizontal: 'center' }
-        excelSheet.getRow(number).height = 100;
+        excelSheet.getRow(number).height = 150;
         cell.value = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados \n La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu. hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados."
 
         const buffer = await excelFile.xlsx.writeBuffer();
@@ -225,14 +231,22 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     useEffect(() => {
         const handleGraph = () => {
-            if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
+            if (comparison) {
+                setShowGraph(
+                    selectedLevel !== "Ninguno" &&
+                    selectedYear !== "Ninguno"
+                );
+            } else if (activeGraph === 'bar' || activeGraph === 'pie') {
+                setShowGraph(
+                    (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") ||
+                    (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno")
+                );
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios]);
 
     const capitalizeWords = (str: string) => {
         if (!str) return '';
@@ -240,7 +254,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
-
     const assignColorsToLegends = (legendsData: Legend[]): Legend[] => {
         const colorMap: Record<string, string> = {
             "Mucho mejor que la meta": "#008000",  // Verde oscuro
@@ -265,7 +278,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         activeGraph: string
     ) => {
         return data.filter(item =>
-            // Solo filtra por año si el gráfico NO es de línea
             (activeGraph === 'line' || year === "Ninguno" || item.year === year) &&
             (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
             (
@@ -276,11 +288,23 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         );
     };
 
-    // Si está en modo comparación y no es departamento, usar departmentsData para municipios comparados
-    const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
-    const filteredMunicipios = comparison && !department
+    const filteredDepartments = filterData(
+        departmentsData,
+        selectedYear,
+        selectedLevel,
+        activeGraph === 'line' && selectedDepartments.length > 0 ? selectedDepartments.join(',') : selectedDepartment,
+        false,
+        activeGraph
+    );
+
+    const filteredMunicipiosRaw = comparison && !department
         ? filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, true, activeGraph)
         : filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
+
+    const filteredMunicipios = filteredMunicipiosRaw.map(item => ({
+        ...item,
+        department: item.department ?? ""
+    }));
 
     const fetchData = async () => {
         setLoading(true);
@@ -296,8 +320,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
-            console.log("legends1")
-            console.log(legends.data)
             const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento?.toLowerCase() || ""),
                 legend: item.leyenda || "",
@@ -315,12 +337,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 color: item.color || "#808080"
             }));
 
+
+
             const legendsWithColors = assignColorsToLegends(legendsData);
 
             setDepartmentsData(departmentsData2);
             setLegends(legendsWithColors);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
-
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -359,12 +381,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                         legend: item.leyenda,
                         year: item.periodo_anual?.toString() || '',
                         level: (item.nivel ?? '').toString().toLowerCase(),
-                        department: (item.departamento ?? '').toString().toLowerCase(),
+                        department: capitalizeWords(item.departamento?.toString() || "")
                     }));
 
                     const legendsWithColors = assignColorsToLegends(legendsData);
                     setMunicipios(municipiosData);
-                    applyFilters(municipiosData, selectedYear, selectedLevel, selectedDepartment);
                     setLegends(legendsWithColors);
                 } catch (error) {
                     console.error("Error fetching municipios:", error);
@@ -377,11 +398,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
         if (!comparison && !department && selectedDepartment === "Ninguno") {
             setMunicipios([]);
-            setFilteredData([]);
         }
     }, [selectedDepartment, extensionData, comparison, department]);
 
     const postComparisonDepa = async () => {
+        if (selectedLevel === "Ninguno" || selectedYear === "Ninguno") {
+            setDataSelectedFilters(true);
+            return;
+        }
         setLoading(true);
         try {
             const config = {
@@ -415,11 +439,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     upperLimit: parseFloat(item.max) || 0
                 }));
 
+                console.log("datos" + departmentsData2.length)
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
-                applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
-
             } else {
                 setShowGraph(false);
             }
@@ -444,6 +467,10 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     }, [selectedMunicipios, municipiosList]);
 
     const postComparisonMuni = async () => {
+        if (selectedLevel === "Ninguno" || selectedYear === "Ninguno") {
+            setDataSelectedFilters(true);
+            return;
+        }
         setLoading(true);
         try {
             const config = {
@@ -454,8 +481,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             };
 
             if (selectedMunicipios.length > 0) {
-                const municipiosUpper = selectedMunicipios.map(muni => muni.toUpperCase());
-                const departamentosUpper = selectedDepartmentsMuni.map(dep => dep.toUpperCase());
+                const municipiosUpper = selectedMunicipios.map(id => {
+                    const muni = municipiosList.find(m => m.id === id);
+                    return muni ? muni.nombre.toUpperCase() : '';
+                });
+
+                const departamentosUpper = Array.from(
+                    new Set(
+                        selectedMunicipios.map(id => {
+                            const muni = municipiosList.find(m => m.id === id);
+                            return muni ? muni.departamento.toUpperCase() : '';
+                        }).filter(Boolean)
+                    )
+                );
 
                 const [data] = await Promise.all([
                     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
@@ -468,7 +506,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     legend: item.leyenda,
                     value: parseFloat(item.tasa) || 0,
                     year: selectedYear,
-                    level: selectedLevel
+                    level: selectedLevel,
+                    department: capitalizeWords(item.departamento?.toLowerCase() || "")
                 }));
 
                 const legendsData: Legend[] = data.data.map((item: any) => ({
@@ -481,7 +520,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(muniData);
-                applyFilters(muniData, selectedYear, selectedLevel, selectedDepartment);
             }
         } catch (error: any) {
             if (error.response) {
@@ -491,43 +529,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }
         } finally {
             setLoading(false);
-        }
-    };
-
-    const applyFilters = (data: DataItem[], year: string, level: string, department: string) => {
-        if ((year === "Ninguno" && level === "Ninguno") || (department === "Ninguno" && level === "Ninguno")) {
-            setFilteredData([]);
-            return;
-        }
-
-        let result = [...data];
-
-        if (activeGraph === 'bar' || activeGraph === 'pie') {
-            if (year !== "Ninguno") {
-                result = result.filter(d => d.year === year);
-            }
-        } else if (activeGraph === 'line') {
-            if (department !== "Ninguno") {
-                result = result.filter(d => d.name.toLowerCase() === department.toLowerCase());
-            }
-        }
-
-        if (level !== "Ninguno") {
-            result = result.filter(d => d.level === level);
-        }
-
-        // Si es municipios, filtra por departamento también
-        if (!department && selectedDepartment !== "Ninguno") {
-            result = result.filter(d => d.department === selectedDepartment.toLowerCase());
-        }
-
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        setFilteredData(result);
-
-        if (activeGraph === 'bar' || activeGraph === 'pie') {
-            setShowGraph(year !== "Ninguno" && level !== "Ninguno");
-        } else {
-            setShowGraph(department !== "Ninguno" && level !== "Ninguno");
         }
     };
 
@@ -580,12 +581,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         getYears();
     }, []);
 
-    useEffect(() => {
-        if (departmentsData.length > 0) {
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
-        }
-    }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
-
     const fetchMunicipios = async (departamentos: string[]) => {
         setSelectedDepartmentsMuni([]);
         if (!departamentos || departamentos.length === 0) {
@@ -599,10 +594,15 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/getMunicipios`,
                     { params: { departamento: dept.toUpperCase() } }
                 );
-                const municipiosDept = response.data.map((item: any) => ({
-                    nombre: capitalizeWords(item.municipio) || capitalizeWords(item.nombre),
-                    departamento: dept
-                }));
+                const municipiosDept = response.data.map((item: any) => {
+                    const nombre = capitalizeWords(item.municipio) || capitalizeWords(item.nombre);
+                    const departamento = dept;
+                    return {
+                        nombre,
+                        departamento,
+                        id: `${nombre}__${departamento}`
+                    };
+                });
                 allMunicipios = allMunicipios.concat(municipiosDept);
             }
             setMuniList(allMunicipios);
@@ -622,7 +622,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
-
                 />
             );
         }
@@ -676,6 +675,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
+
     const handleCheck = (dept?: string, muni?: string) => {
         if (department) {
             if (dept) {
@@ -705,126 +705,188 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     const handleDownloadImage = async () => {
         if (!exportRef.current) return;
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+
+        if (
+            !departments ||
+            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+            (!department && selectedDepartment === "Ninguno")
+        ) {
             setDataSelectedImg(true);
-            return
+            return;
         }
         if (comparison && selectedDepartments.length === 0) {
             setDataSelectedComparison(true);
             return;
         }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
+
+        const el = exportRef.current;
+
+        const menu = el.querySelector<HTMLElement>('.chart-menu');
+        const prevDisplay = menu?.style.display;
+        if (menu) menu.style.display = 'none';
+
+        // Calcula tamaño A4 en px
+        const pdf = new jsPDF('landscape', 'pt', 'a4');
+        const pdfW = pdf.internal.pageSize.getWidth();    // en pt
+        const pdfH = pdf.internal.pageSize.getHeight();   // en pt
+        const pxW = Math.round(pdfW * 96 / 72);
+        const pxH = Math.round(pdfH * 96 / 72);
+
+        // Guarda estilos y fuerza nuevo tamaño
+        const prevW = el.style.width;
+        const prevH = el.style.height;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        window.dispatchEvent(new Event('resize'));
+        // dejamos que re-renderice
+        await new Promise(res => setTimeout(res, 2500));
+
+        // Captura con html2canvas
+        const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#fff'
         });
-        document.body.appendChild(off);
+        const dataUrl = canvas.toDataURL('image/png');
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
-
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
+        // Dispara la descarga
         const link = document.createElement('a');
-        link.download = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.png`;
-        link.href = canvas.toDataURL('image/png');
+        const filename = `${title}${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""
+            }${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""
+            }.png`;
+        link.download = filename;
+        link.href = dataUrl;
         link.click();
-        document.body.removeChild(off);
+
+        // Restaura todo
+        el.style.width = prevW;
+        el.style.height = prevH;
+        if (menu) menu.style.display = prevDisplay || '';
+        window.dispatchEvent(new Event('resize'));
     };
+
 
     const handleDownloadPDF = async () => {
         if (!exportRef.current) return;
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
+
+        if (
+            !departments ||
+            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+            (!department && selectedDepartment === "Ninguno")
+        ) {
             setDataSelectedPdf(true);
-            return
+            return;
         }
         if (comparison && selectedDepartments.length === 0) {
             setDataSelectedComparison(true);
             return;
         }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
-        });
-        document.body.appendChild(off);
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+        const el = exportRef.current;
 
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const img = canvas.toDataURL('image/png');
+        const menu = el.querySelector<HTMLElement>('.chart-menu');
+        const menuDisplay = menu?.style.display;
+        if (menu) menu.style.display = 'none';
+
         const pdf = new jsPDF('landscape', 'pt', 'a4');
-        const w = pdf.internal.pageSize.getWidth();
-        const h = (canvas.height * w) / canvas.width;
-        pdf.addImage(img, 'PNG', 0, 0, w, h);
-        pdf.save(`${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`);
-        document.body.removeChild(off);
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const pxW = Math.round(pdfW * 96 / 72);
+        const pxH = Math.round(pdfH * 96 / 72);
+
+        const origW = el.style.width;
+        const origH = el.style.height;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        window.dispatchEvent(new Event('resize'));
+
+        await new Promise(r => setTimeout(r, 2500));
+
+        const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#fff',
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+        const filename = `${title}${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`;
+        pdf.save(filename);
+
+        el.style.width = origW;
+        el.style.height = origH;
+        if (menu) menu.style.display = menuDisplay || '';
+        window.dispatchEvent(new Event('resize'));
     };
 
     // Imprimir el gráfico
     const handlePrintGraph = async () => {
         if (!exportRef.current) return;
-
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedPrint(true)
-            return
+        if (!departments ||
+            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+            (!department && selectedDepartment === "Ninguno")) {
+            setDataSelectedPrint(true);
+            return;
         }
         if (comparison && selectedDepartments.length === 0) {
             setDataSelectedComparison(true);
             return;
         }
-        // 1) Crear contenedor off-screen de tamaño fijo
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed',
-            left: '-9999px',
-            width: '800px',
-            height: '600px',
-            background: 'white',
-            overflow: 'hidden'
+
+        const el = exportRef.current;
+
+        const menu = el.querySelector<HTMLElement>('.chart-menu');
+        const menuDisplay = menu?.style.display;
+        if (menu) menu.style.display = 'none';
+
+        const pdf = new jsPDF('landscape', 'pt', 'a4');
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const pxW = Math.round(pdfW * 96 / 72);
+        const pxH = Math.round(pdfH * 96 / 72);
+
+        const origW = el.style.width;
+        const origH = el.style.height;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        window.dispatchEvent(new Event('resize'));
+        await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
+
+        // Captura
+        const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#fff',
         });
-        document.body.appendChild(off);
+        const img = canvas.toDataURL('image/png');
 
-        // 2) Clonar el nodo real dentro de él
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
-
-        // 3) Esperar renderizado
-        await new Promise(r => setTimeout(r, 300));
-
-        // 4) Capturar con html2canvas
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const dataUrl = canvas.toDataURL('image/png');
-
-        // 5) Abrir ventana nueva y escribir la imagen
-        const pw = window.open('', '_blank', 'width=900,height=650');
+        // Abrir ventana de impresión
+        const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
         if (pw) {
             pw.document.write(`
-      <html>
-        <head><title>${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}</title></head>
-        <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
-        </body>
-      </html>
-    `);
+        <html><head><title>
+            ${title}
+            ${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}
+            ${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}
+        </title></head>
+        <body style="margin:0;padding:0;text-align:center;background:#fff">
+            <img src="${img}" style="width:100%;height:auto;display:block;margin:0 auto"/>
+        </body></html>
+        `);
             pw.document.close();
             pw.focus();
             pw.print();
             pw.close();
         }
 
-        // 6) Limpiar
-        document.body.removeChild(off);
+        // Restauramos todo
+        el.style.width = origW;
+        el.style.height = origH;
+        if (menu) menu.style.display = menuDisplay || '';
+        window.dispatchEvent(new Event('resize'));
     };
 
     return (
@@ -952,7 +1014,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                             }
 
                             {
-                                (!comparison) && (
+                                (!comparison && (activeGraph === "line" || !department)) && (
                                     <div style={{ flex: 1, minWidth: '200px' }}>
                                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
                                             {t("Departamento")}:
@@ -990,17 +1052,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                         <>
                                                             {municipiosList.map((muni: Municipios) => (
                                                                 <Dropdown.Item
-                                                                    key={muni.nombre}
+                                                                    key={muni.id}
                                                                     as="div"
                                                                     className="px-2"
                                                                     onClick={e => e.stopPropagation()}
                                                                 >
                                                                     <Form.Check
                                                                         type="checkbox"
-                                                                        id={`muni-${muni.nombre}`}
+                                                                        id={`muni-${muni.id}`}
                                                                         label={muni.nombre}
-                                                                        checked={selectedMunicipios.includes(muni.nombre)}
-                                                                        onChange={() => handleCheck(undefined, muni.nombre)}
+                                                                        checked={selectedMunicipios.includes(muni.id)}
+                                                                        onChange={() => handleCheck(undefined, muni.id)}
                                                                     />
                                                                 </Dropdown.Item>
                                                             ))}
@@ -1028,8 +1090,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                         </div >
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph != "line" || comparison)) ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph != "line" || comparison)) ? `(${selectedYear})` : ""} {(!comparison && (!department || activeGraph === "line") && selectedDepartment !== "Ninguno") ? `(${selectedDepartment})` : ""}
                             </h2>
+
                             <div
                                 style={{
                                     border: '1px solid #eee',
@@ -1076,7 +1139,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                 </div>}
 
                                             {/* Menú derecho */}
-                                            <div style={{
+                                            <div className='chart-menu' style={{
                                                 width: '50px',
                                                 display: 'flex',
                                                 flexDirection: 'column',
@@ -1094,7 +1157,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
-                                                                setSelectedDepartment("Ninguno");
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
@@ -1115,7 +1177,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
-                                                                setSelectedDepartment("Ninguno");
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
@@ -1136,7 +1197,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
-                                                                setSelectedDepartment("Ninguno");
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
@@ -1240,7 +1300,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                             </div>
                         </div>
                     </div >
-                )}
+                )
+                }
 
 
                 <MessageModal title='Error' message={t('select_filters_download_images')} footer="" show={dataSelectedImg} onHide={() => setDataSelectedImg(false)} />
@@ -1248,7 +1309,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 <MessageModal title='Error' message={t('select_filters_download_excel')} footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
                 <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
                 <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
-
+                <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
+                <MessageModal
+                    title='Error'
+                    message={t('Debe seleccionar un nivel y un año para graficar municipios')}
+                    footer=""
+                    show={dataSelectedFilters}
+                    onHide={() => setDataSelectedFilters(false)}
+                />
             </div >
         </Client >
     );

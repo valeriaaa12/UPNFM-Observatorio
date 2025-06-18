@@ -9,9 +9,10 @@ import MessageModal from '@/modals/modal';
 import { useUser } from '@/context/usertype';
 import { useDropzone } from 'react-dropzone';
 
-const PdfCanvasPreview = dynamic(() => import("@/cards/PdfCanvasPreview"), {
-  ssr: false,
-});
+const PdfCanvasPreview = dynamic(
+  () => import('@/cards/PdfCanvasPreview'),
+  { ssr: false }
+);
 
 interface BoletinProps {
   id: string;
@@ -20,6 +21,7 @@ interface BoletinProps {
   pdf: string;
   mutateList: () => void;
   index: number;
+  onEdit?: () => void;
 }
 
 export default function Card({
@@ -29,6 +31,7 @@ export default function Card({
   mutateList,
   index,
   etiqueta,
+  onEdit,
 }: BoletinProps) {
   const { user } = useUser();
   const [deleting, setDeleting] = useState(false);
@@ -37,6 +40,7 @@ export default function Card({
   const [infoTitle, setInfoTitle] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
 
+  // estados de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const [newFile, setNewFile] = useState<File | null>(null);
@@ -53,12 +57,10 @@ export default function Card({
     setDeleting(true);
     try {
       await fetch(`${API_URL}/eliminarPDF/${id}`, { method: 'DELETE' });
-
       setShowConfirmModal(false);
       setInfoTitle('¡Éxito!');
       setInfoMessage(`Se ha eliminado ${etiqueta} con éxito.`);
       setShowInfoModal(true);
-
       mutateList();
     } catch (error) {
       setShowConfirmModal(false);
@@ -95,7 +97,6 @@ export default function Card({
     setShowEditModal(true);
   };
 
-  // Hook para drag & drop en edición, solo PDF
   const onDropEdit = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
@@ -117,39 +118,84 @@ export default function Card({
     multiple: false,
   });
 
-  const handleEdit = async () => {
-    if (!newTitle.trim() && !newFile) {
-      alert(t("Debe cambiar título o PDF para editar."));
+  // --- VALIDACIÓN AL CREAR BOLETÍN ---
+  const handleGuardarBoletin = async () => {
+    // uso title en creación
+    if (!newTitle.trim()) {
+      alert(t("El título no puede estar vacío."));
+      return;
+    }
+    if (!newFile) {
+      alert(t("Debe seleccionar un PDF."));
       return;
     }
     setIsEditing(true);
     try {
       const formData = new FormData();
-      formData.append('id', id);
       formData.append('nombre', newTitle.trim());
-      if (newFile) {
-        formData.append('pdf', newFile);
-      }
-      await fetch(`${API_URL}/editarPDF/${id}`, {
-        method: 'PUT',
+      formData.append('etiqueta', etiqueta);
+      formData.append('pdf', newFile);
+      await fetch(`${API_URL}/subirPDF`, {
+        method: 'POST',
         body: formData,
       });
-
       setShowEditModal(false);
       setInfoTitle('¡Éxito!');
-      setInfoMessage(`Se ha modificado ${etiqueta} con éxito.`);
+      setInfoMessage(`Se ha creado ${etiqueta} con éxito.`);
       setShowInfoModal(true);
       mutateList();
     } catch (err) {
-      console.error('Error al editar:', err);
+      console.error('Error al crear:', err);
       setShowEditModal(false);
       setInfoTitle('¡Error!');
-      setInfoMessage(`Ocurrió un problema al editar ${etiqueta}.`);
+      setInfoMessage(`Ocurrió un problema al crear ${etiqueta}.`);
       setShowInfoModal(true);
     } finally {
       setIsEditing(false);
     }
   };
+
+  // --- VALIDACIÓN AL EDITAR BOLETÍN ---
+  const handleEdit = async () => {
+  // 1) Si NO cambiaste título Y NO subiste PDF, no haces nada
+  if (newTitle.trim() === title.trim() && !newFile) {
+    return alert(t("Debe cambiar el título o seleccionar un PDF para editar."));
+  }
+  // 2) Si cambiaste título pero quedó vacío
+  if (!newTitle.trim()) {
+    return alert(t("El título no puede quedar vacío."));
+  }
+
+  setIsEditing(true);
+  try {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('nombre', newTitle.trim());
+    if (newFile) {
+      formData.append('pdf', newFile);
+    }
+    
+    await fetch(`${API_URL}/editarPDF/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+
+    setShowEditModal(false);
+    setInfoTitle('¡Éxito!');
+    setInfoMessage(`Se ha modificado ${etiqueta} con éxito.`);
+    setShowInfoModal(true);
+    mutateList();  // re-carga la lista
+  } catch (err) {
+    console.error('Error al editar:', err);
+    setShowEditModal(false);
+    setInfoTitle('¡Error!');
+    setInfoMessage(`Ocurrió un problema al editar ${etiqueta}.`);
+    setShowInfoModal(true);
+  } finally {
+    setIsEditing(false);
+  }
+};
+
 
   return (
     <>
@@ -187,7 +233,6 @@ export default function Card({
                 >
                   <i className="bi bi-pencil"></i>
                 </button>
-
                 <button
                   type="button"
                   className="btn btn-rojo btn-small ms-1"
@@ -213,7 +258,7 @@ export default function Card({
         </div>
       </div>
 
-      {/* Modal de confirmación de eliminación */}
+      {/* Confirmación de eliminación */}
       <Modal
         show={showConfirmModal}
         onHide={() => setShowConfirmModal(false)}
@@ -242,19 +287,21 @@ export default function Card({
         </Modal.Footer>
       </Modal>
 
-      {/* Modal de edición */}
+      {/* Modal de crear/editar */}
       <Modal
         show={showEditModal}
         onHide={() => setShowEditModal(false)}
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>{t("Editar Boletín")}</Modal.Title>
+          <Modal.Title>
+            {newFile ? t("Editar Boletín") : t("Editar Boletín")}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group controlId="editTitle" className="mb-3">
-              <Form.Label>{t("Nuevo Título")}</Form.Label>
+              <Form.Label>{t("Título")}</Form.Label>
               <Form.Control
                 type="text"
                 value={newTitle}
@@ -262,10 +309,8 @@ export default function Card({
                 disabled={isEditing}
               />
             </Form.Group>
-
-            {/* Área drag & drop solo PDF */}
             <Form.Group controlId="editPdf" className="mb-3">
-              <Form.Label>{t("Nuevo PDF (opcional)")}</Form.Label>
+              <Form.Label>{t("PDF")}</Form.Label>
               <div
                 {...getEditRootProps()}
                 className={`border rounded p-4 text-center ${
@@ -301,21 +346,17 @@ export default function Card({
             onClick={handleEdit}
             disabled={isEditing}
           >
-            {isEditing ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />{' '}
-                {t("Guardando…")}
-              </>
-            ) : (
-              t("Guardar Cambios")
-            )}
+            {isEditing
+              ? (
+                <>
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />{' '}
+                  {t("Guardando…")}
+                </>
+              )
+              : t("Guardar Cambios")
+            }
           </Button>
+
         </Modal.Footer>
       </Modal>
 

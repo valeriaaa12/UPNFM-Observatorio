@@ -177,6 +177,8 @@
   "file_deleted": "Archivo eliminado",
   "upload_error": "❌ Error al subir los datos",
   "exportExcel": "Exportar Excel",
+  "Most Recent": "Mas  Reciente",
+  "Oldest": "Mas Antiguo",
   "select_filters_download_images": "Debe seleccionar filtros para poder descargar imágenes",
   "select_filters_download_pdf": "Debe seleccionar filtros para poder descargar PDF",
   "select_filters_download_excel": "Debe seleccionar filtros para poder descargar Excel",

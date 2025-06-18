@@ -13,6 +13,7 @@ interface DataItem {
     value: number;
     year: string;
     level: string;
+    legend: string;
 }
 
 interface PieGraphProps {
@@ -34,7 +35,8 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
     const processedData = data.map(item => ({
         ...item,
         value: item.value,
-        color: departmentColors[item.name]
+        color: departmentColors[item.name],
+        legend: item.legend,
     }));
 
     useLayoutEffect(() => {
@@ -43,9 +45,6 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
             console.log('Yikes');
             return;
         }
-
-        console.log('Noice');
-
         const observer = new ResizeObserver(entries => {
             for (let entry of entries) {
                 const width = entry.contentRect.width;
@@ -71,42 +70,56 @@ const PieGraph: React.FC<PieGraphProps> = ({ data }) => {
         return () => clearTimeout(timeout);
     }, []);
 
-    console.log('Usando radius:', radius);
     return (
         <div className="pie-chart-wrapper">
-            <div className="pie-legend">
-                {processedData.map((entry, index) => (
-                    <div key={`legend-${index}`} className="legend-item">
-                        <div
-                            className="legend-color"
-                            style={{ backgroundColor: entry.color }}
-                        />
-                        <span>{entry.name}</span>
-                    </div>
-                ))}
-            </div>
             <div
                 ref={containerRef}
                 className="pie-container"
-                style={{ minHeight: '300px', overflow: 'hidden' }}
+                style={{ minHeight: '450px', overflow: 'hidden' }}
             >
                 {processedData.length === 0 ? (
                     <p>No hay datos</p>
                 ) : (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={450}>
                         <PieChart>
-                            <Tooltip />
+                            <Tooltip
+                                content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                        const { name, value, legend } = payload[0].payload;
+                                        return (
+                                            <div
+                                                style={{
+                                                    background: "#fff",
+                                                    border: "1px solid #ccc",
+                                                    borderRadius: 6,
+                                                    padding: "12px 16px",
+                                                    minWidth: 180,
+                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.07)"
+                                                }}
+                                            >
+                                                <span>
+                                                    <strong>{name}</strong>: {value}
+                                                </span>
+                                                <div style={{ marginTop: 4, color: "#666" }}>
+                                                    {legend}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                }}
+                            />
                             <Pie
                                 data={processedData}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={radius}
-                                label={false}
+                                outerRadius={160}
+                                label={({ name }) => name}
                             >
                                 {processedData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                    <Cell key={`cell - ${index}`} fill={entry.color} />
                                 ))}
                             </Pie>
                         </PieChart>
