@@ -108,26 +108,51 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
     };
   };
 
-  // 1) Función para imprimir sólo el mapa + encabezados
   const handlePrintMapa = async () => {
     if (typeof window === 'undefined') return;
+    if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+      setShow(true);
+      return;
+    }
 
-    // crear contenedor oculto
+    // 2) Crear contenedor oculto con espacio arriba
     const printContainer = document.createElement('div');
     Object.assign(printContainer.style, {
       position: 'fixed',
       top: '0',
       left: '-9999px',
       width: '800px',
-      height: '600px',
+      // aquí agregamos padding para que el título no se corte
+      paddingTop: '40px',
       background: 'white',
-      overflow: 'hidden'
+      overflow: 'hidden',
     });
     document.body.appendChild(printContainer);
 
-    // clonar mapa en Leaflet
+    // 3) CLONAR EL TÍTULO ANTES DEL MAPA
+    const titulo = document.getElementById('Titulo');
+    if (titulo) {
+      const tituloClone = titulo.cloneNode(true) as HTMLElement;
+      // Opcional: un pequeño margin-bottom
+      tituloClone.style.marginBottom = '20px';
+      printContainer.appendChild(tituloClone);
+    }
+
+    // 4) Clonar límites, leyenda e info
+    (['limits-container', 'legends-container', 'info-container'] as const).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) printContainer.appendChild(el.cloneNode(true));
+    });
+
+    // 5) Clonar el mapa en fondo blanco
+    const mapDiv = document.createElement('div');
+    mapDiv.style.width = '100%';
+    mapDiv.style.height = '500px';
+    mapDiv.style.backgroundColor = 'white';    // fondo blanco
+    printContainer.appendChild(mapDiv);
+
     const L = (await import('leaflet')).default;
-    const mapClone = L.map(printContainer, {
+    const mapClone = L.map(mapDiv, {
       zoomControl: false,
       attributionControl: false,
       center: [14.8, -86.8],
@@ -139,39 +164,30 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
     const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
     mapClone.fitBounds((layer as any).getBounds());
 
-    // clonar títulos, límites, leyendas e info
-    (['Titulo', 'limits-container', 'legends-container', 'info-container'] as const)
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) printContainer.appendChild(el.cloneNode(true));
-      });
-
-    // Agrega la fuente al final del printContainer
-    const fuente = document.createElement('div');
-    fuente.style.textAlign = "center";
-    fuente.style.width = '100%';
-    fuente.style.backgroundColor = "#e0e0e0";
-    fuente.style.marginTop = '40px';
-    fuente.style.padding = '10px';
-    fuente.style.fontSize = '13px';
-    fuente.textContent = "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
-    printContainer.appendChild(fuente);
-
-    // esperar render Leaflet
     await new Promise(r => setTimeout(r, 500));
 
-    // capturar con html2canvas
-    const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
-    const dataUrl = canvas.toDataURL('image/png');
+    // 6) Fuente (igual que antes)
+    const fuenteDiv = document.createElement('div');
+    fuenteDiv.style.textAlign = "center";
+    fuenteDiv.style.width = '100%';
+    fuenteDiv.style.backgroundColor = "#e0e0e0";
+    fuenteDiv.style.borderRadius = '20px';
+    fuenteDiv.style.padding = '10px';
+    fuenteDiv.style.marginTop = '20px';
+    fuenteDiv.textContent =
+      "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados…";
+    printContainer.appendChild(fuenteDiv);
 
-    // abrir ventana de impresión
+    // 7) Capturar e imprimir
+    const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/png');
     const pw = window.open('', '_blank', 'width=900,height=650');
     if (pw) {
       pw.document.write(`
       <html>
         <head><title>Imprimir Mapa</title></head>
         <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
+          <img src="${imgData}" style="width:100%;height:auto;"/>
         </body>
       </html>
     `);
@@ -180,10 +196,10 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       pw.print();
       pw.close();
     }
-
-    // limpiar
     document.body.removeChild(printContainer);
   };
+
+
 
 
   const exportPNG = async (title?: string) => {
@@ -344,7 +360,11 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
     }
   };
 
-  const exportPDF = async (titleText?: string) => {
+
+
+
+
+  const exportPDF = async () => {
     try {
       if (typeof window === 'undefined' || !document) return;
       if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
@@ -365,6 +385,16 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       // hide controls
       const controls = document.querySelectorAll('.leaflet-control-container');
       controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
+
+
+      const title = document.createElement('h2');
+      title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
+      //const subtitle = document.createElement('h3');
+      //subtitle.textContent = level +" " + selectedYear
+      title.style.textAlign = 'center';
+      title.style.marginBottom = '20px';
+      //subtitle.style.textAlign = 'center';
+      //subtitle.style.marginBottom = '20px';
 
       // pdf container creation
       const pdfContainer = document.createElement('div');
@@ -392,19 +422,8 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       mapClone.style.height = '500px';
       legendClone.style.margin = '10px 0';
 
-      //      limitsClone.style.margin = '10px 0'; trying out stuff
+      limitsClone.style.margin = '10px 0';
 
-      const levelAndYear = `${level} ${selectedYear}`;
-      const cleanedTitle = (titleText ?? "").replace(levelAndYear, '').trim().replace(/[-–—]\s*$/, '').trim();
-      const title = document.createElement('h2');
-      title.textContent = cleanedTitle || 'Indicador Educativo';
-      title.style.textAlign = 'center';
-      title.style.marginBottom = '20px';
-
-      const subtitle = document.createElement('h3');
-      subtitle.textContent = `${level} ${selectedYear}`;
-      subtitle.style.textAlign = 'center';
-      subtitle.style.marginBottom = '6px';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -479,6 +498,7 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
           tBody.appendChild(row)
 
         });
+
         table.appendChild(tBody)
         tableDiv.appendChild(table)
         //appends al contenedor
@@ -781,7 +801,7 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
               borderRadius: '4px',
               cursor: 'pointer'
             }}
-            onClick={() => exportPDF(titleText)}>
+            onClick={() => exportPDF()}>
             {t("Descargar")}
           </button>
           <button
@@ -797,6 +817,21 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
             }}
           >
             Descargar Mapa
+          </button>
+
+          <button
+            onClick={() => handlePrintMapa()}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '8px'
+            }}
+          >
+            Imprimir Mapa
           </button>
 
           <Form>

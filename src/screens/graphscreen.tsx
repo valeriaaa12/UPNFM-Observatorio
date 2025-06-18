@@ -704,127 +704,205 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     };
 
     const handleDownloadImage = async () => {
-        if (!exportRef.current) return;
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedImg(true);
-            return
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    if (!exportRef.current) return;
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    // 1) Misma validación que en print
+    if (
+        !departments ||
+        ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")
+    ) {
+        setDataSelectedImg(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const link = document.createElement('a');
-        link.download = `${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        document.body.removeChild(off);
+    const el = exportRef.current;
+
+    // 2) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const prevDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
+
+    // 3) Calculamos tamaño A4 en px (pt→px a 96dpi)
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();    // en pt
+    const pdfH = pdf.internal.pageSize.getHeight();   // en pt
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
+
+    // 4) Guardamos estilos y forzamos nuevo tamaño
+    const prevW = el.style.width;
+    const prevH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+    // dejamos que re-renderice
+    await new Promise(res => setTimeout(res, 2500));
+
+    // 5) Capturamos con html2canvas
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff'
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // 6) Disparamos la descarga
+    const link = document.createElement('a');
+    const filename = `${title}${
+        selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""
+    }${
+        selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""
+    }.png`;
+    link.download = filename;
+    link.href = dataUrl;
+    link.click();
+
+    // 7) Restauramos todo
+    el.style.width  = prevW;
+    el.style.height = prevH;
+    if (menu) menu.style.display = prevDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
+
 
     const handleDownloadPDF = async () => {
-        if (!exportRef.current) return;
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedPdf(true);
-            return
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed', left: '-9999px',
-            width: '800px', height: '600px',
-            background: 'white', overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    if (!exportRef.current) return;
 
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    // --- 0) Tus validaciones anteriores ---
+    if (
+        !departments ||
+        ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")
+    ) {
+        setDataSelectedPdf(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        await new Promise(r => setTimeout(r, 300));
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const img = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('landscape', 'pt', 'a4');
-        const w = pdf.internal.pageSize.getWidth();
-        const h = (canvas.height * w) / canvas.width;
-        pdf.addImage(img, 'PNG', 0, 0, w, h);
-        pdf.save(`${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`);
-        document.body.removeChild(off);
+    const el = exportRef.current;
+
+    // 1) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const menuDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
+
+    // 2) Calculamos tamaño A4 landscape en px
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
+
+    // 3) Ponemos el contenedor al tamaño A4
+    const origW = el.style.width;
+    const origH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+
+    // 4) Esperamos un poco a que Leaflet / Chart se re-renderice
+    await new Promise(r => setTimeout(r, 2500));
+
+    // 5) Capturamos con html2canvas
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff',
+    });
+    const imgData = canvas.toDataURL('image/png');
+
+    // 6) Añadimos la imagen al PDF y descargamos
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    const filename = `${title}${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}.pdf`;
+    pdf.save(filename);
+
+    // 7) Restauramos todo
+    el.style.width  = origW;
+    el.style.height = origH;
+    if (menu) menu.style.display = menuDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
 
-    // Imprimir el gráfico
+        // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
-        if (!exportRef.current) return;
+    if (!exportRef.current) return;
+    // misma validación que ya tenías
+    if (!departments ||
+        ((selectedYear  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")) {
+        setDataSelectedPrint(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedPrint(true)
-            return
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
-        // 1) Crear contenedor off-screen de tamaño fijo
-        const off = document.createElement('div');
-        Object.assign(off.style, {
-            position: 'fixed',
-            left: '-9999px',
-            width: '800px',
-            height: '600px',
-            background: 'white',
-            overflow: 'hidden'
-        });
-        document.body.appendChild(off);
+    const el = exportRef.current;
 
-        // 2) Clonar el nodo real dentro de él
-        const clone = exportRef.current.cloneNode(true) as HTMLElement;
-        clone.style.width = '800px';
-        clone.style.height = '600px';
-        off.appendChild(clone);
+    // 1) Ocultamos el menú de la derecha
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const menuDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
 
-        // 3) Esperar renderizado
-        await new Promise(r => setTimeout(r, 300));
+    // 2) Calculamos tamaño A4 en px
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
 
-        // 4) Capturar con html2canvas
-        const canvas = await html2canvas(off, { scale: 2, useCORS: true });
-        const dataUrl = canvas.toDataURL('image/png');
+    // 3) Guardamos estilos originales y forzamos nuevo tamaño
+    const origW = el.style.width;
+    const origH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
 
-        // 5) Abrir ventana nueva y escribir la imagen
-        const pw = window.open('', '_blank', 'width=900,height=650');
-        if (pw) {
-            pw.document.write(`
-      <html>
-        <head><title>${title}${selectedLevel !== "Ninguno" ? ` - ${selectedLevel}` : ""}${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}</title></head>
-        <body style="margin:0;padding:0;text-align:center;">
-          <img src="${dataUrl}" style="width:100%;height:auto;"/>
-        </body>
-      </html>
-    `);
-            pw.document.close();
-            pw.focus();
-            pw.print();
-            pw.close();
-        }
+    // 4) Capturamos
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff',
+    });
+    const img = canvas.toDataURL('image/png');
 
-        // 6) Limpiar
-        document.body.removeChild(off);
+    // 5) Abrimos ventana de impresión
+    const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
+    if (pw) {
+        pw.document.write(`
+        <html><head><title>
+            ${title}
+            ${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}
+            ${selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""}
+        </title></head>
+        <body style="margin:0;padding:0;text-align:center;background:#fff">
+            <img src="${img}" style="width:100%;height:auto;display:block;margin:0 auto"/>
+        </body></html>
+        `);
+        pw.document.close();
+        pw.focus();
+        pw.print();
+        pw.close();
+    }
+
+    // 6) Restauramos todo
+    el.style.width  = origW;
+    el.style.height = origH;
+    if (menu) menu.style.display = menuDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
 
     return (
@@ -1076,7 +1154,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                 </div>}
 
                                             {/* Menú derecho */}
-                                            <div style={{
+                                            <div className='chart-menu' style={{
                                                 width: '50px',
                                                 display: 'flex',
                                                 flexDirection: 'column',
