@@ -470,11 +470,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                 setShowClick(true);
                 const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
 
-                const [data] = await Promise.all([
-                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
-                        nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
-                    }, config)
-                ]);
+                let data: any;
+
+                if (activeGraph !== 'line') {
+                    [data] = await Promise.all([
+                        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
+                            nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
+                        }, config)
+                    ]);
+                } else {
+                    [data] = await Promise.all([
+                        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLineData}`, {
+                            nivel: selectedLevel, departamentos: departmentsUpper,
+                        }, config)
+                    ]);
+                }
 
                 const departmentsData2: DataItem[] = data.data.map((item: any) => ({
                     name: capitalizeWords(item.departamento.toLowerCase()),
@@ -603,44 +613,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
         }
     };
 
-    const formatDataForLineGraphD = (data: DataItem[]) => {
-        return data
-            .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-            .map(({ year, value, name, legend }) => ({
-                departamento: name,
+    console.log("departmentsData", departmentsData);
+    const formatDataForLineGraphD = (data: DataItem[]) =>
+        [...data]
+            .sort((a, b) => (parseInt(a.year) || 0) - (parseInt(b.year) || 0))
+            .map(({ name: departamento, year, value, legend }) => ({
+                departamento,
                 year,
                 value,
-                legend,
+                legend
             }));
-    };
 
     const formatDataForLineGraphM = (data: DataItem[]) => {
-        // Agrupar por municipio
-        const groupedData: Record<string, DataItem[]> = {};
+        const grouped = data.reduce((acc: Record<string, DataItem[]>, item) => {
+            (acc[item.name] = acc[item.name] || []).push(item);
+            return acc;
+        }, {});
 
-        data.forEach((item: DataItem) => {
-            if (!groupedData[item.name]) {
-                groupedData[item.name] = [];
-            }
-            groupedData[item.name].push(item);
-        });
-
-        // Ordenar por año y formatear
-        return Object.entries(groupedData).map(([name, items]: [string, DataItem[]]) => {
-            // Ordenar los items por año
-            const sortedItems = items.slice().sort((a, b) => {
-                const yearA = parseInt(a.year, 10);
-                const yearB = parseInt(b.year, 10);
-                if (isNaN(yearA) && isNaN(yearB)) return 0;
-                if (isNaN(yearA)) return 1;
-                if (isNaN(yearB)) return -1;
-                return yearA - yearB;
-            });
-            return {
-                name,
-                data: sortedItems
-            };
-        });
+        return Object.entries(grouped).map(([name, items]) => ({
+            name,
+            data: [...items].sort((a, b) => (parseInt(a.year) || 0) - (parseInt(b.year) || 0))
+        }));
     };
 
     useEffect(() => {
