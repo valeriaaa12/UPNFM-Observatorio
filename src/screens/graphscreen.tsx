@@ -242,39 +242,41 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
 
     useEffect(() => {
         const handleGraph = () => {
-            if (comparison && department) {
-                setShowGraph(
-                    selectedLevel !== "Ninguno" &&
-                    selectedYear !== "Ninguno" &&
-                    selectedDepartments.length != 0 &&
-                    showClick
-                );
-            } else if (comparison && !department) {
-                if (activeGraph != 'line') {
+            if (comparison) {
+                if (department) {
+                    // Para comparación de departamentos
                     setShowGraph(
                         selectedLevel !== "Ninguno" &&
-                        selectedYear !== "Ninguno" &&
-                        selectedMunicipios.length != 0 &&
+                        selectedDepartments.length > 0 &&
                         showClick
+                    );
+                } else {
+                    // Para comparación de municipios
+                    setShowGraph(
+                        selectedLevel !== "Ninguno" &&
+                        selectedMunicipios.length > 0 &&
+                        showClick
+                    );
+                }
+            } else {
+                // Para visualización normal (no comparación)
+                // In your useEffect for handleGraph:
+                if (activeGraph === 'line') {
+                    setShowGraph(
+                        selectedLevel !== "Ninguno" &&
+                        (department ? true : selectedDepartment !== "Ninguno") // For departments, don't require department selection
                     );
                 } else {
                     setShowGraph(
                         selectedLevel !== "Ninguno" &&
-                        selectedMunicipios.length != 0 &&
-                        showClick
+                        selectedYear !== "Ninguno" &&
+                        (department ? true : selectedDepartment !== "Ninguno")
                     );
                 }
-            } else if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph(
-                    (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") ||
-                    (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno")
-                );
-            } else if (activeGraph === 'line') {
-                setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios, showClick])
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios, showClick]);
 
     useEffect(() => {
         if (comparison && !department && showClick) {
@@ -312,22 +314,31 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
         isMunicipio = false,
         activeGraph: string
     ) => {
-        return data.filter(item =>
-            ((activeGraph === 'line' && isMunicipio) || year === "Ninguno" || item.year === year) &&
-            (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
-            (
-                isMunicipio
-                    ? (department === "Ninguno" || item.department?.toLowerCase() === department.toLowerCase())
-                    : (department === "Ninguno" || item.name.toLowerCase() === department.toLowerCase())
-            )
-        );
+        return data.filter(item => {
+            const yearCondition = activeGraph === 'line'
+                ? true  // Ignore year filter for line graphs
+                : year === "Ninguno" || item.year === year;
+
+            const levelCondition = level === "Ninguno" ||
+                item.level?.toLowerCase() === level.toLowerCase();
+
+            const locationCondition = isMunicipio
+                ? department === "Ninguno" ||
+                item.department?.toLowerCase() === department.toLowerCase()
+                : department === "Ninguno" ||
+                (!comparison && activeGraph === 'line'
+                    ? item.name.toLowerCase() === department.toLowerCase()
+                    : selectedDepartments.includes(item.name));
+
+            return yearCondition && levelCondition && locationCondition;
+        });
     };
 
     const filteredDepartments = filterData(
         departmentsData,
         selectedYear,
         selectedLevel,
-        activeGraph === 'line' && selectedDepartments.length > 0 ? selectedDepartments.join(',') : selectedDepartment,
+        selectedDepartment,
         false,
         activeGraph
     );
@@ -490,7 +501,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                     name: capitalizeWords(item.departamento.toLowerCase()),
                     legend: item.leyenda,
                     value: parseFloat(item.tasa) || 0,
-                    year: selectedYear,
+                    year: (selectedYear !== "Ninguno" ? selectedYear : item.periodo_anual?.toString()) || "",
                     level: selectedLevel
                 }));
 
@@ -613,7 +624,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
         }
     };
 
-    console.log("departmentsData", departmentsData);
     const formatDataForLineGraphD = (data: DataItem[]) =>
         [...data]
             .sort((a, b) => (parseInt(a.year) || 0) - (parseInt(b.year) || 0))
@@ -707,6 +717,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
             );
         }
         if (activeGraph === 'line') {
+            console.log("filteredDepartments", filteredDepartments);
+
             const lineData = formatDataForLineGraphD(filteredDepartments);
             const filteredLegends = legends.filter(item => item.level == selectedLevel)
             return (
@@ -1263,6 +1275,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
+                                                                (comparison) && setShowGraph(false);
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
@@ -1283,8 +1296,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
+                                                                (comparison) && setShowGraph(false);
                                                                 (department && !comparison) && setSelectedDepartment("Ninguno");
-
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1304,6 +1317,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
+                                                                (comparison) && setShowGraph(false);
                                                                 department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >

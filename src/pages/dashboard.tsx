@@ -21,6 +21,7 @@ export default function Dashboard() {
             id: "coberturaBruta",
             label: "Cobertura (Tasa Bruta)",
             dataEndpoint: "/tasabruta",
+            lineDataEndpoint: "/tasabrutaDepartamentossf",
             limitsEndpoint: "/limitesTasaBruta",
             titleKey: "TasaBruta"
         },
@@ -28,6 +29,7 @@ export default function Dashboard() {
             id: "coberturaNeta",
             label: "Cobertura (Tasa Neta)",
             dataEndpoint: "/tasaneta",
+            lineDataEndpoint: "/tasanetaDepartamentossf",
             limitsEndpoint: "/limitesTasaNeta",
             titleKey: "TasaNeta"
         },
@@ -35,6 +37,7 @@ export default function Dashboard() {
             id: "aprobacion",
             label: "Aprobación",
             dataEndpoint: "/aprobacion",
+            lineDataEndpoint: "/aprobacionDepartamentossf",
             limitsEndpoint: "/limitesAprobacion",
             titleKey: "Aprobacion"
         },
@@ -42,6 +45,7 @@ export default function Dashboard() {
             id: "desercion",
             label: "Deserción",
             dataEndpoint: "/desercion",
+            lineDataEndpoint: "/desercionDepartamentossf",
             limitsEndpoint: "/limitesDesercion",
             titleKey: "Desercion"
         },
@@ -49,6 +53,7 @@ export default function Dashboard() {
             id: "repitencia",
             label: "Repitencia",
             dataEndpoint: "/repitencia",
+            lineDataEndpoint: "/repitenciaDepartamentossf",
             limitsEndpoint: "/limitesRepitencia",
             titleKey: "Repitencia"
         },
@@ -56,6 +61,7 @@ export default function Dashboard() {
             id: "reprobacion",
             label: "Reprobación",
             dataEndpoint: "/reprobacion",
+            lineDataEndpoint: "/reprobacionDepartamentossf",
             limitsEndpoint: "/limitesReprobacion",
             titleKey: "Reprobacion"
         }

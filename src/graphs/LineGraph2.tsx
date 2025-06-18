@@ -40,14 +40,15 @@ const colorMapLegend: Record<string, string> = {
 };
 
 const defaultColors = [
-    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
-    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
-    "#ff69b4", "#00ced1", "#ffa07a", "#20b2aa", "#9370db",
-    "#3cb371", "#f4a460", "#778899"
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56',
+    '#8E44AD', '#2ECC71', '#E67E22', '#3498DB', '#E74C3C', '#1ABC9C',
+    '#9B59B6', '#F39C12', '#D35400', '#1F618D', '#7D3C98', '#117A65',
+    '#A04000', '#DE3163', '#58D68D'
 ];
 
 const LineGraph2: React.FC<LineGraphProps> = ({ data, legends, years }) => {
     const { t } = useTranslation('common');
+    const [hoveredLine, setHoveredLine] = useState<string | null>(null);
 
     const departments = useMemo(() => {
         return Array.from(new Set(data.map(d => d.departamento)));
@@ -76,7 +77,6 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends, years }) => {
             : null;
     }).filter((l): l is { message: string, color: string, lowerLimit: number } => l !== null);
 
-
     const graphData = useMemo(() => {
         const uniqueYears = [...new Set(data.map(d => d.year))]
             .sort((a, b) => parseInt(a) - parseInt(b));
@@ -92,122 +92,197 @@ const LineGraph2: React.FC<LineGraphProps> = ({ data, legends, years }) => {
         });
     }, [data]);
 
+    const departmentNames = useMemo(() => {
+        return Array.from(new Set(data.map(item => item.departamento))).filter(Boolean);
+    }, [data]);
+
+    const departmentColorMap = useMemo(() => {
+        return departmentNames.reduce((acc, name, index) => {
+            acc[name!] = defaultColors[index % defaultColors.length];
+            return acc;
+        }, {} as Record<string, string>);
+    }, [departmentNames]);
+
+    const CustomTooltip = ({ active, payload, label, hoveredLine }: any) => {
+        if (!active || !payload || !payload.length) return null;
+
+        const filteredPayload = hoveredLine
+            ? payload.filter((p: any) => p.name === hoveredLine)
+            : payload;
+
+        let legendValue: string | undefined;
+        let legendColor: string | undefined;
+        if (filteredPayload.length === 1) {
+            const entry = filteredPayload[0];
+            const original = data.find(
+                (d) => d.departamento === entry.name && d.year === label
+            );
+            legendValue = original?.legend;
+            legendColor = legendValue ? colorMapLegend[legendValue] : undefined;
+        }
+
+        return (
+            <div style={{
+                background: "#fff",
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                padding: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+            }}>
+                <p style={{ fontWeight: 'bold', marginBottom: 8 }}>Año: {label}</p>
+                {filteredPayload.map((entry: any, idx: number) => (
+                    <div key={`item-${idx}`} style={{
+                        color: entry.color,
+                        marginBottom: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}>
+                        <div >
+                            <strong>{entry.name}</strong>: {entry.value}
+                        </div>
+                    </div>
+                ))}
+                {legendValue && (
+                    <div style={{
+                        color: legendColor || '#666',
+                        fontSize: '0.95em',
+                        marginTop: 6,
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
+                        <div style={{
+                            width: 10,
+                            height: 10,
+                            backgroundColor: legendColor,
+                            marginRight: 8,
+                            borderRadius: 2
+                        }} />
+                        {legendValue}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
-        <div style={{ width: "100%", maxWidth: 1000, margin: "0 auto" }}>
-            <ResponsiveContainer width="100%" height={400}>
-                <LineChart
-                    data={graphData}
-                    margin={{ top: 20, right: 180, left: 10, bottom: 40 }}
-
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year"
-                        tick={{ fontSize: 12 }}
-                        label={{
-                            value: t("Año"),
-                            position: "insideBottom",
-                            offset: -25,
-                            fontSize: 14,
-                        }} />
-                    <YAxis
-                        tick={{ fontSize: 12 }}
-                        label={{
-                            value: t("Valor"),
-                            angle: -90,
-                            position: "insideLeft",
-                            fontSize: 14,
-                        }} />
-                    <Tooltip
-                        content={({ active, payload, label }) => {
-                            if (active && payload && payload.length) {
-                                return (
-                                    <div
-                                        style={{
-                                            background: "#fff",
-                                            border: "1px solid #ccc",
-                                            borderRadius: 6,
-                                            padding: "12px 16px",
-                                            minWidth: 200,
-                                            boxShadow: "0 2px 8px rgba(0,0,0,0.07)"
-                                        }}
-                                    >
-                                        {payload.map((entry, idx) => {
-                                            const original = data.find(
-                                                d => d.departamento === entry.name && d.year === label
-                                            );
-                                            const legendColor = legends.find(
-                                                l => l.message === original?.legend
-                                            )?.color || "#666";
-                                            return (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: 18 }}>
-                                                        <strong>{entry.name}</strong>: {entry.value}
-                                                    </div>
-                                                    <div style={{ fontSize: 14, marginBottom: 6 }}>
-                                                        <strong>{t("Año")}:</strong>  {label}
-                                                    </div>
-                                                    {original?.legend && (
-                                                        <div style={{ color: legendColor, fontSize: 13, fontWeight: 600 }}>
-                                                            {original.legend}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                );
-                            }
-                            return null;
-                        }}
-                    />
-                    {
-                        legends.map((legend, index) => (
-                            <ReferenceLine
-                                key={`lower-limit-${index}`}
-                                y={legend.lowerLimit}
-                                stroke={legend.color}
-                                strokeDasharray="3 3"
-                                label={{
-                                    value: legend.message,
-                                    position: 'right',
-                                    fill: legend.color,
-                                    fontSize: 12,
-                                }}
-                                ifOverflow="extendDomain"
-                            />
-                        ))
-                    }
-                    {
-                        departments.map((dep, index) => (
-                            <Line
+        <div style={{ width: "100%", maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+                {/* Leyenda a la izquierda */}
+                <div style={{ width: '25%', minWidth: 180, padding: '1rem', maxHeight: '500px', overflowY: 'auto' }}>
+                    <h4 style={{ marginBottom: '0.5rem' }}>{t("Departamentos")}</h4>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {departmentNames.map((name, index) => (
+                            <li
                                 key={index}
-                                type="monotone"
-                                dataKey={dep}
-                                stroke={departmentColors[dep]}
-                                dot={{ r: 2 }}
-                                strokeWidth={2}
-                            />
-                        ))
-                    }
-                    {
-                        filteredLegends.map((legend, index) => (
-                            <ReferenceLine
-                                key={`ref-${index}`}
-                                y={legend.lowerLimit}
-                                stroke={legend.color}
-                                strokeDasharray="4 4"
-                                label={{
-                                    value: legend.message,
-                                    position: 'right',
-                                    fill: legend.color,
-                                    fontSize: 11,
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginBottom: '0.3rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: hoveredLine === name ? 700 : 400,
+                                    color: hoveredLine === name ? departmentColorMap[name!] : undefined,
+                                    cursor: 'pointer',
+                                    background: hoveredLine === name ? 'rgba(0,0,0,0.04)' : undefined,
+                                    borderRadius: 3,
+                                    padding: '2px 4px'
                                 }}
+                                onMouseEnter={() => setHoveredLine(name)}
+                                onMouseLeave={() => setHoveredLine(null)}
+                            >
+                                <span
+                                    style={{
+                                        display: 'inline-block',
+                                        width: 12,
+                                        height: 10,
+                                        backgroundColor: departmentColorMap[name!],
+                                        marginRight: 6,
+                                        borderRadius: 2,
+                                        border: hoveredLine === name ? `2px solid ${departmentColorMap[name!]}` : 'none',
+                                        transition: 'border 0.2s'
+                                    }}
+                                />
+                                <span>{name}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                {/* Gráfico */}
+                <div style={{ flex: 1 }}>
+                    <ResponsiveContainer width="100%" height={400}>
+                        <LineChart
+                            data={graphData}
+                            margin={{ top: 20, right: 40, left: 10, bottom: 40 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                label={{
+                                    value: t("Año"),
+                                    position: "insideBottom",
+                                    offset: -25,
+                                    fontSize: 14,
+                                }} />
+                            <YAxis
+                                tick={{ fontSize: 12 }}
+                                label={{
+                                    value: t("Valor"),
+                                    angle: -90,
+                                    position: "insideLeft",
+                                    fontSize: 14,
+                                }} />
+                            <Tooltip
+                                content={(props) => <CustomTooltip {...props} hoveredLine={hoveredLine} />}
                             />
-                        ))
-                    }
+                            {/*{legends.map((legend, index) => (
+                                <ReferenceLine
+                                    key={`lower-limit-${index}`}
+                                    y={legend.lowerLimit}
+                                    stroke={legend.color}
+                                    strokeDasharray="3 3"
+                                    label={{
+                                        value: legend.message,
+                                        position: 'right',
+                                        fill: legend.color,
+                                        fontSize: 12,
+                                    }}
+                                    ifOverflow="extendDomain"
+                                />
+                            ))
+                            }*/}
+                            {departments.map((dep, index) => (
+                                <Line
+                                    key={index}
+                                    type="monotone"
+                                    dataKey={dep}
+                                    stroke={departmentColors[dep]}
+                                    dot={{ r: 2 }}
+                                    strokeWidth={hoveredLine === dep ? 3 : 2}
+                                    opacity={hoveredLine === null || hoveredLine === dep ? 1 : 0.25}
+                                    onMouseEnter={() => setHoveredLine(dep)}
+                                    onMouseLeave={() => setHoveredLine(null)}
+                                />
+                            ))}
+                            {
+                                filteredLegends.map((legend, index) => (
+                                    <ReferenceLine
+                                        key={`ref-${index}`}
+                                        y={legend.lowerLimit}
+                                        stroke={legend.color}
+                                        strokeDasharray="4 4"
+                                        label={{
+                                            value: legend.message,
+                                            position: 'right',
+                                            fill: legend.color,
+                                            fontSize: 11,
+                                        }}
+                                    />
+                                ))
+                            }
 
-                </LineChart >
-            </ResponsiveContainer >
+                        </LineChart >
+                    </ResponsiveContainer >
+                </div>
+            </div >
         </div >
     );
 };
