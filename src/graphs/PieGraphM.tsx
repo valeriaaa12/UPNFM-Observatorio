@@ -32,24 +32,58 @@ const PieGraphM: React.FC<PieGraphMProps> = ({ data }) => {
         }))
     ), [data]);
 
-    return (<ResponsiveContainer width="100%" height={450}>
-        <PieChart>
-            <Tooltip formatter={(value: number, name: string) => [`${value}%`, name]} />
-            <Pie
-                data={graphData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={160}
-                label={({ name }) => name}
-            >
-                {graphData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-            </Pie>
-        </PieChart>
-    </ResponsiveContainer>
+    return (
+        <ResponsiveContainer width="100%" height={450}>
+            <PieChart>
+                <Tooltip
+                    content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                            const { name, legend, department, value } = payload[0].payload;
+                            return (
+                                <div
+                                    style={{
+                                        background: "#fff",
+                                        border: "1px solid #ccc",
+                                        borderRadius: 6,
+                                        padding: "12px 16px",
+                                        minWidth: 180,
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.07)"
+                                    }}
+                                >
+                                    <div style={{ fontSize: 16, marginBottom: 4 }}>
+                                        <strong>{name}</strong>: {value}
+                                    </div>
+                                    {department && (
+                                        <div style={{ fontSize: 14, marginBottom: 2 }}>
+                                            <strong>{t("Departamento")}:</strong> {department}
+                                        </div>
+                                    )}
+                                    {legend && (
+                                        <div style={{ marginTop: 6, color: "#666", fontSize: 13 }}>
+                                            {legend}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+                        return null;
+                    }}
+                />
+                <Pie
+                    data={graphData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={160}
+                    label={({ name }) => name}
+                >
+                    {graphData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+            </PieChart>
+        </ResponsiveContainer>
     );
 };
 
