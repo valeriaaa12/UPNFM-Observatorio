@@ -305,7 +305,7 @@ a {
 
 .legends-limits-container {
   position: absolute;
-  bottom: 80px;
+  bottom:40px;
   left: 20px;
   right: 50px;
   display: flex;
@@ -315,7 +315,29 @@ a {
   gap: 20px;
   z-index: 200;
 }
-
+@media (max-width: 768px) {
+  .legends-limits-container{
+    display: none;
+  }
+}
+@media (max-width: 768px) {
+  .legends-limits-container2 {
+    position: relative;
+    bottom: 80px;
+    left: 20px;
+    right: 50px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}
+@media (min-width: 768px){
+  .legends-limits-container2{
+    display: none !important;;
+  }
+}
 .legend-box,
 .limits-box {
   background-color: white;
@@ -329,6 +351,7 @@ a {
 /* Responsive Mapas */
 @media (max-width: 768px) {
   .legends-limits-container {
+    margin-top: 100px;
     flex-direction: column;
     left: 10px;
     right: 10px;
@@ -339,9 +362,33 @@ a {
   .limits-box {
     width: 100%;
     max-width: 300px;
+
   }
 }
 
+.footerMap {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #666;
+  z-index: 1000;
+  padding: 2px 0;
+}
+@media (max-width: 768px) {
+  .footerMap{
+  position: relative; /* ya no fixed */
+  margin-top: 20px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #666;
+  background-color: white;
+  border-top: 1px solid #ccc;
+}
+}
 @media (max-width: 768px) {
   .floating-filters {
     position: fixed !important;
@@ -350,7 +397,7 @@ a {
     width: 100%;
     max-width: 300px;
     height: calc(100vh - 70px);
-    background-color: #ffffff;
+    background-color: #f8f9fa;
     z-index: 9999;
     padding: 20px;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
