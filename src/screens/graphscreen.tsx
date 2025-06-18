@@ -83,7 +83,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [showGraph, setShowGraph] = useState<boolean>(false);
     const [isHovered, setIsHovered] = useState(false);
     const [loading, setLoading] = useState(true);
-
+    const [showClick, setShowClick] = useState(false);
     const [departmentsData, setDepartmentsData] = useState<DataItem[]>([]);
     const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
@@ -231,10 +231,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     useEffect(() => {
         const handleGraph = () => {
-            if (comparison) {
+            if (comparison && department) {
                 setShowGraph(
                     selectedLevel !== "Ninguno" &&
-                    selectedYear !== "Ninguno"
+                    selectedYear !== "Ninguno" &&
+                    selectedDepartments.length != 0 &&
+                    showClick
+                );
+            }else if(comparison && !department){
+                setShowGraph(
+                    selectedLevel !== "Ninguno" &&
+                    selectedYear !== "Ninguno" &&
+                    selectedMunicipios.length != 0 && 
+                    showClick
                 );
             } else if (activeGraph === 'bar' || activeGraph === 'pie') {
                 setShowGraph(
@@ -246,8 +255,15 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios]);
-
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios, showClick])
+    
+    useEffect(()=>{
+        if(comparison && !department && showClick){
+            postComparisonMuni()
+        }else if(comparison && department && showClick){
+            postComparisonDepa()
+        }
+    },[selectedYear, selectedLevel])
     const capitalizeWords = (str: string) => {
         if (!str) return '';
         return str.toLowerCase().split(' ')
@@ -401,12 +417,26 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedDepartment, extensionData, comparison, department]);
 
+    useEffect(() => {
+        const filteredData = filteredDepartments
+        console.log(filteredData)
+        console.log(activeGraph)
+        if (activeGraph === 'line' && filteredData.length > 0) {
+            console.log("llegue")
+
+        }
+        
+    }, [filteredDepartments, activeGraph]);
+
+    
+
     const postComparisonDepa = async () => {
-        if (selectedLevel === "Ninguno" || selectedYear === "Ninguno") {
+        if (selectedLevel === "Ninguno" || (activeGraph != 'line' && selectedYear === "Ninguno")) {
             setDataSelectedFilters(true);
             return;
         }
         setLoading(true);
+    
         try {
             const config = {
                 headers: {
@@ -416,6 +446,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             };
 
             if (selectedDepartments.length > 0) {
+                setShowClick(true);
                 const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
 
                 const [data] = await Promise.all([
@@ -443,6 +474,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
+                console.log("validación")
+                console.log(departmentsData)
+                setShowGraph(true);
             } else {
                 setShowGraph(false);
             }
@@ -466,9 +500,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         setSelectedDepartmentsMuni(departamentosUnicos);
     }, [selectedMunicipios, municipiosList]);
 
-    useEffect(()=>{
-
-    }, [selectedDepartment, selectedMunicipios, selectedLevel])
     const postComparisonMuni = async () => {
         if (selectedLevel === "Ninguno" || selectedYear === "Ninguno") {
             setDataSelectedFilters(true);
@@ -484,6 +515,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             };
 
             if (selectedMunicipios.length > 0) {
+                setShowClick(true)
                 const municipiosUpper = selectedMunicipios.map(id => {
                     const muni = municipiosList.find(m => m.id === id);
                     return muni ? muni.nombre.toUpperCase() : '';
@@ -824,74 +856,71 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         window.dispatchEvent(new Event('resize'));
     };
 
-    // Imprimir el gráfico
+    
+    // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
-        if (!exportRef.current) return;
-        if (!departments ||
-            ((selectedYear === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
-            ((selectedDepartment === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
-            (!department && selectedDepartment === "Ninguno")) {
-            setDataSelectedPrint(true);
-            return;
-        }
-        if (comparison && selectedDepartments.length === 0) {
-            setDataSelectedComparison(true);
-            return;
-        }
+    if (!exportRef.current) return;
+    if (!departments ||
+        ((selectedYear  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph !== "line") ||
+        ((selectedDepartment  === "Ninguno" || selectedLevel === "Ninguno") && activeGraph === "line") ||
+        (!department && selectedDepartment === "Ninguno")) {
+        setDataSelectedPrint(true);
+        return;
+    }
+    if (comparison && selectedDepartments.length === 0) {
+        setDataSelectedComparison(true);
+        return;
+    }
 
-        const el = exportRef.current;
+    const el = exportRef.current;
 
-        const menu = el.querySelector<HTMLElement>('.chart-menu');
-        const menuDisplay = menu?.style.display;
-        if (menu) menu.style.display = 'none';
+    const menu = el.querySelector<HTMLElement>('.chart-menu');
+    const menuDisplay = menu?.style.display;
+    if (menu) menu.style.display = 'none';
 
-        const pdf = new jsPDF('landscape', 'pt', 'a4');
-        const pdfW = pdf.internal.pageSize.getWidth();
-        const pdfH = pdf.internal.pageSize.getHeight();
-        const pxW = Math.round(pdfW * 96 / 72);
-        const pxH = Math.round(pdfH * 96 / 72);
+    const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const pxW = Math.round(pdfW * 96 / 72);
+    const pxH = Math.round(pdfH * 96 / 72);
 
-        const origW = el.style.width;
-        const origH = el.style.height;
-        el.style.width = `${pxW}px`;
-        el.style.height = `${pxH}px`;
-        window.dispatchEvent(new Event('resize'));
-        await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
+    const origW = el.style.width;
+    const origH = el.style.height;
+    el.style.width  = `${pxW}px`;
+    el.style.height = `${pxH}px`;
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
 
-        // Captura
-        const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#fff',
-        });
-        const img = canvas.toDataURL('image/png');
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fff',
+    });
+    const img = canvas.toDataURL('image/png');
 
-        // Abrir ventana de impresión
-        const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
-        if (pw) {
-            pw.document.write(`
+    const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
+    if (pw) {
+        pw.document.write(`
         <html><head><title>
             ${title}
             ${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}
-            ${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}
+            ${selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""}
         </title></head>
         <body style="margin:0;padding:0;text-align:center;background:#fff">
             <img src="${img}" style="width:100%;height:auto;display:block;margin:0 auto"/>
         </body></html>
         `);
-            pw.document.close();
-            pw.focus();
-            pw.print();
-            pw.close();
-        }
+        pw.document.close();
+        pw.focus();
+        pw.print();
+        pw.close();
+    }
 
-        // Restauramos todo
-        el.style.width = origW;
-        el.style.height = origH;
-        if (menu) menu.style.display = menuDisplay || '';
-        window.dispatchEvent(new Event('resize'));
+    el.style.width  = origW;
+    el.style.height = origH;
+    if (menu) menu.style.display = menuDisplay || '';
+    window.dispatchEvent(new Event('resize'));
     };
-
     return (
         <Client>
             <div className="font" >
@@ -1076,6 +1105,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                                     onClick={() => {
                                                                         postComparisonMuni();
                                                                         setShowMunicipiosDropdown(false);
+                                                                    
                                                                     }}
                                                                     type="button"
                                                                 >
@@ -1180,7 +1210,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
-                                                                department && setSelectedDepartment("Ninguno");
+                                                                (department && !comparison) && setSelectedDepartment("Ninguno");
+                                                           
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
