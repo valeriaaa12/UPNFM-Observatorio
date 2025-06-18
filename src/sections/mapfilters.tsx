@@ -31,6 +31,7 @@ interface legend {
 //fin pruebas para exportar pdf
 
 interface params {
+  title: string;
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   selectedYear: string;
@@ -52,7 +53,7 @@ interface deptMaps {
 
 
 
-export default function MapFilters({ mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
+export default function MapFilters({ title, mapaElegido, setMapaElegido, level, setLevel, selectedYear, setSelectedYear, years, mapa, setMapa, departments, legends }: params) {
   const { t, i18n } = useTranslation('common');
   const [select, setSelect] = useState("Honduras");
   const [include, setInclude] = useState(false);
@@ -60,9 +61,9 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   const [menuName, setMenuName] = useState(t("Ninguno"));
   const changeLevel = (value: string) => {
     const levels = [
-        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
-        setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
-        setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
+      { name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
+    setMenuName(levels.find(level => level.name === value)?.name || t("Ninguno"));
+    setLevel(levels.find(level => level.name === value)?.value || "Ninguno");
   }
   const deptList: deptMaps[] = [
     { deptName: "Honduras", geojson: "/others/hn.json" },
@@ -95,17 +96,17 @@ export default function MapFilters({ mapaElegido, setMapaElegido, level, setLeve
   };
 
 
-// 0) Función de estilo reutilizable (ya tenías algo parecido)
-const styleFeature = (feature: any) => {
-  const deptName = feature.properties.NOMBRE || feature.properties.name;
-  return {
-    fillColor: getDeptColor(deptName),
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.85,
-    color: 'black'
+  // 0) Función de estilo reutilizable (ya tenías algo parecido)
+  const styleFeature = (feature: any) => {
+    const deptName = feature.properties.NOMBRE || feature.properties.name;
+    return {
+      fillColor: getDeptColor(deptName),
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.85,
+      color: 'black'
+    };
   };
-};
 
 const handlePrintMapa = async () => {
   if (typeof window === 'undefined') return;
@@ -201,7 +202,163 @@ const handlePrintMapa = async () => {
 
 
 
+const exportPNG = async (title?: string) => {
+    try {
+      if (!departments || selectedYear === "Ninguno" || level === "Ninguno") {
+        setShow(true);
+        return;
+      }
+      const baseTitle = title?.trim() || "Indicador Educativo";
+      const includeLocation = !baseTitle.includes(mapaElegido) && mapaElegido !== "Honduras" && mapaElegido !== "Ninguno";
+      const extraLocation = includeLocation ? ` en ${mapaElegido}` : "";
 
+      const titleText = `${baseTitle}${extraLocation}`;
+
+      // Ocultar elementos con clase .no-print
+      const noPrintElements = document.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+      const L = (await import("leaflet")).default;
+      const html2canvas = (await import("html2canvas")).default;
+
+      // Crear contenedor principal oculto
+      const pngContainer = document.createElement("div");
+      pngContainer.style.position = "fixed";
+      pngContainer.style.left = "-9999px";
+      pngContainer.style.width = "850px";
+      pngContainer.style.height = 'auto';
+      pngContainer.style.backgroundColor = "white";
+      pngContainer.style.display = "flex";
+      pngContainer.style.flexDirection = "column";
+      pngContainer.style.alignItems = "center";
+      pngContainer.style.padding = "20px";
+      pngContainer.style.gap = "15px";
+      document.body.appendChild(pngContainer);
+
+      // Título azul
+      const titleDIV = document.createElement("div");
+      titleDIV.style.backgroundColor = "#2c3e50";
+      titleDIV.style.color = "white";
+      titleDIV.style.textAlign = "center";
+      titleDIV.style.padding = "12px";
+      titleDIV.style.width = "100%";
+      titleDIV.style.fontSize = "20px";
+      titleDIV.style.fontWeight = "bold";
+      titleDIV.textContent = titleText;
+      pngContainer.appendChild(titleDIV);
+
+      // Mapa dinámico
+      const mapContainer = document.createElement("div");
+      mapContainer.id = "map-container";
+      mapContainer.style.width = "100%";
+      mapContainer.style.height = "500px";
+      mapContainer.style.backgroundColor = "white";
+      pngContainer.appendChild(mapContainer);
+
+      const map = L.map("map-container", {
+        zoomControl: false,
+        zoom: 7,
+        center: [14.8, -86.8],
+        renderer: L.canvas(),
+        attributionControl: false
+      });
+
+      const styleFeature = (feature: any) => {
+        const deptName = feature.properties.NOMBRE || feature.properties.name;
+        return {
+          fillColor: getDeptColor(deptName),
+          weight: 1,
+          color: "black",
+          fillOpacity: 0.85
+        };
+      };
+
+      if (mapa) {
+        const response = await fetch(mapa);
+        const data = await response.json();
+        const geoJsonLayer = L.geoJSON(data, {
+          style: styleFeature
+        }).addTo(map);
+
+        map.fitBounds(geoJsonLayer.getBounds());
+      }
+
+      // Leyenda y límites (clonados)
+      const limitsClone = document.getElementById("limits-container")?.cloneNode(true) as HTMLElement;
+      const legendClone = document.getElementById("legends-container")?.cloneNode(true) as HTMLElement;
+
+      // Ajustar estilos para prevenir problemas de posición
+      limitsClone.style.position = "static";
+      legendClone.style.position = "static";
+      limitsClone.style.margin = '0 20px 0 0'; // espacio solo entre ellos
+      legendClone.style.margin = '0';
+
+      const legendRow = document.createElement("div");
+      legendRow.style.display = "flex";
+      legendRow.style.justifyContent = "space-between";
+      legendRow.style.alignItems = "start";
+      legendRow.style.marginTop = "4px"; // ⬅️ reduce espacio arriba
+      legendRow.style.width = "100%";
+      legendRow.style.gap = "30px";
+      legendRow.appendChild(limitsClone);
+      legendRow.appendChild(legendClone);
+
+      pngContainer.appendChild(legendRow);
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.style.textAlign = "center";
+      footer.style.backgroundColor = "#e0e0e0";
+      footer.style.borderRadius = "10px";
+      footer.style.marginTop = "30px";
+      footer.style.padding = "10px";
+      footer.style.width = "100%";
+      footer.style.fontSize = "10px";
+      footer.textContent =
+        "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. " +
+        "La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). " +
+        "El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. " +
+        "El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+      pngContainer.appendChild(footer);
+
+      // Esperar a que Leaflet cargue todo
+      await new Promise(resolve => {
+        map.whenReady(() => {
+          setTimeout(resolve, 500);
+        });
+      });
+
+      // Captura del contenedor
+      const canvas = await html2canvas(pngContainer, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2
+      });
+
+      const link = document.createElement("a");
+      const fileName = `${titleText.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "")}.png`;
+      link.download = fileName;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      // Restaurar visibilidad
+      noPrintElements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+
+      // Limpieza
+      document.body.removeChild(pngContainer);
+      if (document.body.contains(limitsClone)) {
+        document.body.removeChild(limitsClone);
+      }
+      if (document.body.contains(legendClone)) {
+        document.body.removeChild(legendClone);
+      }
+
+    } catch (error) {
+      console.error("Error al exportar PNG:", error);
+    }
+  };
 
 
 
@@ -229,17 +386,7 @@ const exportPDF = async () => {
       const controls = document.querySelectorAll('.leaflet-control-container');
       controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
 
-    
-    const title = document.createElement('h2');
-    title.textContent = document.getElementById("Titulo")?.textContent || 'Map Export';
-    //const subtitle = document.createElement('h3');
-    //subtitle.textContent = level +" " + selectedYear
-    title.style.textAlign = 'center';
-    title.style.marginBottom = '20px';
-    //subtitle.style.textAlign = 'center';
-    //subtitle.style.marginBottom = '20px';
-
-    // pdf container creation
+      // pdf container creation
       const pdfContainer = document.createElement('div');
 
       pdfContainer.style.position = 'fixed';
@@ -265,8 +412,19 @@ const exportPDF = async () => {
       mapClone.style.height = '500px';
       legendClone.style.margin = '10px 0';
 
-      limitsClone.style.margin = '10px 0';
+      //      limitsClone.style.margin = '10px 0'; trying out stuff
 
+      const levelAndYear = `${level} ${selectedYear}`;
+      const cleanedTitle = (titleText ?? "").replace(levelAndYear, '').trim().replace(/[-–—]\s*$/, '').trim();
+      const title = document.createElement('h2');
+      title.textContent = cleanedTitle || 'Indicador Educativo';
+      title.style.textAlign = 'center';
+      title.style.marginBottom = '20px';
+
+      const subtitle = document.createElement('h3');
+      subtitle.textContent = `${level} ${selectedYear}`;
+      subtitle.style.textAlign = 'center';
+      subtitle.style.marginBottom = '6px';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -341,32 +499,31 @@ const exportPDF = async () => {
           tBody.appendChild(row)
 
         });
+        table.appendChild(tBody)
+        tableDiv.appendChild(table)
+        //appends al contenedor
+        pdfContainer.appendChild(title);
+        //pdfContainer.appendChild(subtitle);
+        pdfContainer.appendChild(mapDiv);
+        document.body.appendChild(pdfContainer2);
+        pdfContainer2.appendChild(tableDiv);
+        pdfContainer2.appendChild(footer);
+      } else {
+        pdfContainer.appendChild(title);
+        //pdfContainer.appendChild(subtitle);
+        pdfContainer.appendChild(mapDiv);
+        pdfContainer.appendChild(footer);
+      }
 
-      table.appendChild(tBody)
-      tableDiv.appendChild(table)
-      //appends al contenedor
-      pdfContainer.appendChild(title);
-      //pdfContainer.appendChild(subtitle);
-      pdfContainer.appendChild(mapDiv);
-      document.body.appendChild(pdfContainer2);
-      pdfContainer2.appendChild(tableDiv);
-      pdfContainer2.appendChild(footer); 
-    }else{
-      pdfContainer.appendChild(title);
-      //pdfContainer.appendChild(subtitle);
-      pdfContainer.appendChild(mapDiv);
-      pdfContainer.appendChild(footer); 
-    }
-    
-    //map clone for resizing (so it prints the same size regardless of any user zoom in)
-    const cloneMap = L.map("map-container", {
-      zoomControl: false,
-      zoom: 7,
-      center: [14.8, -86.8],
-      renderer: L.canvas(), 
-      attributionControl: false
-      
-    });
+      //map clone for resizing (so it prints the same size regardless of any user zoom in)
+      const cloneMap = L.map("map-container", {
+        zoomControl: false,
+        zoom: 7,
+        center: [14.8, -86.8],
+        renderer: L.canvas(),
+        attributionControl: false
+
+      });
 
       // Set white background
       const container = document.getElementById('map-container');
@@ -459,9 +616,7 @@ const exportPDF = async () => {
   }
 
   const exportExcel = async () => {
-
     const nombre = (mapaElegido == "Honduras") ? "Departamento" : "Municipio"
-
     if (!departments || selectedYear == "Ninguno" || level == "Ninguno") {
       setShow(true);
       return
@@ -581,6 +736,14 @@ const exportPDF = async () => {
     return dept ? dept.deptName : "Honduras"
   }
   console.log('Current language:', i18n.language);
+
+  const baseTitle = title?.replace(/\s+en\s+Honduras/i, '').trim() || "Indicador Educativo";
+  const titleText =
+    baseTitle +
+    (mapaElegido !== "Ninguno" ? ` en ${mapaElegido}` : "") +
+    (level !== "Ninguno" ? ` - ${level}` : "") +
+    (selectedYear !== "Ninguno" ? ` ${selectedYear}` : "");
+
   return (
     <>
       {/* Menú*/}
@@ -641,28 +804,31 @@ const exportPDF = async () => {
             {t("ReiniciarVista")}
           </button>
 
-          <button style={{
-            width: '100%',
-            padding: '8px',
-            backgroundColor: '#e9ecef',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-          
-          onClick={()=>exportPDF()}>
-            {t("Descargar PDF")}
-          </button>
-
           <button
             style={{
-              width:'100%', padding:'8px', backgroundColor:'#e9ecef',
-              border:'1px solid #ced4da', borderRadius:'4px', cursor:'pointer',
-              marginTop:'8px'
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer'
             }}
-            onClick={handlePrintMapa}
+            onClick={() => exportPDF()}>
+            {t("Descargar")}
+          </button>
+          <button
+            onClick={() => exportPNG(titleText)}
+            style={{
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#e9ecef',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '8px'
+            }}
           >
-            {t("Imprimir Mapa")}
+            Descargar Mapa
           </button>
 
           <Form>

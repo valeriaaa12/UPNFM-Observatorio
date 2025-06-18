@@ -41,6 +41,7 @@ const Demo = () => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             console.log("✅ Usuario autenticado:", user.email);
+            console.log("UID del usuario:", user?.uid);
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/esAdmin/${user.uid}`);
             const data = await response.json();
@@ -54,11 +55,11 @@ const Demo = () => {
                 console.log("👤 Usuario no es administrador");
                 setUser({ uid: user.uid, email: user.email!, admin: false });
                 router.push('/landingpage');
-            }
+            };
         } catch (error: any) {
             console.error("❌ Error en login:", error);
             setError("Credenciales inválidas. Intenta nuevamente.");
-        }
+        };
     };
 
 

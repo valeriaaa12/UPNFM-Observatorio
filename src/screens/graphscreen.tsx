@@ -66,30 +66,41 @@ interface DataItem {
     department?: string;
 }
 
+interface Municipios {
+    nombre: string;
+    departamento: string;
+}
+
 export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
+    const { t } = useTranslation('common');
     const exportRef = useRef<HTMLDivElement>(null);
     const [selectedYear, setSelectedYear] = useState<string>("Ninguno");
     const [selectedLevel, setSelectedLevel] = useState<string>("Ninguno");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("Ninguno");
     const [showGraph, setShowGraph] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [loading, setLoading] = useState(true);
+
     const [departmentsData, setDepartmentsData] = useState<DataItem[]>([]);
     const [municipios, setMunicipios] = useState<DataItem[] | null>([]);
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [legends, setLegends] = useState<Legend[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [years, setYears] = useState<string[]>([]);
-    const { t } = useTranslation('common');
-    const levels2 = [t("Ninguno"), t("Pre-basica"), t("BasicaI"), t("BasicaII"), t("BasicaIII"), t("Basica1y2"), t("Basica1,2,3"), t("Media")];
-    const levels = [
-        {  name: t("Ninguno"), value: "Ninguno"}, {name: t("Pre-basica"), value: "Pre-básica"}, {name: t("BasicaI"), value: "Básica I Ciclo"}, {name: t("BasicaII"), value: "Básica II Ciclo"}, {name: t("BasicaIII"), value: "Básica III Ciclo"}, {name: t("Basica1y2"), value: "Básica I-II Ciclo"}, {name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo"}, {name: t("Media"), value: "Media"}];
+    const levels = [{ name: t("Ninguno"), value: "Ninguno" }, { name: t("Pre-basica"), value: "Pre-básica" }, { name: t("BasicaI"), value: "Básica I Ciclo" }, { name: t("BasicaII"), value: "Básica II Ciclo" }, { name: t("BasicaIII"), value: "Básica III Ciclo" }, { name: t("Basica1y2"), value: "Básica I-II Ciclo" }, { name: t("Basica1,2,3"), value: "Básica I-II-III Ciclo" }, { name: t("Media"), value: "Media" }];
     const departments = ["Atlántida", "Choluteca", "Colón", "Comayagua", "Copán", "Cortés", "El Paraíso",
         "Francisco Morazán", "Gracias a Dios", "Intibucá", "Islas de la Bahía", "La Paz", "Lempira",
         "Ocotepeque", "Olancho", "Santa Bárbara", "Valle", "Yoro"];
     const [activeGraph, setActiveGraph] = useState<'bar' | 'line' | 'pie'>('bar');
-    const [activeFilter, setActiveFilter] = useState<'year' | 'department'>('year');
-    const [isHovered, setIsHovered] = useState(false);
+    const [municipiosList, setMuniList] = useState<Municipios[]>([]);
+
+    //comparacion
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
-    
+    //comparacion municipios
+    const [selectedDepartmentsMuni, setSelectedDepartmentsMuni] = useState<string[]>([]);
+    const [selectedMunicipios, setSelectedMunicipios] = useState<string[]>([]);
+    const [showMunicipiosDropdown, setShowMunicipiosDropdown] = useState(false);
+
     //states para validaciones de menu
     const [dataSelectedImg, setDataSelectedImg] = useState<boolean>(false);
     const [dataSelectedPdf, setDataSelectedPdf] = useState<boolean>(false);
@@ -97,15 +108,16 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const [dataSelectedPrint, setDataSelectedPrint] = useState<boolean>(false);
     const [dataSelectedComparison, setDataSelectedComparison] = useState<boolean>(false);
 
+    //pruebas
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
 
-        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment==="Ninguno")) {
+        if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
             setDataSelectedExcel(true);
             return
         }
-        
-        if(comparison && selectedDepartments.length === 0) {
+
+        if (comparison && selectedDepartments.length === 0) {
             setDataSelectedComparison(true);
             return;
         }
@@ -210,12 +222,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         color: "#FFFFFF"
     }
 
-  
+
     useEffect(() => {
         const handleGraph = () => {
             if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !=="Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
-                console.log(showGraph)
+                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
@@ -224,6 +235,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
 
     const capitalizeWords = (str: string) => {
+        if (!str) return '';
         return str.toLowerCase().split(' ')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
@@ -264,8 +276,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         );
     };
 
+    // Si está en modo comparación y no es departamento, usar departmentsData para municipios comparados
     const filteredDepartments = filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, false, activeGraph);
-    const filteredMunicipios = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
+    const filteredMunicipios = comparison && !department
+        ? filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, true, activeGraph)
+        : filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
 
     const fetchData = async () => {
         setLoading(true);
@@ -281,7 +296,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, config),
                 axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLimits}`, config)
             ]);
-
+            console.log("legends1")
+            console.log(legends.data)
             const departmentsData2: DataItem[] = departamentos.data.map((item: any) => ({
                 name: capitalizeWords(item.departamento?.toLowerCase() || ""),
                 legend: item.leyenda || "",
@@ -294,16 +310,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             const legendsData: Legend[] = legends.data.map((item: any) => ({
                 level: item.nivel || "",
                 message: item.leyenda || "",
-                lowerLimit: item.limite_inferior ?? 0,
-                upperLimit: item.limite_superior ?? 0,
+                lowerLimit: item.limite_inferior || item.min || 0,
+                upperLimit: item.limite_superior || item.max || 0,
                 color: item.color || "#808080"
             }));
 
             const legendsWithColors = assignColorsToLegends(legendsData);
 
             setDepartmentsData(departmentsData2);
-            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
             setLegends(legendsWithColors);
+            applyFilters(departmentsData, selectedYear, selectedLevel, selectedDepartment);
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -334,9 +351,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
                     const municipiosData = municipios.data.map((item: any) => ({
                         name: item.municipio
-                            ? capitalizeWords(item.municipio.toString().toLowerCase())
+                            ? capitalizeWords(item.municipio.toString())
                             : item.departamento
-                                ? capitalizeWords(item.departamento.toString().toLowerCase())
+                                ? capitalizeWords(item.departamento.toString())
                                 : 'Sin nombre',
                         value: parseFloat(item.tasa) || 0,
                         legend: item.leyenda,
@@ -364,7 +381,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedDepartment, extensionData, comparison, department]);
 
-    const postComparison = async () => {
+    const postComparisonDepa = async () => {
         setLoading(true);
         try {
             const config = {
@@ -377,7 +394,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             if (selectedDepartments.length > 0) {
                 const departmentsUpper = selectedDepartments.map(dep => dep.toUpperCase());
 
-                console.log("departmentsUpper", departmentsUpper);
                 const [data] = await Promise.all([
                     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
                         nivel: selectedLevel, periodo_anual: selectedYear, departamentos: departmentsUpper,
@@ -404,6 +420,68 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                 setDepartmentsData(departmentsData2);
                 applyFilters(departmentsData2, selectedYear, selectedLevel, selectedDepartment);
 
+            } else {
+                setShowGraph(false);
+            }
+        } catch (error: any) {
+            if (error.response) {
+                console.error("Backend error:", error.response.data);
+            } else {
+                console.error("Error:", error.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const departamentos = municipiosList
+            .filter(muni => selectedMunicipios.includes(muni.nombre))
+            .map(muni => muni.departamento);
+
+        const departamentosUnicos = Array.from(new Set(departamentos));
+        setSelectedDepartmentsMuni(departamentosUnicos);
+    }, [selectedMunicipios, municipiosList]);
+
+    const postComparisonMuni = async () => {
+        setLoading(true);
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+
+            if (selectedMunicipios.length > 0) {
+                const municipiosUpper = selectedMunicipios.map(muni => muni.toUpperCase());
+                const departamentosUpper = selectedDepartmentsMuni.map(dep => dep.toUpperCase());
+
+                const [data] = await Promise.all([
+                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
+                        departamentos: departamentosUpper, municipios: municipiosUpper, nivel: selectedLevel, periodo_anual: selectedYear
+                    }, config)
+                ]);
+
+                const muniData: DataItem[] = data.data.map((item: any) => ({
+                    name: capitalizeWords(item.municipio.toLowerCase()),
+                    legend: item.leyenda,
+                    value: parseFloat(item.tasa) || 0,
+                    year: selectedYear,
+                    level: selectedLevel
+                }));
+
+                const legendsData: Legend[] = data.data.map((item: any) => ({
+                    level: item.nivel,
+                    message: item.leyenda,
+                    lowerLimit: parseFloat(item.min) || 0,
+                    upperLimit: parseFloat(item.max) || 0
+                }));
+
+                const legendsWithColors = assignColorsToLegends(legendsData);
+                setLegends(legendsWithColors);
+                setDepartmentsData(muniData);
+                applyFilters(muniData, selectedYear, selectedLevel, selectedDepartment);
             }
         } catch (error: any) {
             if (error.response) {
@@ -477,12 +555,29 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     };
 
     useEffect(() => {
-        getYears();
+        const getYears = async () => {
+            try {
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    }
+                };
+
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config);
+                setYears(response.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
         if (!comparison && department) {
             fetchData();
         } else {
             setLoading(false);
         }
+
+        getYears();
     }, []);
 
     useEffect(() => {
@@ -491,6 +586,33 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     }, [selectedYear, selectedLevel, selectedDepartment, departmentsData]);
 
+    const fetchMunicipios = async (departamentos: string[]) => {
+        setSelectedDepartmentsMuni([]);
+        if (!departamentos || departamentos.length === 0) {
+            setMuniList([]);
+            return;
+        }
+        try {
+            let allMunicipios: Municipios[] = [];
+            for (const dept of departamentos) {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/getMunicipios`,
+                    { params: { departamento: dept.toUpperCase() } }
+                );
+                const municipiosDept = response.data.map((item: any) => ({
+                    nombre: capitalizeWords(item.municipio) || capitalizeWords(item.nombre),
+                    departamento: dept
+                }));
+                allMunicipios = allMunicipios.concat(municipiosDept);
+            }
+            setMuniList(allMunicipios);
+            setSelectedMunicipios(prev =>
+                prev.filter(nombre => allMunicipios.some(muni => muni.nombre === nombre))
+            );
+        } catch (error) {
+            console.error("Error fetching municipios:", error);
+        }
+    };
 
     const renderGraphD = () => {
         if (activeGraph === 'bar') {
@@ -500,15 +622,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
+
                 />
             );
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphD(filteredDepartments);
+            const filteredLegends = legends.filter(item => item.level == selectedLevel)
             return (
                 <LineGraph
                     data={lineData}
-                    legends={legends}
+                    legends={filteredLegends}
                     years={years}
                 />
             );
@@ -535,6 +659,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
         if (activeGraph === 'line') {
             const lineData = formatDataForLineGraphM(filteredMunicipios);
+
             return (
                 <LineGraphM
                     data={lineData}
@@ -543,7 +668,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
             );
         }
         if (activeGraph === 'pie') {
-            console.log("filteredMunicipios", filteredMunicipios)
             return (
                 <PieGraphM
                     data={filteredMunicipios}
@@ -552,115 +676,32 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         }
     };
 
-    const renderFilter = () => {
+    const handleCheck = (dept?: string, muni?: string) => {
         if (department) {
-            if (activeFilter === 'year') {
-                return (
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                            {t("Año")}:
-                        </label>
-                        <select
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                            <option value="Ninguno">{t("Ninguno")}</option>
-                            {years.map(year => (
-                                <option key={year} value={year}>
-                                    {year}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )
-            } else {
-                return (
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                            {t("Departamento")}:
-                        </label>
-                        <select
-                            value={selectedDepartment}
-                            onChange={(e) => setSelectedDepartment(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                            <option value="Ninguno">{t("Ninguno")}</option>
-                            {departments.map((department, index) => (
-                                <option key={index} value={department}>
-                                    {department}
-                                </option>
-                            ))}
-                        </select>
-                    </div >
-                )
+            if (dept) {
+                setSelectedDepartments((prev: string[]) =>
+                    prev.includes(dept)
+                        ? prev.filter((d: string) => d !== dept)
+                        : [...prev, dept]
+                );
             }
         } else {
-            return (
-                <>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                            {t("Año")}:
-                        </label>
-                        <select
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                            <option value="Ninguno">{t("Ninguno")}</option>
-                            {years.map(year => (
-                                <option key={year} value={year}>
-                                    {year}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                            {t("Departamento")}:
-                        </label>
-                        <select
-                            value={selectedDepartment}
-                            onChange={(e) => setSelectedDepartment(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                            <option value="Ninguno">{t("Ninguno")}</option>
-                            {departments.map((department, index) => (
-                                <option key={index} value={department}>
-                                    {department}
-                                </option>
-                            ))}
-                        </select>
-                    </div >
-                </>
-            )
+            if (dept) {
+                setSelectedDepartmentsMuni((prev: string[]) =>
+                    prev.includes(dept)
+                        ? prev.filter((d: string) => d !== dept)
+                        : [...prev, dept]
+                );
+            }
+            if (muni) {
+                setSelectedMunicipios((prev: string[]) =>
+                    prev.includes(muni)
+                        ? prev.filter((d: string) => d !== muni)
+                        : [...prev, muni]
+                );
+            }
         }
-    }
-
-
-    const handleCheck = (dept: string) => {
-        setSelectedDepartments((prev: string[]) =>
-            prev.includes(dept)
-                ? prev.filter((d: string) => d !== dept)
-                : [...prev, dept]
-        );
     };
-
-    const getYears = async () => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
-                }
-            };
-
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/periodosAnuales`, config);
-            setYears(response.data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    }
 
     const handleDownloadImage = async () => {
     if (!exportRef.current) return;
@@ -864,8 +905,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     window.dispatchEvent(new Event('resize'));
     };
 
-
-
     return (
         <Client>
             <div className="font" >
@@ -896,11 +935,11 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                     ))}
                                 </select>
                             </div>
-                            {/* Filtros de comparacion */}
-                            {comparison ? (
+                            {/* Filtros */}
+                            {(activeGraph !== 'line') && (
                                 <>
                                     {/* Año */}
-                                    <div style={{ flex: 1, minWidth: '220px' }}>
+                                    <div style={{ flex: 1, minWidth: '200px' }}>
                                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
                                             {t("Año")}:
                                         </label>
@@ -917,50 +956,157 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                             ))}
                                         </select>
                                     </div>
-                                    {/* Departamento */}
+                                </>
+                            )
+                            }
+                            {comparison && (
+                                <>
+                                    {/* Departamentos */}
                                     <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                                         <Dropdown autoClose={false}>
                                             <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
                                                 {t("Departamento")}
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
-                                                {departments.map((dept) => (
+                                                {departments.map((dept: string) => (
                                                     <Dropdown.Item
                                                         key={dept}
                                                         as="div"
                                                         className="px-2"
                                                         onClick={e => e.stopPropagation()}
                                                     >
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            id={`dept-${dept}`}
-                                                            label={dept}
-                                                            checked={selectedDepartments.includes(dept)}
-                                                            onChange={() => handleCheck(dept)}
-                                                        />
+                                                        {department ? (
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                id={`dept-${dept}`}
+                                                                label={dept}
+                                                                checked={selectedDepartments.includes(dept)}
+                                                                onChange={() => handleCheck(dept, undefined)}
+                                                            />
+                                                        ) : (
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                id={`dept-${dept}`}
+                                                                label={dept}
+                                                                checked={selectedDepartmentsMuni.includes(dept)}
+                                                                onChange={() => handleCheck(dept, undefined)}
+                                                            />
+                                                        )}
+
                                                     </Dropdown.Item>
                                                 ))}
                                                 <Dropdown.Divider />
-                                                <div className="d-flex px-2 py-1 justify-content-end ">
-                                                    <button
-                                                        className="btn btn-blue"
-                                                        onClick={postComparison}
-                                                        type="button"
-                                                    >
-                                                        Graficar
-                                                    </button>
-                                                </div>
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </div>
+                                                {
+                                                    department ? (
+                                                        <div className="d-flex px-2 py-1 justify-content-end ">
+                                                            <button
+                                                                className="btn btn-blue"
+                                                                onClick={postComparisonDepa}
+                                                                type="button"
+                                                            >
+                                                                Graficar
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="d-flex px-2 py-1 justify-content-end ">
+                                                            <button
+                                                                className="btn btn-blue"
+                                                                onClick={() => {
+                                                                    fetchMunicipios(selectedDepartmentsMuni);
+                                                                    setShowMunicipiosDropdown(true);
+                                                                }}
+                                                                type="button"
+                                                            >
+                                                                Listar Municipios
+                                                            </button>
+                                                        </div>)
+                                                }
+
+                                            </Dropdown.Menu >
+                                        </Dropdown >
+                                    </div >
                                 </>
-                            ) : (
-                                renderFilter()
-                            )}
-                        </div>
+                            )
+                            }
+
+                            {
+                                (!comparison) && (
+                                    <div style={{ flex: 1, minWidth: '200px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                                            {t("Departamento")}:
+                                        </label>
+                                        <select
+                                            value={selectedDepartment}
+                                            onChange={(e) => setSelectedDepartment(e.target.value)}
+                                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                        >
+                                            <option value="Ninguno">{t("Ninguno")}</option>
+                                            {departments.map((department, index) => (
+                                                <option key={index} value={department}>
+                                                    {department}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div >
+                                )
+                            }
+                            {
+                                (comparison && !department) && (
+                                    <>
+                                        {/* Municipios */}
+                                        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                            <Dropdown autoClose={false} show={showMunicipiosDropdown} onToggle={setShowMunicipiosDropdown}>
+                                                <Dropdown.Toggle className='btn-orange' style={{ width: '100%', minHeight: '45px' }}>
+                                                    {t("Municipios")}
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'auto', width: '100%' }}>
+                                                    {municipiosList.length === 0 ? (
+                                                        <div className="px-2 py-1 text-center text-muted">
+                                                            {t("Seleccione un departamento y luego haga click en 'Listar Municipios'")}
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {municipiosList.map((muni: Municipios) => (
+                                                                <Dropdown.Item
+                                                                    key={muni.nombre}
+                                                                    as="div"
+                                                                    className="px-2"
+                                                                    onClick={e => e.stopPropagation()}
+                                                                >
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        id={`muni-${muni.nombre}`}
+                                                                        label={muni.nombre}
+                                                                        checked={selectedMunicipios.includes(muni.nombre)}
+                                                                        onChange={() => handleCheck(undefined, muni.nombre)}
+                                                                    />
+                                                                </Dropdown.Item>
+                                                            ))}
+                                                            <Dropdown.Divider />
+                                                            <div className="d-flex px-2 py-1 justify-content-end ">
+                                                                <button
+                                                                    className="btn btn-blue"
+                                                                    onClick={() => {
+                                                                        postComparisonMuni();
+                                                                        setShowMunicipiosDropdown(false);
+                                                                    }}
+                                                                    type="button"
+                                                                >
+                                                                    Graficar
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
+                                    </>
+                                )
+                            }
+                        </div >
                         <div ref={exportRef}>
                             <h2 style={{ marginBottom: '20px' }}>
-                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {selectedYear !== "Ninguno" ? `(${selectedYear})` : ""}
+                                {title} {selectedLevel !== "Ninguno" ? `- ${selectedLevel}` : ""} {(selectedYear !== "Ninguno" && (activeGraph != "line" || comparison)) ? `(${selectedYear})` : ""}
                             </h2>
                             <div
                                 style={{
@@ -995,17 +1141,17 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                             >
                                                 {department ? renderGraphD() : renderGraphM()}
                                             </div> :
-                                            <div
-                                                style={{
-                                                    flex: 1,
-                                                    minWidth: '300px',
-                                                    position: 'relative',
-                                                    overflow: 'hidden',
-                                                    background: '#fff'
-                                                }}
-                                            >
-                                                
-                                            </div>}
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: '300px',
+                                                        position: 'relative',
+                                                        overflow: 'hidden',
+                                                        background: '#fff'
+                                                    }}
+                                                >
+
+                                                </div>}
 
                                             {/* Menú derecho */}
                                             <div className='chart-menu' style={{
@@ -1026,8 +1172,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('bar');
-                                                                setActiveFilter('year');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
                                                             <i className="bi bi-bar-chart-line"></i>
@@ -1047,8 +1193,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('line');
-                                                                setActiveFilter('department');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
@@ -1068,8 +1214,8 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             active={false}
                                                             onClick={() => {
                                                                 setActiveGraph('pie');
-                                                                setActiveFilter('year');
                                                                 setSelectedDepartment("Ninguno");
+                                                                department && setSelectedDepartment("Ninguno");
                                                             }}
                                                         >
 
@@ -1166,22 +1312,22 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                         height: '100%',
                                         color: '#666'
                                     }}>
-                                        No hay datos disponibles para los filtros seleccionados
+                                        {t("No hay datos disponibles para los filtros seleccionados")}
                                     </div>
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </div >
                 )}
 
-                
+
                 <MessageModal title='Error' message={t('select_filters_download_images')} footer="" show={dataSelectedImg} onHide={() => setDataSelectedImg(false)} />
                 <MessageModal title='Error' message={t('select_filters_download_pdf')} footer="" show={dataSelectedPdf} onHide={() => setDataSelectedPdf(false)} />
                 <MessageModal title='Error' message={t('select_filters_download_excel')} footer="" show={dataSelectedExcel} onHide={() => setDataSelectedExcel(false)} />
                 <MessageModal title='Error' message={t('select_filters_print')} footer="" show={dataSelectedPrint} onHide={() => setDataSelectedPrint(false)} />
                 <MessageModal title='Error' message={t('select_departments_compare')} footer="" show={dataSelectedComparison} onHide={() => setDataSelectedComparison(false)} />
-                
-            </div>
+
+            </div >
         </Client >
     );
 }
