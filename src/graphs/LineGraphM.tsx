@@ -153,7 +153,7 @@ const LineGraphM: React.FC<LineGraphMProps> = ({ data, years }) => {
                                                 {filteredPayload.map((entry: any, index: number) => (
                                                     <div key={index} style={{ color: entry.color, fontSize: 13 }}>
                                                         <span style={{ fontWeight: 500 }}>
-                                                            <strong>{entry.name}</strong>: {entry.value?.toLocaleString(undefined, { maximumFractionDigits: 2 })}%</span>
+                                                            <strong>{entry.name}</strong>: {entry.value?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                                                     </div>
                                                 ))}
                                             </div>

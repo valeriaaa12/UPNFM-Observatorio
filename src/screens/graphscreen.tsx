@@ -229,15 +229,21 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     useEffect(() => {
         const handleGraph = () => {
             if (comparison) {
-                setShowGraph(selectedLevel !== "Ninguno" && selectedYear !== "Ninguno" && selectedDepartments.length > 0);
+                setShowGraph(
+                    selectedLevel !== "Ninguno" &&
+                    selectedYear !== "Ninguno"
+                );
             } else if (activeGraph === 'bar' || activeGraph === 'pie') {
-                setShowGraph((department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") || (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno"));
+                setShowGraph(
+                    (department && selectedYear !== "Ninguno" && selectedLevel !== "Ninguno") ||
+                    (!department && selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno" && selectedYear !== "Ninguno")
+                );
             } else if (activeGraph === 'line') {
                 setShowGraph(selectedDepartment !== "Ninguno" && selectedLevel !== "Ninguno");
             }
         };
         handleGraph();
-    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph]);
+    }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios]);
 
     const capitalizeWords = (str: string) => {
         if (!str) return '';
@@ -300,8 +306,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         department: item.department ?? ""
     }));
 
-    console.log("Filtered Departments:", filteredDepartments);
-    console.log("Data:", departmentsData);
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -433,6 +437,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     upperLimit: parseFloat(item.max) || 0
                 }));
 
+                console.log("datos" + departmentsData2.length)
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
@@ -615,7 +620,6 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     yAxisKey="value"
                     legendKey="legend"
                     legends={legends}
-
                 />
             );
         }
