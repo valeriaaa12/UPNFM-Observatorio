@@ -243,6 +243,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
     useEffect(() => {
         const handleGraph = () => {
             if (comparison) {
+                return
+            }
+            if (comparison) {
                 if (department) {
                     // Para comparación de departamentos
                     setShowGraph(
@@ -260,11 +263,12 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                 }
             } else {
                 // Para visualización normal (no comparación)
-                // In your useEffect for handleGraph:
                 if (activeGraph === 'line') {
                     setShowGraph(
                         selectedLevel !== "Ninguno" &&
-                        (department ? true : selectedDepartment !== "Ninguno") // For departments, don't require department selection
+                        (department
+                            ? selectedDepartment !== "Ninguno" // Ahora sí requiere departamento seleccionado
+                            : selectedDepartment !== "Ninguno")
                     );
                 } else {
                     setShowGraph(
@@ -277,6 +281,15 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
         };
         handleGraph();
     }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios, showClick]);
+
+    useEffect(() => {
+        if (activeGraph === 'line') {
+            setSelectedYear("Ninguno");
+        }
+        else if (selectedYear === "Ninguno" && years.length > 0) {
+            setSelectedYear("Ninguno");
+        }
+    }, [activeGraph, years]);
 
     useEffect(() => {
         if (comparison && !department && showClick) {
@@ -612,6 +625,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, ext
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setMunicipios(muniData);
+                setShowGraph(true)
             }
         } catch (error: any) {
             if (error.response) {
