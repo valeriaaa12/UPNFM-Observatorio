@@ -115,43 +115,41 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       return;
     }
 
-    // 2) Crear contenedor oculto con espacio arriba
-    const printContainer = document.createElement('div');
-    Object.assign(printContainer.style, {
+    const L = (await import('leaflet')).default;
+    const html2canvas = (await import('html2canvas')).default;
+
+    // Crear contenedor oculto
+    const container = document.createElement('div');
+    Object.assign(container.style, {
       position: 'fixed',
       top: '0',
       left: '-9999px',
-      width: '800px',
-      // aquí agregamos padding para que el título no se corte
-      paddingTop: '40px',
-      background: 'white',
-      overflow: 'hidden',
+      width: '850px',
+      backgroundColor: 'white',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '20px'
     });
-    document.body.appendChild(printContainer);
+    document.body.appendChild(container);
 
-    // 3) CLONAR EL TÍTULO ANTES DEL MAPA
-    const titulo = document.getElementById('Titulo');
-    if (titulo) {
-      const tituloClone = titulo.cloneNode(true) as HTMLElement;
-      // Opcional: un pequeño margin-bottom
-      tituloClone.style.marginBottom = '20px';
-      printContainer.appendChild(tituloClone);
-    }
+    // Título
+    const titleText = document.getElementById("Titulo")?.textContent || "Indicador Educativo";
+    const title = document.createElement("div");
+    title.textContent = titleText;
+    title.style.fontSize = "20px";
+    title.style.fontWeight = "bold";
+    title.style.textAlign = "center";
+    container.appendChild(title);
 
-    // 4) Clonar límites, leyenda e info
-    (['limits-container', 'legends-container', 'info-container'] as const).forEach(id => {
-      const el = document.getElementById(id);
-      if (el) printContainer.appendChild(el.cloneNode(true));
-    });
-
-    // 5) Clonar el mapa en fondo blanco
+    // Mapa
     const mapDiv = document.createElement('div');
     mapDiv.style.width = '100%';
     mapDiv.style.height = '500px';
-    mapDiv.style.backgroundColor = 'white';    // fondo blanco
-    printContainer.appendChild(mapDiv);
+    mapDiv.style.backgroundColor = 'white';
+    container.appendChild(mapDiv);
 
-    const L = (await import('leaflet')).default;
     const mapClone = L.map(mapDiv, {
       zoomControl: false,
       attributionControl: false,
@@ -159,45 +157,99 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       zoom: 7,
       renderer: L.canvas()
     });
-    const resp = await fetch(mapa);
-    const geoData = await resp.json();
-    const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
-    mapClone.fitBounds((layer as any).getBounds());
 
+    const response = await fetch(mapa);
+    const geoData = await response.json();
+    const layer = L.geoJSON(geoData, { style: styleFeature }).addTo(mapClone);
+    mapClone.fitBounds(layer.getBounds());
+
+    // Esperar render
     await new Promise(r => setTimeout(r, 500));
 
-    // 6) Fuente (igual que antes)
-    const fuenteDiv = document.createElement('div');
-    fuenteDiv.style.textAlign = "center";
-    fuenteDiv.style.width = '100%';
-    fuenteDiv.style.backgroundColor = "#e0e0e0";
-    fuenteDiv.style.borderRadius = '20px';
-    fuenteDiv.style.padding = '10px';
-    fuenteDiv.style.marginTop = '20px';
-    fuenteDiv.textContent =
-      "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados…";
-    printContainer.appendChild(fuenteDiv);
+    // Límites y leyenda
+    const limitsClone = document.getElementById("limits-container")?.cloneNode(true) as HTMLElement;
+    const legendClone = document.getElementById("legends-container")?.cloneNode(true) as HTMLElement;
 
-    // 7) Capturar e imprimir
-    const canvas = await html2canvas(printContainer, { scale: 2, useCORS: true });
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "flex-start";
+    row.style.width = "100%";
+    row.style.gap = "30px";
+
+    row.appendChild(limitsClone);
+    row.appendChild(legendClone);
+    container.appendChild(row);
+
+    // Footer
+    const footer = document.createElement('div');
+    footer.style.backgroundColor = '#e0e0e0';
+    footer.style.padding = '10px';
+    footer.style.borderRadius = '10px';
+    footer.style.fontSize = '11px';
+    footer.style.textAlign = 'center';
+    footer.textContent =
+      "© 2025 observatorio.upnfm.edu.hn Todos los derechos reservados. " +
+      "La información y los formatos presentados en este dashboard están protegidos por derechos de autor y son propiedad exclusiva del Observatorio Universitario de la Educación Nacional e Internacional (OUDENI) de la UPNFM de Honduras (observatorio.upnfm.edu.hn). " +
+      "El uso de esta información está únicamente destinado a fines educativos, de investigación y para la toma de decisiones. " +
+      "El OUDENI-UPNFM no se responsabiliza por el uso indebido de los datos aquí proporcionados.";
+    container.appendChild(footer);
+
+    // Capturar canvas
+    const canvas = await html2canvas(container, { scale: 2, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
-    const pw = window.open('', '_blank', 'width=900,height=650');
-    if (pw) {
-      pw.document.write(`
-      <html>
-        <head><title>Imprimir Mapa</title></head>
-        <body style="margin:0;padding:0;text-align:center;">
-          <img src="${imgData}" style="width:100%;height:auto;"/>
-        </body>
-      </html>
-    `);
-      pw.document.close();
-      pw.focus();
-      pw.print();
-      pw.close();
+
+    // Crear ventana nueva
+    const printWindow = window.open('', '_blank', 'width=900,height=650');
+    if (!printWindow) {
+      console.error("No se pudo abrir la ventana de impresión");
+      return;
     }
-    document.body.removeChild(printContainer);
+
+    // HTML completo con imagen y carga segura
+    printWindow.document.write(`
+    <html>
+      <head>
+        <title>Imprimir Mapa</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background: white;
+          }
+          img {
+            width: 100%;
+            height: auto;
+          }
+        </style>
+      </head>
+      <body>
+        <img id="print-img" src="${imgData}" />
+      </body>
+    </html>
+  `);
+
+    // Esperar carga de la imagen antes de imprimir
+    printWindow.document.close();
+    printWindow.onload = () => {
+      const img = printWindow.document.getElementById('print-img') as HTMLImageElement;
+      if (img.complete) {
+        printWindow.print();
+        printWindow.close();
+      } else {
+        img.onload = () => {
+          printWindow.print();
+          printWindow.close();
+        };
+      }
+    };
+
+    // Limpieza
+    document.body.removeChild(container);
   };
+
+
 
 
 
@@ -360,10 +412,6 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
     }
   };
 
-
-
-
-
   const exportPDF = async () => {
     try {
       if (typeof window === 'undefined' || !document) return;
@@ -377,10 +425,6 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       const L = (await import('leaflet')).default;
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
-
-
-      const legendContainer = document.getElementById('legends-container') as HTMLElement;
-      const limitsContainer = document.getElementById('limits-container') as HTMLElement;
 
       // hide controls
       const controls = document.querySelectorAll('.leaflet-control-container');
@@ -397,33 +441,71 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       //subtitle.style.marginBottom = '20px';
 
       // pdf container creation
-      const pdfContainer = document.createElement('div');
-
-      pdfContainer.style.position = 'fixed';
-      pdfContainer.style.left = '-9999px';
-      pdfContainer.style.width = '800px';
-      pdfContainer.style.height = '1100px';
-
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "fixed";
+      pdfContainer.style.left = "-9999px";
+      pdfContainer.style.width = "850px";
+      pdfContainer.style.minHeight = "1100px";
+      pdfContainer.style.backgroundColor = "white";
+      pdfContainer.style.display = "flex";
+      pdfContainer.style.flexDirection = "column";
+      pdfContainer.style.alignItems = "center";
+      pdfContainer.style.padding = "20px";
+      pdfContainer.style.gap = "15px";
       document.body.appendChild(pdfContainer);
+
       const pdfContainer2 = document.createElement('div');
 
-      pdfContainer2.style.position = 'fixed';
-      pdfContainer2.style.right = '-9999px';
-      pdfContainer2.style.width = '800px';
-      pdfContainer2.style.height = '1100px';
+      pdfContainer2.style.position = "fixed";
+      pdfContainer2.style.right = "-9999px";
+      pdfContainer2.style.width = "850px";
+      pdfContainer2.style.minHeight = "1100px";
+      pdfContainer2.style.backgroundColor = "white";
+      pdfContainer2.style.display = "flex";
+      pdfContainer2.style.flexDirection = "column";
+      pdfContainer2.style.alignItems = "center";
+      pdfContainer2.style.padding = "20px";
+      pdfContainer2.style.gap = "15px";
+
+      const legendRow = document.createElement("div");
+      legendRow.style.display = "flex";
+      legendRow.style.flexDirection = "row";
+      legendRow.style.justifyContent = "space-between";
+      legendRow.style.alignItems = "flex-start";
+      legendRow.style.width = "100%";
+      legendRow.style.gap = "40px";
+      legendRow.style.marginTop = "-30px";
+      legendRow.style.marginBottom = "0px";
+
+      const legendContainer = document.getElementById('legends-container') as HTMLElement;
+      const limitsContainer = document.getElementById('limits-container') as HTMLElement;
 
       //copying elements to be appended
       const mapClone = mapContainer.cloneNode(true) as HTMLElement;
       const legendClone = legendContainer.cloneNode(true) as HTMLElement;
       const limitsClone = limitsContainer.cloneNode(true) as HTMLElement;
 
+      // limpiar estilos que podrían causar apilamiento vertical
+      legendClone.style.margin = '0';
+      legendClone.style.position = 'static';
+      limitsClone.style.margin = '0';
+      limitsClone.style.position = 'static';
+
+      legendRow.appendChild(limitsClone);
+      legendRow.appendChild(legendClone);
+
 
       mapClone.style.width = '100%';
-      mapClone.style.height = '500px';
-      legendClone.style.margin = '10px 0';
+      mapClone.style.height = '550px';
+      mapClone.style.minHeight = '550px';
+      mapClone.style.flex = 'none';
 
       limitsClone.style.margin = '10px 0';
 
+      limitsClone.firstElementChild && ((limitsClone.firstElementChild as HTMLElement).style.marginTop = '0');
+      legendClone.firstElementChild && ((legendClone.firstElementChild as HTMLElement).style.marginTop = '0');
+      limitsClone.style.alignSelf = 'flex-start';
+      legendClone.style.alignSelf = 'flex-start';
 
       const footer = document.createElement('div');
       footer.style.textAlign = "center"
@@ -439,10 +521,10 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       const mapDiv = document.createElement("div");
       mapDiv.style.height = '700px'
       mapDiv.appendChild(mapClone)
-      mapDiv.appendChild(legendClone)
-      mapDiv.appendChild(limitsClone)
-      mapDiv.style.position = 'relative'
-      mapDiv.style.minHeight = '300px'
+      mapDiv.appendChild(legendRow);
+      mapDiv.style.width = '100%';
+      mapDiv.style.padding = '10px';
+      mapDiv.style.boxSizing = 'border-box';
       //tabla con valored
       if (include) {
         const tableDiv = document.createElement("div")
