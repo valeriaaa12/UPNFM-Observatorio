@@ -114,6 +114,7 @@ export default function Dashboard() {
             id: "coberturaBruta",
             label: "Cobertura (Tasa Bruta)",
             dataEndpoint: "/tasabrutaDepartamentos",
+            lineDataEndpoint: "/tasaBrutaComparacion",
             limitsEndpoint: "/limitesTasaBruta",
             titleKey: "TasaBruta"
         },
@@ -121,6 +122,7 @@ export default function Dashboard() {
             id: "coberturaNeta",
             label: "Cobertura (Tasa Neta)",
             dataEndpoint: "/tasanetaDepartamentos",
+            lineDataEndpoint: "//tasaNetaComparacion",
             limitsEndpoint: "/limitesTasaNeta",
             titleKey: "TasaNeta"
         },
@@ -128,6 +130,7 @@ export default function Dashboard() {
             id: "aprobacion",
             label: "Aprobación",
             dataEndpoint: "/aprobacionDepartamentos",
+            lineDataEndpoint: "/aprobacionComparacion",
             limitsEndpoint: "/limitesAprobacion",
             titleKey: "Aprobacion"
         },
@@ -135,6 +138,7 @@ export default function Dashboard() {
             id: "desercion",
             label: "Deserción",
             dataEndpoint: "/desercionDepartamentos",
+            lineDataEndpoint: "/desercionComparacion",
             limitsEndpoint: "/limitesDesercion",
             titleKey: "Desercion"
         },
@@ -142,6 +146,7 @@ export default function Dashboard() {
             id: "repitencia",
             label: "Repitencia",
             dataEndpoint: "/repitenciaDepartamentos",
+            lineDataEndpoint: "/repitenciaComparacion",
             limitsEndpoint: "/limitesRepitencia",
             titleKey: "Repitencia"
         },
@@ -149,6 +154,7 @@ export default function Dashboard() {
             id: "reprobacion",
             label: "Reprobación",
             dataEndpoint: "/reprobacionDepartamentos",
+            lineDataEndpoint: "/reprobacionComparacion",
             limitsEndpoint: "/limitesReprobacion",
             titleKey: "Reprobacion"
         }
@@ -378,6 +384,7 @@ export default function Dashboard() {
                             key={key}
                             title={t(activeCompDepaTabConfig.label)}
                             extensionData={activeCompDepaTabConfig.dataEndpoint}
+                            extensionLineData={activeCompDepaTabConfig.lineDataEndpoint}
                             extensionLimits={activeCompDepaTabConfig.limitsEndpoint}
                             comparison={true}
                             department={true}
