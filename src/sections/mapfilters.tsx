@@ -358,10 +358,6 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
 
-
-      const legendContainer = document.getElementById('legends-container') as HTMLElement;
-      const limitsContainer = document.getElementById('limits-container') as HTMLElement;
-
       // hide controls
       const controls = document.querySelectorAll('.leaflet-control-container');
       controls.forEach(control => (control as HTMLElement).style.visibility = 'hidden');
@@ -384,13 +380,86 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
 
       //copying elements to be appended
       const mapClone = mapContainer.cloneNode(true) as HTMLElement;
-      const legendClone = legendContainer.cloneNode(true) as HTMLElement;
-      const limitsClone = limitsContainer.cloneNode(true) as HTMLElement;
+      const createLegendAndLimitsRow = () => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'flex-start';
+        row.style.width = '100%';
+        row.style.gap = '30px';
 
+        const createBox = (title: string, items: { color: string, label: string }[]) => {
+          const box = document.createElement('div');
+          Object.assign(box.style, {
+            backgroundColor: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+            border: '1px solid #ccc',
+            minWidth: '180px',
+            boxSizing: 'border-box'
+          });
+
+          const header = document.createElement('div');
+          header.textContent = title;
+          header.style.fontWeight = 'bold';
+          header.style.marginBottom = '5px';
+          box.appendChild(header);
+
+          items.forEach(item => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.margin = '3px 0';
+            row.style.gap = '5px';
+            row.style.minHeight = '20px';
+            row.style.lineHeight = '1.2';
+
+            const square = document.createElement('div');
+            square.style.width = '14px';
+            square.style.height = '14px';
+            square.style.backgroundColor = item.color;
+            square.style.flexShrink = '0';
+
+            const label = document.createElement('span');
+            label.style.whiteSpace = 'nowrap';
+            label.style.maxWidth = 'calc(100% - 20px)';
+            label.style.overflow = 'hidden';
+            label.textContent = item.label;
+            label.style.lineHeight = '1.2';
+            label.style.margin = '0';
+            label.style.padding = '0';
+
+            row.appendChild(square);
+            row.appendChild(label);
+            box.appendChild(row);
+          });
+
+          return box;
+        };
+
+        const limitsBox = createBox("Límites", [
+          { color: '#008000', label: '62.88 - 100' },
+          { color: '#27ae60', label: '50 - 61.87' },
+          { color: '#FFC300', label: '38.12 - 49.99' },
+          { color: '#e41a1c', label: '0 - 38.11' }
+        ]);
+
+        const legendBox = createBox("Nivel de Cumplimiento", [
+          { color: '#008000', label: 'Mucho mejor que la meta' },
+          { color: '#27ae60', label: 'Dentro de la meta' },
+          { color: '#FFC300', label: 'Lejos de la meta' },
+          { color: '#e41a1c', label: 'Muy lejos de la meta' }
+        ]);
+
+        row.appendChild(limitsBox);
+        row.appendChild(legendBox);
+
+        return row;
+      };
 
       mapClone.style.width = '100%';
       mapClone.style.height = '500px';
-      legendClone.style.margin = '10px 0';
 
       //      limitsClone.style.margin = '10px 0'; trying out stuff
 
@@ -420,8 +489,8 @@ export default function MapFilters({ title, mapaElegido, setMapaElegido, level, 
       const mapDiv = document.createElement("div");
       mapDiv.style.height = '700px'
       mapDiv.appendChild(mapClone)
-      mapDiv.appendChild(legendClone)
-      mapDiv.appendChild(limitsClone)
+      mapDiv.appendChild(createLegendAndLimitsRow());
+
       mapDiv.style.position = 'relative'
       mapDiv.style.minHeight = '300px'
       //tabla con valored
