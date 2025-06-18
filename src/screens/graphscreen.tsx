@@ -44,6 +44,7 @@ const PieGraphM = dynamic(() => import("@/graphs/PieGraphM"), {
 interface Params {
     title: string;
     extensionData: string;
+    extensionLineData?: string;
     extensionLimits: string;
     comparison: boolean;
     department: boolean;
@@ -72,7 +73,7 @@ interface Municipios {
     id: string;
 }
 
-export default function GraphScreen({ title, extensionData, extensionLimits, comparison, department }: Params) {
+export default function GraphScreen({ title, extensionData, extensionLimits, extensionLineData, comparison, department }: Params) {
     const [departmentsDataLine, setDepartmentsDataLine] = useState<DataItem[]>([]);
 
     const { t } = useTranslation('common');
@@ -116,26 +117,26 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     //pruebas
     const exportExcel = async () => {
         const nombre = department ? "Departamentos" : "Municipios"
-        if(!comparison){
+        if (!comparison) {
             if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
                 setDataSelectedExcel(true);
                 return
             }
-        }else{
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+        } else {
+            if (department) {
+                if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedComparison(true);
                     return
                 }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+            } else {
+                if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedComparison(true);
                     return
                 }
             }
         }
 
-        
+
         const excelFile = new ExcelJS.Workbook();
         const excelSheet = excelFile.addWorksheet(document.getElementById("Titulo")?.textContent || "Datos");
         if (activeGraph !== 'line') {
@@ -248,18 +249,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     selectedDepartments.length != 0 &&
                     showClick
                 );
-            }else if(comparison && !department){
-                if(activeGraph != 'line'){
+            } else if (comparison && !department) {
+                if (activeGraph != 'line') {
                     setShowGraph(
                         selectedLevel !== "Ninguno" &&
                         selectedYear !== "Ninguno" &&
-                        selectedMunicipios.length != 0 && 
+                        selectedMunicipios.length != 0 &&
                         showClick
                     );
-                }else{
+                } else {
                     setShowGraph(
                         selectedLevel !== "Ninguno" &&
-                        selectedMunicipios.length != 0 && 
+                        selectedMunicipios.length != 0 &&
                         showClick
                     );
                 }
@@ -274,14 +275,14 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         };
         handleGraph();
     }, [selectedYear, selectedLevel, selectedDepartment, activeGraph, selectedDepartments, selectedMunicipios, showClick])
-    
-    useEffect(()=>{
-        if(comparison && !department && showClick){
+
+    useEffect(() => {
+        if (comparison && !department && showClick) {
             postComparisonMuni()
-        }else if(comparison && department && showClick){
+        } else if (comparison && department && showClick) {
             postComparisonDepa()
         }
-    },[selectedYear, selectedLevel])
+    }, [selectedYear, selectedLevel])
     const capitalizeWords = (str: string) => {
         if (!str) return '';
         return str.toLowerCase().split(' ')
@@ -312,7 +313,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         activeGraph: string
     ) => {
         return data.filter(item =>
-            (activeGraph === 'line' || year === "Ninguno" || item.year === year) &&
+            ((activeGraph === 'line' && isMunicipio) || year === "Ninguno" || item.year === year) &&
             (level === "Ninguno" || item.level?.toLowerCase() === level.toLowerCase()) &&
             (
                 isMunicipio
@@ -331,9 +332,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         activeGraph
     );
 
-    const filteredMunicipiosRaw = comparison && !department
-        ? filterData(departmentsData, selectedYear, selectedLevel, selectedDepartment, true, activeGraph)
-        : filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
+    const filteredMunicipiosRaw = filterData(municipios ?? [], selectedYear, selectedLevel, selectedDepartment, true, activeGraph);
 
     const filteredMunicipios = filteredMunicipiosRaw.map(item => ({
         ...item,
@@ -437,33 +436,28 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
     useEffect(() => {
         const filteredData = filteredDepartments
-        console.log(filteredData)
-        console.log(activeGraph)
         if (activeGraph === 'line' && filteredData.length > 0) {
-            console.log("llegue")
-
+            // console.log("llegue")
         }
-        
     }, [filteredDepartments, activeGraph]);
 
-    
 
     const postComparisonDepa = async () => {
-        
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
-                    setDataSelectedComparison(true);
-                    return
-                }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
-                    setDataSelectedMunicipal(true);
-                    return
-                }
+
+        if (department) {
+            if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
+                setDataSelectedComparison(true);
+                return
             }
-        
+        } else {
+            if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
+                setDataSelectedMunicipal(true);
+                return
+            }
+        }
+
         setLoading(true);
-    
+
         try {
             const config = {
                 headers: {
@@ -497,12 +491,9 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     upperLimit: parseFloat(item.max) || 0
                 }));
 
-                console.log("datos" + departmentsData2.length)
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
                 setDepartmentsData(departmentsData2);
-                console.log("validación")
-                console.log(departmentsData)
                 setShowGraph(true);
             } else {
                 setShowGraph(false);
@@ -528,19 +519,18 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     }, [selectedMunicipios, municipiosList]);
 
     const postComparisonMuni = async () => {
-       
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
-                    setDataSelectedComparison(true);
-                    return
-                }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
-                    setDataSelectedMunicipal(true);
-                    return
-                }
+        if (department) {
+            if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
+                setDataSelectedComparison(true);
+                return
             }
-        
+        } else {
+            if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
+                setDataSelectedMunicipal(true);
+                return
+            }
+        }
+
         setLoading(true);
         try {
             const config = {
@@ -566,17 +556,27 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                     )
                 );
 
-                const [data] = await Promise.all([
-                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
-                        departamentos: departamentosUpper, municipios: municipiosUpper, nivel: selectedLevel, periodo_anual: selectedYear
-                    }, config)
-                ]);
+                let data: any;
+
+                if (activeGraph !== 'line') {
+                    [data] = await Promise.all([
+                        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionData}`, {
+                            departamentos: departamentosUpper, municipios: municipiosUpper, nivel: selectedLevel, periodo_anual: selectedYear
+                        }, config)
+                    ]);
+                } else {
+                    [data] = await Promise.all([
+                        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${extensionLineData}`, {
+                            departamentos: departamentosUpper, municipios: municipiosUpper, nivel: selectedLevel
+                        }, config)
+                    ]);
+                }
 
                 const muniData: DataItem[] = data.data.map((item: any) => ({
                     name: capitalizeWords(item.municipio.toLowerCase()),
                     legend: item.leyenda,
                     value: parseFloat(item.tasa) || 0,
-                    year: selectedYear,
+                    year: (selectedYear !== "Ninguno" ? selectedYear : item.periodo_anual?.toString()) || "",
                     level: selectedLevel,
                     department: capitalizeWords(item.departamento?.toLowerCase() || "")
                 }));
@@ -590,7 +590,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
                 const legendsWithColors = assignColorsToLegends(legendsData);
                 setLegends(legendsWithColors);
-                setDepartmentsData(muniData);
+                setMunicipios(muniData);
             }
         } catch (error: any) {
             if (error.response) {
@@ -615,15 +615,32 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     };
 
     const formatDataForLineGraphM = (data: DataItem[]) => {
-        return data
-            .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-            .map(({ year, value, name, legend, level }) => ({
+        // Agrupar por municipio
+        const groupedData: Record<string, DataItem[]> = {};
+
+        data.forEach((item: DataItem) => {
+            if (!groupedData[item.name]) {
+                groupedData[item.name] = [];
+            }
+            groupedData[item.name].push(item);
+        });
+
+        // Ordenar por año y formatear
+        return Object.entries(groupedData).map(([name, items]: [string, DataItem[]]) => {
+            // Ordenar los items por año
+            const sortedItems = items.slice().sort((a, b) => {
+                const yearA = parseInt(a.year, 10);
+                const yearB = parseInt(b.year, 10);
+                if (isNaN(yearA) && isNaN(yearB)) return 0;
+                if (isNaN(yearA)) return 1;
+                if (isNaN(yearB)) return -1;
+                return yearA - yearB;
+            });
+            return {
                 name,
-                year,
-                value,
-                legend,
-                level,
-            }));
+                data: sortedItems
+            };
+        });
     };
 
     useEffect(() => {
@@ -732,8 +749,16 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
 
             return (
                 <LineGraphM
-                    data={lineData}
-                    years={years}
+                    data={lineData.flatMap(item =>
+                        item.data.map(d => ({
+                            name: item.name,
+                            value: d.value,
+                            legend: d.legend,
+                            year: d.year,
+                            level: selectedLevel // or d.level if available
+                        }))
+                    )}
+                    years={lineData[0]?.data.map(d => d.year) || []}
                 />
             );
         }
@@ -777,19 +802,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const handleDownloadImage = async () => {
         if (!exportRef.current) return;
 
-        if(!comparison){
+        if (!comparison) {
             if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
                 setDataSelectedImg(true);
                 return
             }
-        }else{
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+        } else {
+            if (department) {
+                if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedComparison(true);
                     return
                 }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+            } else {
+                if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedMunicipal(true);
                     return
                 }
@@ -846,19 +871,19 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
     const handleDownloadPDF = async () => {
         if (!exportRef.current) return;
 
-        if(!comparison){
+        if (!comparison) {
             if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
                 setDataSelectedPdf(true);
                 return
             }
-        }else{
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+        } else {
+            if (department) {
+                if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedComparison(true);
                     return
                 }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+            } else {
+                if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedMunicipal(true);
                     return
                 }
@@ -902,79 +927,79 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
         window.dispatchEvent(new Event('resize'));
     };
 
-    
+
     // Imprimir el gráfico (fija tamaño y evita distorsión)
     const handlePrintGraph = async () => {
-    if (!exportRef.current) return;
-    if(!comparison){
+        if (!exportRef.current) return;
+        if (!comparison) {
             if (!departments || ((selectedYear == "Ninguno" || selectedLevel == "Ninguno") && activeGraph != "line") || ((selectedDepartment == "Ninguno" && !comparison || selectedLevel == "Ninguno") && activeGraph == "line") || (!department && selectedDepartment === "Ninguno")) {
                 setDataSelectedPrint(true);
                 return
             }
-        }else{
-            if(department){
-                if(selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
+        } else {
+            if (department) {
+                if (selectedDepartments.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
                     setDataSelectedComparison(true);
                     return
                 }
-            }else{
-                if(selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))){
-                   setDataSelectedMunicipal(true);
+            } else {
+                if (selectedMunicipios.length == 0 || (activeGraph == 'line' && selectedLevel == "level") || (activeGraph != 'line' && (selectedLevel == 'Ninguno' || selectedYear == 'Ninguno'))) {
+                    setDataSelectedMunicipal(true);
                     return
                 }
             }
-    }
-    const el = exportRef.current;
+        }
+        const el = exportRef.current;
 
-    const menu = el.querySelector<HTMLElement>('.chart-menu');
-    const menuDisplay = menu?.style.display;
-    if (menu) menu.style.display = 'none';
+        const menu = el.querySelector<HTMLElement>('.chart-menu');
+        const menuDisplay = menu?.style.display;
+        if (menu) menu.style.display = 'none';
 
-    const pdf = new jsPDF('landscape', 'pt', 'a4');
-    const pdfW = pdf.internal.pageSize.getWidth();
-    const pdfH = pdf.internal.pageSize.getHeight();
-    const pxW = Math.round(pdfW * 96 / 72);
-    const pxH = Math.round(pdfH * 96 / 72);
+        const pdf = new jsPDF('landscape', 'pt', 'a4');
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const pxW = Math.round(pdfW * 96 / 72);
+        const pxH = Math.round(pdfH * 96 / 72);
 
-    const origW = el.style.width;
-    const origH = el.style.height;
-    el.style.width  = `${pxW}px`;
-    el.style.height = `${pxH}px`;
-    window.dispatchEvent(new Event('resize'));
-    await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
+        const origW = el.style.width;
+        const origH = el.style.height;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        window.dispatchEvent(new Event('resize'));
+        await new Promise(r => setTimeout(r, 2500));  // esperamos re-render
 
-    const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#fff',
-    });
-    const img = canvas.toDataURL('image/png');
+        const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#fff',
+        });
+        const img = canvas.toDataURL('image/png');
 
-    const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
-    if (pw) {
-        pw.document.write(`
+        const pw = window.open('', '_blank', `width=${pxW},height=${pxH}`);
+        if (pw) {
+            pw.document.write(`
         <html><head><title>
             ${title}
             ${selectedLevel !== "Ninguno" ? ` – ${selectedLevel}` : ""}
-            ${selectedYear  !== "Ninguno" ? ` (${selectedYear})` : ""}
+            ${selectedYear !== "Ninguno" ? ` (${selectedYear})` : ""}
         </title></head>
         <body style="margin:0;padding:0;text-align:center;background:#fff">
             <img src="${img}" style="width:100%;height:auto;display:block;margin:0 auto"/>
         </body></html>
         `);
-        pw.document.close();
-        pw.onload = () => {
-            pw.focus();
-            pw.print();
-            pw.close();
-        }
-        
-    }
+            pw.document.close();
+            pw.onload = () => {
+                pw.focus();
+                pw.print();
+                pw.close();
+            }
 
-    el.style.width  = origW;
-    el.style.height = origH;
-    if (menu) menu.style.display = menuDisplay || '';
-    window.dispatchEvent(new Event('resize'));
+        }
+
+        el.style.width = origW;
+        el.style.height = origH;
+        if (menu) menu.style.display = menuDisplay || '';
+        window.dispatchEvent(new Event('resize'));
     };
     return (
         <Client>
@@ -1160,7 +1185,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                                     onClick={() => {
                                                                         postComparisonMuni();
                                                                         setShowMunicipiosDropdown(false);
-                                                                    
+
                                                                     }}
                                                                     type="button"
                                                                 >
@@ -1266,7 +1291,7 @@ export default function GraphScreen({ title, extensionData, extensionLimits, com
                                                             onClick={() => {
                                                                 setActiveGraph('line');
                                                                 (department && !comparison) && setSelectedDepartment("Ninguno");
-                                                           
+
                                                             }}
                                                         >
                                                             <i className="bi bi-graph-up"></i>
